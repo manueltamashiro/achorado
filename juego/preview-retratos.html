@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO · retratos</title>
+<style>
+  body { background: #17141c; color: #e8e2d6; font: 13px/1.4 system-ui, sans-serif; margin: 16px; }
+  h1 { font-size: 18px; margin: 0 0 6px; } h2 { font-size: 15px; margin: 22px 0 8px; color: #ffd75e; }
+  .fila { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
+  .celda { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .celda span { font-size: 10px; color: #a89fb0; }
+  .nombre { width: 70px; font-weight: 600; color: #ffb0c8; align-self: center; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; background: #2a2433; display: block; }
+  #info { color: #9fd0a0; }
+</style>
+</head>
+<body>
+<h1>Retratos de diálogo (ACH.retratos)</h1>
+<div id="info"></div>
+<h2>En vivo (3×): la boca cicla y parpadea</h2>
+<div id="vivo" class="fila"></div>
+<h2>Todas las caras a 1× (boca 0/1/2 × ojos abiertos/medio/cerrados)</h2>
+<div id="g1"></div>
+<h2>Todas las caras a 3×</h2>
+<div id="g3"></div>
+<script>document.write('<script src="js/sprites/retratos.js?v=' + Date.now() + '"><\/script>');</script>
+<script>document.write('<script src="js/sprites/gambetta-v013.js?v=' + Date.now() + '"><\/script>'); document.write('<script src="js/sprites/retratos-v013.js?v=' + Date.now() + '"><\/script>');</script>
+<script>
+(function () {
+  'use strict';
+  var R = ACH.retratos, OJOS = ['abiertos', 'medio', 'cerrados'];
+  var qs = new URLSearchParams(location.search), solo = qs.get('solo'), zoom = +qs.get('z') || 0;
+  var t0 = performance.now(); R.ready(); var dt = performance.now() - t0;
+  var t1 = performance.now(); R.ready(); var dt2 = performance.now() - t1;
+  document.getElementById('info').textContent = 'ready(): ' + dt.toFixed(1) + ' ms (segunda llamada: ' + dt2.toFixed(2) + ' ms) · SIZE ' + R.SIZE;
+  var lista = [];
+  R.CARAS.forEach(function (c) { lista.push(['alexander', c]); });
+  R.CARAS_TITINA.forEach(function (c) { lista.push(['titina', c]); });
+  // v0.13: los personajes nuevos (Gambetta y retratos-v013.js)
+  var GBC = ['habla', 'feliz', 'serio', 'sorpresa', 'molesta', 'triste'];
+  if (ACH.sprites && ACH.sprites.gb) Object.keys(ACH.sprites.gb.PJ).forEach(function (q) { GBC.forEach(function (c) { lista.push([q, c]); }); });
+  if (R.V013) R.V013.ids.forEach(function (q) { R.V013.caras.forEach(function (c) { lista.push([q, c]); }); });
+  if (solo) lista = lista.filter(function (q) { return q[1] === solo || q[0] === solo; });
+  function lienzo(k) { var c = document.createElement('canvas'); c.width = c.height = R.SIZE; c.style.width = c.style.height = (R.SIZE * k) + 'px'; return c; }
+  function celda(par, k, q, b, o, etiqueta) {
+    var d = document.createElement('div'); d.className = 'celda';
+    var c = lienzo(k); R.draw(c.getContext('2d'), q[0], q[1], b, o, 1.0);
+    var s = document.createElement('span'); s.textContent = etiqueta;
+    d.appendChild(c); d.appendChild(s); par.appendChild(d);
+  }
+  function grid(id, k) {
+    var g = document.getElementById(id);
+    lista.forEach(function (q) {
+      var f = document.createElement('div'); f.className = 'fila';
+      var n = document.createElement('div'); n.className = 'nombre'; n.textContent = (q[0] === 'alexander' ? '' : q[0] + '·') + q[1]; f.appendChild(n);
+      for (var o = 0; o < 3; o++) for (var b = 0; b < 3; b++) celda(f, k, q, b, OJOS[o], 'b' + b + ' ' + OJOS[o]);
+      g.appendChild(f);
+    });
+  }
+  // ?hoja=B : solo una hoja compacta (todas las caras con la boca B, ojos de ?o=), para revisar de cerca
+  if (qs.get('hoja') != null) {
+    document.body.innerHTML = ''; document.body.style.margin = '4px';
+    var h = document.createElement('div'); h.className = 'fila'; h.style.gap = '4px'; document.body.appendChild(h);
+    var crop = qs.get('crop') != null, kz = zoom || 2;
+    lista.forEach(function (q) {
+      var c = lienzo(kz); R.draw(c.getContext('2d'), q[0], q[1], +qs.get('hoja') || 0, qs.get('o') || 'abiertos', +qs.get('t') || 1);
+      if (crop) {   // solo la cara: x 22..74, y 4..64
+        var d = document.createElement('canvas'); d.width = 52; d.height = 60; d.getContext('2d').drawImage(c, 22, 4, 52, 60, 0, 0, 52, 60);
+        d.style.width = (52 * kz) + 'px'; d.style.height = (60 * kz) + 'px'; c = d;
+      }
+      h.appendChild(c);
+    });
+    return;
+  }
+  grid('g1', 1); grid('g3', zoom || 3);
+  // fila en vivo
+  var vivo = document.getElementById('vivo'), vivos = [];
+  lista.forEach(function (q) {
+    var d = document.createElement('div'); d.className = 'celda';
+    var c = lienzo(zoom || 3); d.appendChild(c);
+    var s = document.createElement('span'); s.textContent = (q[0] === 'titina' ? 'Titina · ' : '') + q[1]; d.appendChild(s);
+    vivo.appendChild(d); vivos.push([c.getContext('2d'), q]);
+  });
+  var CIC = [0, 1, 2, 1, 0, 2, 1, 0, 0];
+  var start = performance.now();
+  function frame(now) {
+    var t = (now - start) / 1000;
+    var b = CIC[Math.floor(t * 9) % CIC.length];
+    if (Math.floor(t / 2.5) % 2 === 1) b = 0;                      // pausa: pose de la cara
+    var ph = t % 3, o = ph < 0.1 ? 'medio' : ph < 0.22 ? 'cerrados' : ph < 0.3 ? 'medio' : 'abiertos';
+    vivos.forEach(function (v) { v[0].clearRect(0, 0, 96, 96); R.draw(v[0], v[1][0], v[1][1], b, o, t % 5); });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

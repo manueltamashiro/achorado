@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO - El Cerro: suelo y props (H4a)</title>
+<style>
+  :root { --bg:#2a2833; --panel:#34323f; --ink:#e9e4d4; --dim:#9a97a6; --line:#4a4757; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px 20px 60px; background:var(--bg); color:var(--ink); font:13px/1.35 ui-monospace, Menlo, Consolas, monospace; }
+  h1 { margin:0 0 4px; font-size:20px; }
+  h2 { margin:28px 0 8px; padding-top:10px; border-top:1px solid var(--line); font-size:15px; color:#f2e63c; }
+  p.note { margin:0 0 8px; color:var(--dim); max-width:900px; }
+  nav a { color:#38c8e8; margin-right:12px; text-decoration:none; }
+  .grid { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
+  figure { margin:0; padding:6px; background:var(--panel); border:1px solid var(--line); border-radius:3px; }
+  figcaption { margin-top:4px; max-width:100%; font-size:11px; color:var(--dim); overflow-wrap:anywhere; }
+  figcaption b { color:var(--ink); font-weight:600; }
+  canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; }
+  .row { display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; }
+  .bad { color:#ff8a2a; }
+</style>
+</head>
+<body>
+<h1>ACHORADO - El Cerro: suelo y props (H4a)</h1>
+<p class="note">Tiles en mosaicos de 4×4 (×4) y las variantes sueltas; props a ×4 con Alexander (20×28, 1,70 m) y regla en metros (16 px = 1 m). Recuadro naranja = huella de colisión. Archivos: <code>js/sprites/cerro-suelo.js</code> y <code>js/sprites/cerro-props.js</code>.</p>
+<nav id="nav"></nav>
+<div id="out"></div>
+
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/cerro-suelo.js"></script>
+<script src="js/sprites/cerro-props.js"></script>
+<script>
+(function () {
+"use strict";
+var QS = {}; location.search.replace(/^\?/, '').split('&').forEach(function (kv) { var a = kv.split('='); if (a[0]) QS[a[0]] = decodeURIComponent(a[1] || ''); });
+var S = ACH.sprites, px = ACH.px, T = S.tiles, D = S.decals, P = S.props;
+var out = document.getElementById('out'), nav = document.getElementById('nav');
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function show(c, z) {
+  var v = document.createElement('canvas'); v.width = c.width; v.height = c.height;
+  v.getContext('2d').drawImage(c, 0, 0);
+  v.style.width = (c.width * z) + 'px'; v.style.height = (c.height * z) + 'px';
+  return v;
+}
+function fig(canvasEl, caption) { var f = el('figure'); f.appendChild(canvasEl); f.appendChild(el('figcaption', '', caption)); return f; }
+function section(id, title, note) {
+  var h = el('h2', '', title); h.id = id; out.appendChild(h);
+  var a = el('a', '', title.split(' (')[0]); a.href = '#' + id; nav.appendChild(a);
+  if (note) out.appendChild(el('p', 'note', note));
+  var d = el('div', 'grid'); out.appendChild(d); return d;
+}
+function hsh(c, r, s) { var h = (Math.imul(c, 73856093) ^ Math.imul(r, 19349663) ^ Math.imul(s || 0, 83492791)) >>> 0; return (h ^ (h >>> 11)) >>> 0; }
+function arr(t) { return Array.isArray(t) ? t : [t]; }
+
+/* ---------- TILES ---------- */
+var dT = section('s-tiles', 'tiles (mosaicos 4×4 y variantes)', 'Cada mosaico mezcla las variantes con un hash. Debajo: las variantes sueltas a ×6.');
+var tileKeys = ['tierra', 'tierraPiedras', 'arena', 'roca', 'trocha', 'escaleraTierra', 'losa', 'pircaFace', 'muroContencion', 'muroLlantas', 'bordeTerraza', 'bordeTerrazaCemento', 'bordeTerrazaLlantas'];
+tileKeys.forEach(function (k) {
+  var t = T[k]; if (!t) { dT.appendChild(fig(el('div', 'bad', 'falta tiles.' + k), k)); return; }
+  var a = arr(t), mos = px.canvas(64, 64), g = mos.getContext('2d');
+  for (var r = 0; r < 4; r++) for (var c = 0; c < 4; c++) g.drawImage(a[hsh(c, r) % a.length], c * 16, r * 16);
+  var w = el('div'); w.appendChild(show(mos, 4));
+  var row = el('div', 'row'); row.style.marginTop = '6px';
+  a.forEach(function (cv) { row.appendChild(show(cv, 6)); }); w.appendChild(row);
+  dT.appendChild(fig(w, '<b>tiles.' + k + '</b>' + (Array.isArray(t) ? '[' + a.length + ']' : '') + ' · ' + a[0].width + '×' + a[0].height));
+});
+/* escaleras: tramo ancho (baranda O + centro + baranda E), 1 tile con 2 barandas, grises y de tierra */
+(function () {
+  var E = T.escaleraCerro; if (!E) return;
+  var mos = px.canvas(16 * 9, 16 * 4), g = mos.getContext('2d');
+  for (var r = 0; r < 4; r++) {
+    g.drawImage(E[0], 0, r * 16); g.drawImage(E[1], 16, r * 16);                                    // grises
+    g.drawImage(E[3], 48, r * 16); g.drawImage(E[2], 64, r * 16); g.drawImage(E[4], 80, r * 16);    // amarilla ancha (3 tiles)
+    g.drawImage(E[5], 112, r * 16);                                                                   // amarilla de 1 tile
+    if (T.escaleraTierra) g.drawImage(T.escaleraTierra[r % 2], 128, r * 16);
+  }
+  dT.appendChild(fig(show(mos, 4), '<b>escaleraCerro</b> · gris[0,1] · amarilla ancha 3+2+4 · amarilla 1 tile [5] · escaleraTierra'));
+})();
+/* losa con lineas */
+(function () {
+  if (!T.losa || !T.losaLinea) return;
+  var mos = px.canvas(16 * 8, 16 * 6), g = mos.getContext('2d');
+  for (var r = 0; r < 6; r++) for (var c = 0; c < 8; c++) {
+    var t = T.losa;
+    if (r === 2 && c >= 1 && c <= 6) t = T.losaLinea[0];
+    if (c === 3 && r !== 2) t = T.losaLinea[1];
+    if (r === 2 && c === 3) t = T.losa;
+    if (r === 5 && c === 0) t = T.losaLinea[2];
+    g.drawImage(t, c * 16, r * 16);
+  }
+  dT.appendChild(fig(show(mos, 3), '<b>losa</b> + <b>losaLinea[3]</b> (E-O, N-S, esquina)'));
+})();
+/* escena de ladera: terraza + borde + cara de muro, ladera con escalera y trocha */
+(function () {
+  if (!T.tierra || !T.pircaFace || !T.bordeTerraza) return;
+  var C = 24, R = 14, cv = px.canvas(C * 16, R * 16), g = cv.getContext('2d'), r, c, t;
+  var N = ['roca', 'roca', 'roca', 'arena', 'tierra', 'tierraPiedras', 'bordeTerraza', 'pircaFace', 'pircaFace', 'tierra', 'bordeTerrazaCemento', 'muroContencion', 'muroContencion', 'arena'];
+  for (r = 0; r < R; r++) for (c = 0; c < C; c++) {
+    var name = N[r], a = arr(T[name]);
+    if (c >= 14 && c <= 17) { if (r === 4 || r === 5 || r === 9 || r === 13 || r === 3) name = 'trocha'; }
+    if (c >= 9 && c <= 11 && r >= 4 && r <= 12) name = r >= 6 && r <= 8 ? 'escaleraCerro' : 'escaleraCerro';
+    if (r >= 7 && r <= 8 && c >= 19) name = 'muroLlantas';
+    if (r === 6 && c >= 19) name = 'bordeTerrazaLlantas';
+    a = arr(T[name]);
+    t = a[hsh(c, r, 3) % a.length];
+    if (name === 'escaleraCerro') t = c === 9 ? T.escaleraCerro[3] : (c === 11 ? T.escaleraCerro[4] : T.escaleraCerro[2]);
+    g.drawImage(t, c * 16, r * 16);
+  }
+  var dec = [['cal', 0, 90, 90], ['cal', 1, 300, 112], ['cal', 2, 210, 120], ['charcoCerro', 0, 120, 175], ['charcoCerro', 1, 320, 205], ['basuraSuelta', 0, 60, 200], ['basuraSuelta', 1, 250, 40], ['polvo', 0, 340, 90], ['restosTele', 0, 170, 40]];
+  dec.forEach(function (d) { var s = D[d[0]] && D[d[0]][d[1]] || (d[0] === 'polvo' || d[0] === 'restosTele' ? D[d[0]] : null); if (s) g.drawImage(s, d[2] - s.ax, d[3] - s.ay); });
+  dT.appendChild(fig(show(cv, 2), '<b>escena 24×14 tiles</b> a ×2: roca · arena · tierra · bordeTerraza + pircaFace · terraza · bordeTerrazaCemento + muroContencion · escalera amarilla · trocha · muro de llantas · calcomanías'));
+})();
+
+/* ---------- CALCOMANIAS ---------- */
+var dD = section('s-decals', 'calcomanías (ancla = centro inferior)', 'Sobre tierra, a ×6 (las grandes a ×3).');
+['cal', 'charcoCerro', 'basuraSuelta', 'polvo', 'restosTele'].forEach(function (k) {
+  var d = D[k]; if (!d) { dD.appendChild(fig(el('div', 'bad', 'falta decals.' + k), k)); return; }
+  arr(d).forEach(function (cv, i) {
+    var z = cv.width > 40 ? 3 : 6, w = px.canvas(cv.width + 12, cv.height + 12), g = w.getContext('2d');
+    for (var yy = 0; yy < w.height; yy += 16) for (var xx = 0; xx < w.width; xx += 16) g.drawImage(T.tierra[hsh(xx, yy) % 4], xx, yy);
+    g.drawImage(cv, 6, 6);
+    dD.appendChild(fig(show(w, z), '<b>decals.' + k + (Array.isArray(d) ? '[' + i + ']' : '') + '</b> · ' + cv.width + '×' + cv.height + ' · ancla ' + cv.ax + ',' + cv.ay));
+  });
+});
+
+/* ---------- PROPS ---------- */
+function alexRef() { var a = S.alex && S.alex.bird && S.alex.bird.idle && S.alex.bird.idle.down; return a || null; }
+function withAlex(p) {
+  var al = alexRef(), ax = p.ax !== undefined ? p.ax : (p.width >> 1), ay = p.ay !== undefined ? p.ay : p.height - 1;
+  var aax = al ? (al.ax !== undefined ? al.ax : 10) : 0, aay = al ? (al.ay !== undefined ? al.ay : 26) : 0;
+  var up = Math.max(ay, aay) + 4, gap = 12, left = 14;
+  var W = left + p.width + gap + (al ? al.width : 0) + 6, rulerH = 14;
+  var below = Math.max(p.height - 1 - ay, al ? al.height - 1 - aay : 0) + 3;
+  var H = up + below + rulerH;
+  var c = px.canvas(W, H), g = c.getContext('2d');
+  var base = up;
+  g.fillStyle = '#6e6c78'; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#7d6f5c'; g.fillRect(0, base, W, below + rulerH);
+  g.drawImage(p, left, base - ay);
+  if (p.fw !== undefined && p.fw > 0 && QS.fp !== '0') { g.strokeStyle = 'rgba(255,150,40,.95)'; g.lineWidth = 1; g.strokeRect(left + ax - Math.floor(p.fw / 2) + .5, base - p.fh + .5, p.fw - 1, p.fh - 1); }
+  g.fillStyle = '#ff8a2a'; g.fillRect(left + ax, base, 1, 1);
+  if (al) g.drawImage(al, left + p.width + gap, base - aay);
+  var ry = base + below + 2;
+  g.fillStyle = '#e9e4d4'; g.fillRect(left, ry, W - left - 2, 1);
+  for (var x = left, m = 0; x <= W - 3; x += 16, m++) {
+    g.fillStyle = '#e9e4d4'; g.fillRect(x, ry - (m % 5 === 0 ? 3 : 2), 1, m % 5 === 0 ? 4 : 3);
+    if (m % 2 === 0 && m > 0) { var gl = new px.G(12, 6); px.text(gl, String(m), 0, 1, { font: 'a5', ink: '#e9e4d4' }); g.drawImage(gl.toCanvas(), x + 2, ry + 2); }
+  }
+  g.fillStyle = '#e9e4d4'; g.fillRect(4, base - 16 * 2 - 12 * 3, 1, 16 * 2 + 12 * 3);
+  for (var k = 1; k <= 2; k++) g.fillRect(2, base - 16 * k, 5, 1);
+  for (k = 1; k <= 3; k++) { g.fillStyle = '#ffcf8a'; g.fillRect(3, base - 32 - 12 * k, 3, 1); }
+  return c;
+}
+function meta(key, c) {
+  var s = '<b>' + key + '</b><br>' + c.width + '×' + c.height;
+  if (c.ax !== undefined) s += ' · ancla ' + c.ax + ',' + c.ay;
+  if (c.fw !== undefined) s += ' · huella ' + c.fw + '×' + c.fh;
+  if (c.tall) s += ' · tall';
+  if (c.top) s += ' · top ' + c.top.x + ',' + c.top.y;
+  if (c.smoke) s += ' · smoke ' + c.smoke.x + ',' + c.smoke.y;
+  if (c.dmg) s += ' · dmg[' + c.dmg.length + ']';
+  if (c.broken) s += ' · broken ' + c.broken.width + '×' + c.broken.height + '@' + c.broken.ax + ',' + c.broken.ay;
+  return s;
+}
+function zoomFor(c) { if (QS.z) return +QS.z; return c.height > 200 ? 1 : (c.width > 90 ? 2 : (c.width > 56 ? 3 : 4)); }
+var dP = section('s-props', 'props (junto a Alexander)', 'Cada prop sano; los estados .dmg y .broken van en la fila siguiente.');
+var PROP_KEYS = ['refri', 'refriTirada', 'tele', 'sillaRota', 'mesaVolteada', 'bolsasCerro', 'colchon', 'llanta', 'cilindroAzul', 'cisterna', 'posteMadera', 'posteMaderaL', 'columnaFierro', 'escobaPared', 'fogon', 'toldo', 'cruzChica', 'letreroRoca', 'reservorio', 'torreAntenas'];
+var states = [];
+PROP_KEYS.forEach(function (k) {
+  if (QS.only && QS.only.split(',').indexOf(k) < 0) return;
+  var p = P[k]; if (!p) { dP.appendChild(fig(el('div', 'bad', 'falta props.' + k), k)); return; }
+  arr(p).forEach(function (c, i) {
+    var key = 'props.' + k + (Array.isArray(p) ? '[' + i + ']' : '');
+    dP.appendChild(fig(show(withAlex(c), zoomFor(c)), meta(key, c)));
+    if (c.dmg || c.broken) states.push([key, c]);
+  });
+});
+var dS = section('s-states', 'estados: sano · .dmg[...] · .broken', 'Cada fila a ×4 (×2 las grandes): sano, luego cada .dmg y al final .broken.');
+states.forEach(function (s) {
+  var c = s[1], list = [c].concat(c.dmg || [], c.broken ? [c.broken] : []), w = el('div', 'row');
+  var z = QS.z ? +QS.z : (c.width > 60 ? 2 : 4);
+  list.forEach(function (cv) { w.appendChild(show(cv, z)); });
+  var same = (c.dmg || []).every(function (x) { return x.width === c.width && x.height === c.height && x.ax === c.ax && x.ay === c.ay; });
+  dS.appendChild(fig(w, '<b>' + s[0] + '</b> · ' + (c.dmg ? 'dmg ' + c.dmg.length + (same ? ' mismo lienzo' : ' <span class="bad">¡LIENZO DISTINTO!</span>') : '') + (c.broken ? ' · broken ' + c.broken.width + '×' + c.broken.height + ' ancla ' + c.broken.ax + ',' + c.broken.ay + ' huella ' + c.broken.fw + '×' + c.broken.fh : '')));
+});
+/* a 1x para ver la escala real */
+(function () {
+  var d = section('s-real', 'escala real (×1 y ×2)', 'Todos los props en fila a tamaño de juego junto a Alexander, sobre tierra.');
+  var list = PROP_KEYS.filter(function (k) { return P[k] && k !== 'torreAntenas'; }).map(function (k) { return arr(P[k])[0]; });
+  var tot = 12, H = 150, cv = px.canvas(1100, H), g = cv.getContext('2d');
+  for (var yy = 0; yy < H; yy += 16) for (var xx = 0; xx < cv.width; xx += 16) g.drawImage(T.tierra[hsh(xx, yy) % 4], xx, yy);
+  var x = 20, al = alexRef();
+  if (al) g.drawImage(al, x - al.ax, 120 - al.ay);
+  x += 30;
+  list.forEach(function (c) { if (x + c.width > cv.width - 4) return; g.drawImage(c, x - c.ax, 120 - c.ay); x += c.width + 4; });
+  d.appendChild(fig(show(cv, 1), 'Alexander primero, luego props en orden de la lista, todos con la base en la misma fila.'));
+  d.appendChild(fig(show(cv, 2), 'idem a ×2'));
+})();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO: referencias visuales del Callao</title>
+<style>
+:root{--bg:#121416;--panel:#1b1e22;--panel2:#23272c;--line:#2e343a;--tx:#e8e6e1;--mut:#9aa1a6;--acc:#e3b93b;--ok:#6fbf73;--par:#e3b93b;--no:#e07a6a;--link:#8fc2e8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--link)}
+.wrap{max-width:1280px;margin:0 auto;padding:0 16px 64px}
+.top{padding:28px 0 12px;border-bottom:1px solid var(--line)}
+h1{margin:0 0 6px;font-size:28px;letter-spacing:.3px}
+.sub{color:var(--mut);max-width:80ch;margin:0}
+nav{position:sticky;top:0;z-index:5;background:rgba(18,20,22,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 0;margin-bottom:8px}
+nav a{display:inline-block;margin:2px 8px 2px 0;padding:5px 12px;border:1px solid var(--line);border-radius:999px;color:var(--tx);text-decoration:none;font-size:14px;background:var(--panel)}
+nav a:hover{border-color:var(--acc);color:var(--acc)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:14px 0 0;color:var(--mut);font-size:13px}
+.box{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:12px 18px;margin:18px 0}
+.box h2{margin:0 0 6px;font-size:17px}
+.box ol,.box ul{margin:4px 0 0;padding-left:20px}
+.box li{margin:4px 0}
+h2.grp{font-size:22px;margin:36px 0 14px;padding-bottom:6px;border-bottom:2px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card header{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.card h3{margin:0;font-size:17px;line-height:1.25}
+.st{flex:none;font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid;white-space:nowrap}
+.st.ok{color:var(--ok);border-color:var(--ok)} .st.par{color:var(--par);border-color:var(--par)} .st.no{color:var(--no);border-color:var(--no)}
+.vis{margin:0;color:var(--mut);font-size:13px}
+.imgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+figure{margin:0;background:var(--panel2);border-radius:6px;overflow:hidden}
+figure img{display:block;width:100%;height:130px;object-fit:cover;background:#000}
+figure.broken img{display:none} figure.broken::before{content:"imagen no disponible";display:block;padding:40px 8px;color:var(--mut);text-align:center;font-size:12px}
+figcaption{font-size:11px;padding:4px 6px;color:var(--mut);line-height:1.35}
+.noimg{border:1px dashed var(--line);border-radius:6px;padding:12px;color:var(--mut);font-size:13px}
+.sw{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:3px 8px 3px 3px;font-size:12px}
+.chip i{display:block;width:22px;height:22px;border-radius:4px;border:1px solid rgba(255,255,255,.18)}
+.chip b{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:600}
+.chip em{font-style:normal;color:var(--mut)}
+ul.tr{margin:0;padding-left:18px;font-size:14px}
+ul.tr li{margin:3px 0}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:13px}
+dt{color:var(--acc)} dd{margin:0}
+.game{margin:0;background:var(--panel2);border-left:3px solid var(--acc);padding:8px 10px;border-radius:4px;font-size:14px}
+.brand{margin:0;font-size:13px;color:#e0a090}
+.mut{color:var(--mut);margin:0;font-size:13px}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.btn{display:inline-block;padding:5px 11px;border-radius:6px;background:#2a3a48;color:#cfe6f7;text-decoration:none;font-size:13px;border:1px solid #3a5063}
+.btn:hover{background:#34495b}
+table{border-collapse:collapse;width:100%;font-size:14px;background:var(--panel);border:1px solid var(--line)}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:var(--panel2);color:var(--acc);position:sticky;top:54px}
+.tblwrap{overflow-x:auto}
+footer{margin-top:40px;color:var(--mut);font-size:13px}
+@media (max-width:700px){nav{position:static}th{position:static}}
+@media (max-width:480px){.grid{grid-template-columns:1fr}.card h3{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+<h1>ACHORADO: tablero de referencias visuales del Callao</h1>
+<p class="sub">Investigación hecha mirando fotos reales: Wikimedia Commons con licencia libre y Street View. 35 tarjetas agrupadas por paisaje, calle, transporte, gente y cielo. Escala de trabajo: 16 px por metro, persona de 28 px.</p>
+<div class="legend"><span><span class="st ok">Verificado en foto</span> 23</span><span><span class="st par">Verificado en parte</span> 9</span><span><span class="st no">No verificado</span> 3</span><span>Imágenes: solo Commons con licencia libre (autor y licencia bajo cada una). Street View, Maps y demás: solo enlaces.</span></div>
+</div>
+<nav><a href="#g-landmarks">Landmarks</a><a href="#g-calle-tipica">Calle típica</a><a href="#g-transporte">Transporte</a><a href="#g-gente-y-fauna">Gente y fauna</a><a href="#g-cielo-y-luz">Cielo y luz</a><a href="#escala">Escala</a><a href="#correcciones">Correcciones</a><a href="#marcas">Marcas a inventar</a></nav>
+
+<div class="box"><h2>Los 5 hallazgos clave para la Gambetta</h2><ol><li>Calzada de 6+ carriles de asfalto gris gastado con arena beige en los bordes y letras viales blancas ('Av. Néstor Gambetta', 'PE 20'): es la base visual del nivel 1.</li><li>La silueta de la Gambetta son galpones enormes con techo en ARCO gris-beige y una fila de tractocamiones: cabinas blancas y amarillas, contenedores azules y blancos.</li><li>Cables negros densísimos entre postes de concreto y postes metálicos de dos brazos cruzan la calle en todas las fotos: usarlos como capa superior.</li><li>Cielo blanco-gris continuo (garúa), cerros pardos pelados y luz plana: casi sin sombras marcadas; los colores saturados aparecen solo en vehículos, chalecos reflectivos y fachadas.</li><li>Combis y custers blancas con franjas de 2-3 colores y placa de ruta en el parabrisas; taxis amarillos; buses de corredor rojo-blanco; mototaxis solo en periferia.</li></ol></div>
+
+<h2 class="grp" id="g-landmarks">Landmarks</h2>
+<div class="grid">
+<article class="card" id="real-felipe">
+  <header><h3>Fortaleza del Real Felipe</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">8 fotos de Commons (torreón, muros, casa del gobernador, puente levadizo, jardines).</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Realfelipe1.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Realfelipe1.jpg/330px-Realfelipe1.jpg" alt="Fortaleza del Real Felipe" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Santiagostucchi · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Realfelipe1.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Torre%C3%B3n_del_Rey_-_Fortaleza_del_Real_Felipe.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Torre%C3%B3n_del_Rey_-_Fortaleza_del_Real_Felipe.jpg/330px-Torre%C3%B3n_del_Rey_-_Fortaleza_del_Real_Felipe.jpg" alt="Fortaleza del Real Felipe" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Carlos Gabriel Gómez Tay · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Torre%C3%B3n_del_Rey_-_Fortaleza_del_Real_Felipe.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Casa_del_gobernador_%28Real_Felipe%2C_Callao%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Casa_del_gobernador_%28Real_Felipe%2C_Callao%29.jpg/330px-Casa_del_gobernador_%28Real_Felipe%2C_Callao%29.jpg" alt="Fortaleza del Real Felipe" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Manuellmarceli200416 · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Casa_del_gobernador_%28Real_Felipe%2C_Callao%29.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#A38C73"></i><b>#A38C73</b><em>piedra parda</em></span><span class="chip"><i style="background:#7A5E48"></i><b>#7A5E48</b><em>sombra de piedra</em></span><span class="chip"><i style="background:#8F5B47"></i><b>#8F5B47</b><em>ladrillo del copete</em></span><span class="chip"><i style="background:#5D8A34"></i><b>#5D8A34</b><em>césped</em></span><span class="chip"><i style="background:#2C2623"></i><b>#2C2623</b><em>cañón / reja</em></span><span class="chip"><i style="background:#CFCFD2"></i><b>#CFCFD2</b><em>cielo garúa</em></span></div>
+  <ul class="tr"><li>Torreón del Rey: torre cilíndrica baja y muy ancha, corona de merlones y una pequeña garita central con asta.</li><li>Mampostería de piedra rugosa en tono pardo-arena (NO gris), hiladas irregulares; banda y copete de ladrillo rojizo en cornisas y parapetos.</li><li>Muros bajos con talud inclinado y rampas, arcos rebajados oscuros, puente levadizo de tablero oscuro sobre foso seco.</li><li>Césped verde cortado, cañones negros sobre afuste, rejas negras perimetrales, banderas pequeñas.</li><li>Frente a la fortaleza hay una fuente de fierro fundido verde oscuro, muy ornamentada (columna con tazas superpuestas).</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Recinto pentagonal de unos 250-300 m (estimado). Muralla ~6-8 m; torreón ~12-14 m de alto y ~20 m de diámetro (estimado por escala de personas en foto).</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>No entra completo (~4000 px). Usar set-piece: un lienzo de muro de 20 m (320 px) + un torreón circular de 20 m de diámetro (320 px de ancho, ~190 px de alto aparente).</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Torreón circular como gran obstáculo o refugio; talud con copete de ladrillo; paleta cálida de piedra contra cielo gris. Sin escudos ni placas reales.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Fortaleza%20del%20Real%20Felipe%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0627,-77.1493&amp;heading=0" target="_blank" rel="noopener">Street View</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Real_Felipe%2C_Callao" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="plaza-grau">
+  <header><h3>Plaza Grau y Monumento a Grau</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">3 fotos de Commons (de día, al atardecer y vista general de la plaza).</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Monumento_miguel_grau_callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Monumento_miguel_grau_callao.jpg/330px-Monumento_miguel_grau_callao.jpg" alt="Plaza Grau y Monumento a Grau" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Martin Garcia (Lima) · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener">CC BY 2.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Monumento_miguel_grau_callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Parque_Miguel_Grau.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Parque_Miguel_Grau.jpg/330px-Parque_Miguel_Grau.jpg" alt="Plaza Grau y Monumento a Grau" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Pol eck · <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener">CC BY-SA 2.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Parque_Miguel_Grau.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Plaza_Grau_del_Callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Plaza_Grau_del_Callao.jpg/330px-Plaza_Grau_del_Callao.jpg" alt="Plaza Grau y Monumento a Grau" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>DORM · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Plaza_Grau_del_Callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#E6E4DF"></i><b>#E6E4DF</b><em>columna clara</em></span><span class="chip"><i style="background:#8E908C"></i><b>#8E908C</b><em>sombra piedra</em></span><span class="chip"><i style="background:#4B3A2C"></i><b>#4B3A2C</b><em>bronce</em></span><span class="chip"><i style="background:#5E7A62"></i><b>#5E7A62</b><em>verdín</em></span><span class="chip"><i style="background:#C24E52"></i><b>#C24E52</b><em>piso rojo plaza</em></span><span class="chip"><i style="background:#E3B93B"></i><b>#E3B93B</b><em>dibujos amarillos</em></span></div>
+  <ul class="tr"><li>No es un simple pedestal: es una COLUMNA esbelta de piedra clara con anillos y ornamentos de bronce oscuro, sobre un pedestal escalonado con relieves, y una figura de bronce de pie con un brazo en alto.</li><li>Base circular con 3-4 peldaños anchos; la plaza es amplia y abierta, con hileras de palmeras abanico altas y delgadas.</li><li>Hay zonas de piso rojo/rosado con dibujos amarillos (muy saturado en la foto; en otras queda ladrillo apagado) y zonas de adoquín gris.</li><li>Fondo: edificios navales neocoloniales de ladrillo rojizo con arcos y torreón (Capitanía), faroles negros.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Columna con figura ~18-25 m (estimado por escala de personas); palmeras 10-14 m; base ~8-10 m de diámetro.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Fuste de ~24 px de ancho y 300-400 px de alto; en 3/4 es un obstáculo circular de 10 m (160 px) con sombra larga. Torre que sobresale de la pantalla.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Hub o zona segura. Figura de bronce genérica (silueta de almirante sin cara ni nombre); sin inscripciones reales. Palmeras como ritmo vertical.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Plaza%20Grau%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Plaza_Grau_(Callao)" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="muelle-darsena">
+  <header><h3>Muelle Dársena y Faro-Reloj</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">Balaustrada y agua verificadas en foto; el faro se ve pequeño al fondo. El faro verificado es el Faro Torre Reloj del Dársena, NO uno en La Punta (ver card La Punta).</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Muelle_del_Callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Muelle_del_Callao.jpg/330px-Muelle_del_Callao.jpg" alt="Muelle Dársena y Faro-Reloj" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Mariateresa Choy · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Muelle_del_Callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Barcos_llegando_al_puerto_del_Callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Barcos_llegando_al_puerto_del_Callao.jpg/330px-Barcos_llegando_al_puerto_del_Callao.jpg" alt="Muelle Dársena y Faro-Reloj" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Wasiwatana · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Barcos_llegando_al_puerto_del_Callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#C8B598"></i><b>#C8B598</b><em>balaustrada crema</em></span><span class="chip"><i style="background:#867868"></i><b>#867868</b><em>concreto</em></span><span class="chip"><i style="background:#6F8189"></i><b>#6F8189</b><em>agua gris-verde</em></span><span class="chip"><i style="background:#28272A"></i><b>#28272A</b><em>faro / negro</em></span><span class="chip"><i style="background:#A8483F"></i><b>#A8483F</b><em>grúa lejana</em></span><span class="chip"><i style="background:#C9C7C6"></i><b>#C9C7C6</b><em>cielo garúa</em></span></div>
+  <ul class="tr"><li>Balaustrada de columnillas de concreto color crema/arena a lo largo del borde, escalinata que baja directo al agua; piso agrietado.</li><li>Agua plana verde-gris con remolcadores, lanchas y botes pequeños; al fondo las grúas del terminal.</li><li>El faro-reloj (según PromPerú, espigón de 1875) es una torre delgada con linterna oscura sobre el espigón.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Balaustrada ~1 m; muelle ancho ~5-8 m; faro ~10-14 m (estimado).</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Balaustrada 16-18 px de alto (tile repetible); faro 160-220 px de alto.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Zona de escape por agua; baranda como tile repetible; el faro como hito de fondo.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Muelle%20D%C3%A1rsena%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0584,-77.1493&amp;heading=90" target="_blank" rel="noopener">Street View</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Muelle_D%C3%A1rsena_del_Callao" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="terminal-portuario">
+  <header><h3>Terminal portuario: grúas pórtico y contenedores</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Foto a nivel del agua (grúas) y aérea de la zona de galpones y patios.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Callao_harbor_%287134159135%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Callao_harbor_%287134159135%29.jpg/330px-Callao_harbor_%287134159135%29.jpg" alt="Terminal portuario: grúas pórtico y contenedores" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>sergejf · <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener">CC BY-SA 2.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Callao_harbor_%287134159135%29.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Lima%2C_Peru_-_Laslovarga_%2836%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Lima%2C_Peru_-_Laslovarga_%2836%29.jpg/330px-Lima%2C_Peru_-_Laslovarga_%2836%29.jpg" alt="Terminal portuario: grúas pórtico y contenedores" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Laslovarga · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Lima%2C_Peru_-_Laslovarga_%2836%29.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#B04A40"></i><b>#B04A40</b><em>grúa rojo óxido</em></span><span class="chip"><i style="background:#8F3E37"></i><b>#8F3E37</b><em>contenedor ladrillo</em></span><span class="chip"><i style="background:#2F5496"></i><b>#2F5496</b><em>contenedor azul</em></span><span class="chip"><i style="background:#D9D7D5"></i><b>#D9D7D5</b><em>blanco sucio</em></span><span class="chip"><i style="background:#7C8893"></i><b>#7C8893</b><em>agua</em></span><span class="chip"><i style="background:#686865"></i><b>#686865</b><em>techo galpón</em></span></div>
+  <ul class="tr"><li>Grúas pórtico (STS) de celosía en A, rojo óxido, en fila de 3-4, con brazo que se alza hacia el agua. El rojo es más oscuro y terroso que un 'rojo bomberos'.</li><li>Pilas de contenedores por bloques de color: rojo ladrillo, azul, blanco sucio, marrón; 4-6 niveles.</li><li>Remolcadores oscuros; orilla de escollera de piedra gris y guijarros.</li><li>Vista aérea: galpones largos de techo gris a dos aguas y en arco, patios de asfalto con contenedores en hileras, casi sin vegetación, todo en luz plana de garúa.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Grúa STS ~60-70 m total y ~30 m entre rieles (estimado). Contenedor 20' = 6,06 x 2,44 x 2,59 m; 40' HC = 12,19 x 2,44 x 2,90 m. Pila de 5 = ~14 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Contenedor 40' = 195 x 39 px en planta (46 px de alto); 20' = 97 x 39. Grúa: dibujar solo patas y brazo, recortados (60 m = 960 px).</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Laberinto de contenedores con pasillos de 2-3 m (32-48 px); grúa como horizonte con parallax; colores desaturados.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Los contenedores reales llevan logos de navieras: inventar códigos y rótulos genéricos.</p>
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Terminal%20Portuario%20Muelle%20Sur%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Port_of_Callao" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="iglesia-matriz">
+  <header><h3>Iglesia Matriz y plaza</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">3 fotos de Commons (frente de día, vista aérea, de noche).</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Callao_monumental_21.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Callao_monumental_21.jpg/330px-Callao_monumental_21.jpg" alt="Iglesia Matriz y plaza" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Johnattan Rupire · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Callao_monumental_21.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Aerial_view_of_the_Matriz_Church_of_Callao%2C_Peru.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Aerial_view_of_the_Matriz_Church_of_Callao%2C_Peru.jpg/330px-Aerial_view_of_the_Matriz_Church_of_Callao%2C_Peru.jpg" alt="Iglesia Matriz y plaza" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>H.dav.are · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Aerial_view_of_the_Matriz_Church_of_Callao%2C_Peru.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:CAL-002_%282%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/CAL-002_%282%29.jpg/330px-CAL-002_%282%29.jpg" alt="Iglesia Matriz y plaza" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Jonathan Marco Corredor Obispo · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:CAL-002_%282%29.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#E9E4DC"></i><b>#E9E4DC</b><em>hueso fachada</em></span><span class="chip"><i style="background:#D9A9A6"></i><b>#D9A9A6</b><em>rosa vecino</em></span><span class="chip"><i style="background:#D2A545"></i><b>#D2A545</b><em>ocre vecino</em></span><span class="chip"><i style="background:#7F8F86"></i><b>#7F8F86</b><em>techo nave</em></span><span class="chip"><i style="background:#675959"></i><b>#675959</b><em>sombra</em></span><span class="chip"><i style="background:#C9C7CF"></i><b>#C9C7CF</b><em>cielo</em></span></div>
+  <ul class="tr"><li>Frontis blanco hueso con UNA sola torre-campanario central con cupulín (no son dos torres); un gran arco de ingreso.</li><li>Nave larga de techo a dos aguas gris-verdoso, visible desde el aire.</li><li>Alrededor: casonas bajas de dos pisos en rosa salmón y ocre, techos planos con tanques, antenas y cables.</li><li>De noche, plaza iluminada con farolas de luz ámbar y fachada blanca que contrasta.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Fachada ~20 m de ancho; torre ~25-30 m (estimado).</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Fachada ~320 px de ancho; cuerpo 200 px de alto + torre hasta ~400 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Plaza-hub con refugio; tratar con respeto (símbolo religioso), nada de gore ahí.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Iglesia%20Matriz%20del%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0597,-77.1465&amp;heading=0" target="_blank" rel="noopener">Street View</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Iglesia_Matriz_del_Callao" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="callao-monumental">
+  <header><h3>Callao Monumental: casonas y murales</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">4 fotos de Commons (calle peatonal, balcón, edificio mural).</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Callao_monumental_5.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Callao_monumental_5.jpg/330px-Callao_monumental_5.jpg" alt="Callao Monumental: casonas y murales" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Johnattan Rupire · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Callao_monumental_5.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Monumental_Callao_01.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Monumental_Callao_01.jpg/330px-Monumental_Callao_01.jpg" alt="Callao Monumental: casonas y murales" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Ibrehaut · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Monumental_Callao_01.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#E0A19E"></i><b>#E0A19E</b><em>rosa salmón</em></span><span class="chip"><i style="background:#F2EFEA"></i><b>#F2EFEA</b><em>blanco puertas</em></span><span class="chip"><i style="background:#4F6358"></i><b>#4F6358</b><em>balcón verde-gris</em></span><span class="chip"><i style="background:#C98A82"></i><b>#C98A82</b><em>loseta rosada</em></span><span class="chip"><i style="background:#373539"></i><b>#373539</b><em>faroles</em></span><span class="chip"><i style="background:#D2A545"></i><b>#D2A545</b><em>ocre</em></span></div>
+  <ul class="tr"><li>Casonas de 2 pisos con fachada plana pintada en rosa salmón u ocre, puertas altas con paneles blancos tipo cochera.</li><li>Balcones de cajón de madera oscura verde-grisácea en esquinas; calle peatonal con loseta rosada y faroles negros ornamentales.</li><li>Edificio mural (medianera pintada con aves en azul y rosa) con una portada azul y un corazón en el frontón.</li><li>Árbol con base del tronco pintada con cal blanca (visto en foto).</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Casona de 2 pisos 8-9 m; balcón de cajón con vuelo de 1,2-1,5 m; calle peatonal 6-8 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Frente 112-144 px; alto 130-144 px; vuelo del balcón 20-24 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Calle de misión; murales como paredes únicas (formas y aves, NUNCA rostros reales); balcón como cobertura o paso elevado.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Los murales reales son obras de artistas; inventar los propios.</p>
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Callao%20Monumental%20Jr%20Constituci%C3%B3n" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Monumental_Zone_of_Callao" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="chucuito">
+  <header><h3>Chucuito: casas de colores</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">4 fotos de Commons.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Chucuito_Callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Chucuito_Callao.jpg/330px-Chucuito_Callao.jpg" alt="Chucuito: casas de colores" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>RobFK · <a href="https://commons.wikimedia.org/wiki/Commons:Public_domain" target="_blank" rel="noopener">Dominio público</a> · <a href="https://commons.wikimedia.org/wiki/File:Chucuito_Callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:CASONAS_DE_CHUCUITO%2C_CALLAO%2C_PERU.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/CASONAS_DE_CHUCUITO%2C_CALLAO%2C_PERU.jpg/330px-CASONAS_DE_CHUCUITO%2C_CALLAO%2C_PERU.jpg" alt="Chucuito: casas de colores" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>MSEP31 · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:CASONAS_DE_CHUCUITO%2C_CALLAO%2C_PERU.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#E08A4A"></i><b>#E08A4A</b><em>naranja</em></span><span class="chip"><i style="background:#8B5FA3"></i><b>#8B5FA3</b><em>violeta</em></span><span class="chip"><i style="background:#ECC765"></i><b>#ECC765</b><em>mostaza</em></span><span class="chip"><i style="background:#EA8574"></i><b>#EA8574</b><em>coral</em></span><span class="chip"><i style="background:#4BA096"></i><b>#4BA096</b><em>turquesa</em></span><span class="chip"><i style="background:#3E5F9E"></i><b>#3E5F9E</b><em>azul zócalo</em></span><span class="chip"><i style="background:#191716"></i><b>#191716</b><em>reja negra</em></span></div>
+  <ul class="tr"><li>Casas bajas pegadas en línea, fachada plana a ras de vereda, techo plano con parapeto. Muchas son de UN piso muy alto (5-6 m), otras de 2.</li><li>Colores SATURADOS, no pastel: naranja, violeta, mostaza, coral, turquesa; marcos de ventana contrastantes (amarillo sobre violeta), zócalo azul, pintura descascarada.</li><li>Rejas de fierro negro, puertas altas, faroles de pared negros, cables aéreos. Motivos italianos (banderas) en frisos.</li><li>Casas art déco cremas de 2 pisos con balcón corrido y reja.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Frente 6-9 m; 1 piso alto 5-6 m; 2 pisos 8-9 m; vereda ~1 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Frente 96-144 px; 1 piso = 80-96 px; 2 pisos = 130-144 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Zona de contraste de color tras el gris del puerto: 6-8 colores repetidos con marco de otro color; nunca dos vecinos iguales.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Chucuito%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0658,-77.1558&amp;heading=0" target="_blank" rel="noopener">Street View</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Chucuito%2C_Callao" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="la-punta">
+  <header><h3>La Punta: malecón, playa y vista a las islas</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">Playa de guijarros, villa, isla El Frontón y vista aérea de San Lorenzo verificadas en fotos. El faro de La Punta NO se pudo verificar (ver nota).</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Beach_of_Callao%2C_Peru.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Beach_of_Callao%2C_Peru.jpg/330px-Beach_of_Callao%2C_Peru.jpg" alt="La Punta: malecón, playa y vista a las islas" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Tremoro0 · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Beach_of_Callao%2C_Peru.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Lapuntaa2.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Lapuntaa2.jpg/330px-Lapuntaa2.jpg" alt="La Punta: malecón, playa y vista a las islas" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Gatodemichi · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Lapuntaa2.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:El_Front%C3%B3n%2C_May_2012.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/El_Front%C3%B3n%2C_May_2012.jpg/330px-El_Front%C3%B3n%2C_May_2012.jpg" alt="La Punta: malecón, playa y vista a las islas" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Jersey Devil · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> · <a href="https://commons.wikimedia.org/wiki/File:El_Front%C3%B3n%2C_May_2012.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Flight_from_Lima_to_Quito_-_offshore_Islands_of_Isla_San_Lorenzo_%28Largest%29_and_El_Fronton_-_%2826591305530%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Flight_from_Lima_to_Quito_-_offshore_Islands_of_Isla_San_Lorenzo_%28Largest%29_and_El_Fronton_-_%2826591305530%29.jpg/330px-Flight_from_Lima_to_Quito_-_offshore_Islands_of_Isla_San_Lorenzo_%28Largest%29_and_El_Fronton_-_%2826591305530%29.jpg" alt="La Punta: malecón, playa y vista a las islas" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Murray Foubister · <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener">CC BY-SA 2.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Flight_from_Lima_to_Quito_-_offshore_Islands_of_Isla_San_Lorenzo_%28Largest%29_and_El_Fronton_-_%2826591305530%29.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#87857A"></i><b>#87857A</b><em>guijarros</em></span><span class="chip"><i style="background:#A7A599"></i><b>#A7A599</b><em>guijarro claro</em></span><span class="chip"><i style="background:#7C94A6"></i><b>#7C94A6</b><em>agua</em></span><span class="chip"><i style="background:#254898"></i><b>#254898</b><em>sombrilla azul</em></span><span class="chip"><i style="background:#94A096"></i><b>#94A096</b><em>villa gris-verde</em></span><span class="chip"><i style="background:#E3C23A"></i><b>#E3C23A</b><em>sardinel amarillo</em></span><span class="chip"><i style="background:#ABB4B5"></i><b>#ABB4B5</b><em>isla en bruma</em></span></div>
+  <ul class="tr"><li>Playa de guijarros gris-pardo (NO arena), mar gris plomo, sombrillas azules, palmeras bajas; edificios modernos de 5-8 pisos detrás.</li><li>Villas republicanas de 2-3 pisos: gris-verde o amarillas, con cúpula, balaustrada blanca, arcadas y toldos verde-turquesa; sardinel pintado de amarillo.</li><li>El Frontón y San Lorenzo: masas áridas pardo-grisáceas, lisas y sin árboles, medio perdidas en la garúa.</li><li>Pequeños muelles de madera y barcos pesqueros de casco oscuro.</li><li>Faro: la fuente consultada solo ubica un faro en el Dársena; no encontré foto ni fuente de un faro en el malecón de La Punta.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Playa 10-20 m de ancho; villa 9-12 m; San Lorenzo ~8 km de largo y a varios km de la costa: es telón de fondo.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Isla = silueta horizontal de 3 tonos a baja opacidad (25-35 %); guijarros = tile 16x16 con 3 tonos pardos y puntos claros.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Nivel final de costa: horizonte con isla en bruma, playa de piedras que suena a 'crujido'; sin faro inventado salvo que se confirme.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Malec%C3%B3n%20Pardo%20La%20Punta" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0744,-77.1642&amp;heading=270" target="_blank" rel="noopener">Street View</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:La_Punta_District" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="estadio">
+  <header><h3>Estadio Miguel Grau</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">Vista aérea verificada; sin foto de tribuna a nivel de calle con licencia libre.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Estadio_Miguel_Grau_Del_Callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Estadio_Miguel_Grau_Del_Callao.jpg/330px-Estadio_Miguel_Grau_Del_Callao.jpg" alt="Estadio Miguel Grau" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>xddsdsdsfd · <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0</a> · <a href="https://commons.wikimedia.org/wiki/File:Estadio_Miguel_Grau_Del_Callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#3E6B25"></i><b>#3E6B25</b><em>césped</em></span><span class="chip"><i style="background:#B85A4E"></i><b>#B85A4E</b><em>anillo rojizo</em></span><span class="chip"><i style="background:#C4B7AB"></i><b>#C4B7AB</b><em>concreto</em></span><span class="chip"><i style="background:#86786A"></i><b>#86786A</b><em>tribuna sombra</em></span><span class="chip"><i style="background:#675C55"></i><b>#675C55</b><em>gris oscuro</em></span></div>
+  <ul class="tr"><li>Óvalo cerrado: graderías de concreto claro, anillo rojizo alrededor de la cancha, césped verde oscuro.</li><li>Capacidad de 17 000 (Wikipedia); torres de luz altas (cuatro) según la investigación previa; entorno de áreas verdes y avenidas.</li><li>Colores de las tribunas a nivel de calle: sin confirmar con foto.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>~160 x 130 m (estimado); torres de luz 35-40 m (estimado).</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Cancha completa no entra (1680 x 1088 px). Usar tribuna lateral, puerta y torre de luz.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Nivel de fútbol; pintas rosadas en muros como identidad de barrio.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Sin escudo ni camiseta del club: inventar nombre, colores y rayas.</p>
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Estadio%20Miguel%20Grau%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0598,-77.1199&amp;heading=0" target="_blank" rel="noopener">Street View</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Estadio_Miguel_Grau_(Callao)" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="saenz-pena">
+  <header><h3>Av. Sáenz Peña y Mercado Central</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">Vereda y persianas de Sáenz Peña verificadas en foto. El interior de los pasajes del mercado se ve en una foto 360 de Street View (solo link). La fachada exterior del mercado NO se pudo verificar con foto libre.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Peligro_en_las_veredas.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Peligro_en_las_veredas.jpg/330px-Peligro_en_las_veredas.jpg" alt="Av. Sáenz Peña y Mercado Central" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Mariateresa Choy · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Peligro_en_las_veredas.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:%C3%81rboles_enredados_en_los_cables_el%C3%A9ctricos.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/%C3%81rboles_enredados_en_los_cables_el%C3%A9ctricos.jpg/330px-%C3%81rboles_enredados_en_los_cables_el%C3%A9ctricos.jpg" alt="Av. Sáenz Peña y Mercado Central" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Mariateresa Choy · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:%C3%81rboles_enredados_en_los_cables_el%C3%A9ctricos.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#9A9895"></i><b>#9A9895</b><em>loseta</em></span><span class="chip"><i style="background:#BDB8AE"></i><b>#BDB8AE</b><em>parche claro</em></span><span class="chip"><i style="background:#3F4C85"></i><b>#3F4C85</b><em>persiana azul</em></span><span class="chip"><i style="background:#8FA6C4"></i><b>#8FA6C4</b><em>pared celeste</em></span><span class="chip"><i style="background:#8B4A2B"></i><b>#8B4A2B</b><em>techo madera</em></span><span class="chip"><i style="background:#383637"></i><b>#383637</b><em>sombra</em></span></div>
+  <ul class="tr"><li>Vereda de losetas de concreto agrietadas y parchadas (parches más claros, bordes rotos), poco ancha.</li><li>Frentes de locales con persianas metálicas corrugadas (azules, grises) y voladizos o portales de concreto; paredes celestes descascaradas con afiches pegados.</li><li>Edificios de 3-5 pisos tipo años 50 con ventanas en banda; árboles de vereda enredados en cables.</li><li>Interior del mercado (foto 360): tiendas de vitrinas de vidrio y madera, techo de madera rojizo, persianas, afiches grandes; en la calle, puestos, toldos y triciclos.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Acera 2-3 m; local 3 x 4 m; persiana 2,4 x 2,4 m; pasillo de mercado 2-3 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Acera 32-48 px; local 48 x 64 px; persiana ~38 px de alto.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Nivel Mercado: pasadizos de 2-3 m con toldos; persianas como paredes que se levantan; puestos con balanza y cajones.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Carteles y vitrinas reales tienen marcas (tarjetas, ópticas): inventar todo.</p>
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Mercado%20Central%20del%20Callao" target="_blank" rel="noopener">Maps (mercado)</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.061,-77.139&amp;heading=0" target="_blank" rel="noopener">Street View</a><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Avenida%20S%C3%A1enz%20Pe%C3%B1a%20Callao" target="_blank" rel="noopener">Maps (Sáenz Peña)</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Avenida_S%C3%A1enz_Pe%C3%B1a%2C_Callao" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="gambetta">
+  <header><h3>Av. Néstor Gambetta (nivel 1)</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Street View de nov. 2025 en la Gambetta del centro del Callao (solo link, no embebido) + tramo de Ventanilla en Commons.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg/330px-Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" alt="Av. Néstor Gambetta (nivel 1)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Michael junior obregon pozo · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Paradero_de_Ventanilla.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Paradero_de_Ventanilla.jpg/330px-Paradero_de_Ventanilla.jpg" alt="Av. Néstor Gambetta (nivel 1)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Gianpier Yair Venegas Ambia · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Paradero_de_Ventanilla.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#6D6C69"></i><b>#6D6C69</b><em>asfalto gastado</em></span><span class="chip"><i style="background:#9A8F7B"></i><b>#9A8F7B</b><em>arena / polvo</em></span><span class="chip"><i style="background:#E8E8E6"></i><b>#E8E8E6</b><em>cabina blanca</em></span><span class="chip"><i style="background:#E3B82A"></i><b>#E3B82A</b><em>tractor amarillo</em></span><span class="chip"><i style="background:#2E4F8F"></i><b>#2E4F8F</b><em>contenedor azul</em></span><span class="chip"><i style="background:#8E8D86"></i><b>#8E8D86</b><em>galpón</em></span><span class="chip"><i style="background:#C8E04A"></i><b>#C8E04A</b><em>chaleco lima</em></span><span class="chip"><i style="background:#D0D3D6"></i><b>#D0D3D6</b><em>cielo</em></span></div>
+  <ul class="tr"><li>Cruce enorme de 6+ carriles; asfalto gris desgastado con polvo y arena beige en los bordes, parches, grietas y huellas de neumáticos.</li><li>Pintura vial blanca sobre el asfalto: 'Av. Néstor Gambetta' y 'PE 20' en letras grandes.</li><li>A un lado, galpones gigantes de techo en ARCO (bóveda) gris-beige con contrafuertes; al otro, tiendas de 2-3 pisos de ladrillo y amarillo.</li><li>Tráfico pesado: tractocamiones cab-over blancos, tractores amarillos con chasis azul, semirremolques con contenedores blancos y azules, un bus urbano verde, camionetas, minivan roja, taxis.</li><li>Postes de concreto + postes metálicos de dos brazos + mástil alto + semáforo con brazo; cables negros densos cruzando la pista; palmeras al fondo.</li><li>Policía de tránsito con chaleco verde-lima y casco blanco; señal elevada azul con texto blanco.</li><li>Tramo de Ventanilla: autopista con berma de césped ancho, paraderos, cerros pardos al fondo.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>6-8 carriles de 3,5 m = 21-28 m (336-448 px) sin bermas; berma central 2-6 m; galpón 15-20 m de alto y 60-120 m de largo; tractocamión + semirremolque ~16,5 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Calzada de 4 carriles = 224 px de ancho; vehículos pesados 264 x 42 px; galpón de 80 m = 1280 px de largo.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> (1) Camiones atascados como muros móviles; (2) galpón de arco como pared de borde; (3) decal vial 'Av. Néstor Gambetta / PE 20'; (4) polvo beige sobre asfalto; (5) capa de cables oscuros encima.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Se ven logos de camiones (estrella, cabina de marca), textos de empresas en galpones y contenedores: inventar.</p>
+  <div class="links"><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0446,-77.1264&amp;heading=200" target="_blank" rel="noopener">Street View (Gambetta)</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0446,-77.1264&amp;heading=0" target="_blank" rel="noopener">Street View (otro sentido)</a><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Avenida%20N%C3%A9stor%20Gambetta%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Avenida_N%C3%A9stor_Gambetta" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="faucett">
+  <header><h3>Av. Elmer Faucett y borde del aeropuerto</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">1 foto de Commons con muro mural y vallas sobre mástiles; el resto sin verificar.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Lima_trip_2012_61.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Lima_trip_2012_61.jpg/330px-Lima_trip_2012_61.jpg" alt="Av. Elmer Faucett y borde del aeropuerto" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>JohnSeb · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener">CC BY 2.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Lima_trip_2012_61.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#7A8994"></i><b>#7A8994</b><em>cielo azul-gris</em></span><span class="chip"><i style="background:#5B6974"></i><b>#5B6974</b><em>cielo oscuro</em></span><span class="chip"><i style="background:#246B78"></i><b>#246B78</b><em>mural teal</em></span><span class="chip"><i style="background:#6D6E70"></i><b>#6D6E70</b><em>asfalto</em></span><span class="chip"><i style="background:#BABBB5"></i><b>#BABBB5</b><em>muro claro</em></span></div>
+  <ul class="tr"><li>Calzada ancha con líneas blancas discontinuas, muro perimetral largo con mural en franja (formas de teal y figuras), cielo gris amplio.</li><li>Vallas publicitarias grandes sobre mástiles metálicos, postes de alumbrado altos, edificios bajos de 2-3 pisos detrás.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Calzada 4-6 carriles; muro ~3 m; valla ~6 x 12 m sobre mástil de 8-10 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Muro 48 px de alto, tile repetible de 160 px con mural; valla 96 x 192 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Zona del aeropuerto: muro largo como borde de mapa con mural repetible; vallas con mensajes inventados.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Avenida%20Elmer%20Faucett%20Callao" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Avenida_Elmer_Faucett%2C_Lima" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="cerros">
+  <header><h3>Cerros y asentamientos (Oquendo, Ventanilla, Pachacútec)</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">3 fotos de Commons de Ventanilla/Pachacútec.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Viviendas_ubicadas_en_las_laderas_de_los_cerros.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Viviendas_ubicadas_en_las_laderas_de_los_cerros.jpg/330px-Viviendas_ubicadas_en_las_laderas_de_los_cerros.jpg" alt="Cerros y asentamientos (Oquendo, Ventanilla, Pachacútec)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>NICOLLCRISTOBAL · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Viviendas_ubicadas_en_las_laderas_de_los_cerros.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Viviendas_en_cerros.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Viviendas_en_cerros.jpg/330px-Viviendas_en_cerros.jpg" alt="Cerros y asentamientos (Oquendo, Ventanilla, Pachacútec)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Angie Dávila César · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Viviendas_en_cerros.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg/330px-Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" alt="Cerros y asentamientos (Oquendo, Ventanilla, Pachacútec)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Michael junior obregon pozo · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#A25B48"></i><b>#A25B48</b><em>ladrillo</em></span><span class="chip"><i style="background:#B39B77"></i><b>#B39B77</b><em>arena de calle</em></span><span class="chip"><i style="background:#78736C"></i><b>#78736C</b><em>cerro pelado</em></span><span class="chip"><i style="background:#E3C14A"></i><b>#E3C14A</b><em>módulo amarillo</em></span><span class="chip"><i style="background:#1C1C1E"></i><b>#1C1C1E</b><em>cables</em></span><span class="chip"><i style="background:#88A5CC"></i><b>#88A5CC</b><em>cielo azul</em></span><span class="chip"><i style="background:#4A4845"></i><b>#4A4845</b><em>mancha de humedad</em></span></div>
+  <ul class="tr"><li>Cerros pelados de arena y roca pardo-gris, sin vegetación; calles de arena suelta color ocre sin asfaltar.</li><li>Casas de ladrillo SIN tarrajear de 2-4 pisos apiladas en la ladera, fierros de columnas saliendo, techos planos con tanque.</li><li>Casas modulares prefabricadas de madera pintadas de amarillo, con puerta y ventana, techo de calamina con piedras encima.</li><li>Maraña muy densa de cables de postes inclinados, cruzando la calle; la garúa deja manchas oscuras en el ladrillo.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Lote 6 x 10 a 8 x 15 m; piso 2,6-2,8 m; escalera de cerro 1,2-2 m de ancho.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Casa de 3 pisos = ~134 px de alto (+13 px de fierros); lote 96-128 px de frente.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Nivel cerro: terrazas con escaleras, verticalidad, paleta ocre-ladrillo. Para dignidad: ropa tendida, plantas, banderas, colores en puertas; evitar estética de miseria.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Pachac%C3%BAtec%20Ventanilla" target="_blank" rel="noopener">Maps</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Ventanilla_District" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="sarita">
+  <header><h3>Santuario de Sarita Colonia</h3><span class="st no">No verificado</span></header>
+  <p class="vis">Sin foto libre ni Street View interior verificados. Solo fuentes escritas (Wikipedia en inglés, Diario Correo, El Comercio).</p>
+  <div class="noimg">Sin imagen libre incrustada. Usa los enlaces de abajo para ver fotos o Street View.</div>
+  <p class="mut">Paleta no muestreada (sin foto verificada).</p>
+  <ul class="tr"><li>Según las fuentes: capilla pequeña y simple de bloques de concreto dentro del Cementerio Baquíjano, levantada por devotos sobre su fosa (1983).</li><li>Vitrina de vidrio, crucifijo y una Virgen cerca; en la entrada venden flores y ruda; adentro estampitas, medallas, placas y llaveros con su imagen.</li><li>Fechas de misa: 1 de marzo y 20 de diciembre.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Capilla pequeña (estimado ~4 x 6 m).</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>~64 x 96 px de planta; vitrina 1 x 1,5 m = 16 x 24 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Capilla de refugio con muchas flores y velas, tono respetuoso. No usar el rostro ni la imagen real de Sarita; inventar una figura devocional genérica.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Cementerio%20Baqu%C3%ADjano%20Callao" target="_blank" rel="noopener">Maps (Cementerio Baquíjano)</a><a class="btn" href="https://en.wikipedia.org/wiki/Sarita_Colonia" target="_blank" rel="noopener">Wikipedia</a></div>
+</article>
+<article class="card" id="chacaritas">
+  <header><h3>Chacaritas, Puerto Nuevo y Castilla</h3><span class="st no">No verificado</span></header>
+  <p class="vis">Sin fotos libres ni Street View revisados. Solo coordenadas del geocodificador (OpenStreetMap).</p>
+  <div class="noimg">Sin imagen libre incrustada. Usa los enlaces de abajo para ver fotos o Street View.</div>
+  <p class="mut">Paleta no muestreada (sin foto verificada).</p>
+  <ul class="tr"><li>No verificado. Por vecindad con Sáenz Peña y Gambetta, asumir casas de 1-3 pisos con rejas, persianas y cables, pero marcarlo como estimado.</li><li>Pedir Street View de cada barrio antes de dibujar escenas específicas.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Sin datos.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Sin datos.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Reutilizar kit 'casa chalaca' (Chucuito/Sáenz Peña) con paleta más apagada hasta confirmar.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Chacaritas%20Callao" target="_blank" rel="noopener">Maps (Chacaritas)</a><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Puerto%20Nuevo%20Callao" target="_blank" rel="noopener">Maps (Puerto Nuevo)</a><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Castilla%20Callao" target="_blank" rel="noopener">Maps (Castilla)</a></div>
+</article>
+</div>
+<h2 class="grp" id="g-calle-tipica">Calle típica</h2>
+<div class="grid">
+<article class="card" id="fachada-autoc">
+  <header><h3>Fachada autoconstruida (ladrillo y fierros)</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons de Pachacútec/Ventanilla y una casa de dos pisos.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Casa_autoconstruida.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Casa_autoconstruida.jpg/330px-Casa_autoconstruida.jpg" alt="Fachada autoconstruida (ladrillo y fierros)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Marcelo De la torre Sobrino · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Casa_autoconstruida.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Viviendas_ubicadas_en_las_laderas_de_los_cerros.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Viviendas_ubicadas_en_las_laderas_de_los_cerros.jpg/330px-Viviendas_ubicadas_en_las_laderas_de_los_cerros.jpg" alt="Fachada autoconstruida (ladrillo y fierros)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>NICOLLCRISTOBAL · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Viviendas_ubicadas_en_las_laderas_de_los_cerros.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#A68A75"></i><b>#A68A75</b><em>ladrillo / enlucido</em></span><span class="chip"><i style="background:#292725"></i><b>#292725</b><em>marcos negros</em></span><span class="chip"><i style="background:#3F72B0"></i><b>#3F72B0</b><em>pared azul</em></span><span class="chip"><i style="background:#EFE3C8"></i><b>#EFE3C8</b><em>crema</em></span><span class="chip"><i style="background:#786757"></i><b>#786757</b><em>sombra</em></span></div>
+  <ul class="tr"><li>2-3 pisos, ladrillo visto o pared tarrajeada a medias con pintura por tramos (azul vivo + crema).</li><li>Marcos de ventana negros o metálicos con rejas, puertas de plancha metálica, cortinas, fierros expuestos sobre la azotea, pretil bajo, tanque de agua negro.</li><li>Cableado directo al poste de la vereda.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Frente 6-8 m; piso 2,6-2,8 m; puerta 0,9 x 2,1 m; ventana 1,2 x 1,2 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Frente 96-128 px; 2 pisos = 90 px; 3 = 134 px; puerta 14 x 34 px; ventana 19 x 19 px; tanque 18 x 27 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Kit modular: planta baja (puerta + ventana), piso intermedio, azotea con fierros y tanque; paint-overs por tramos.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Ventanilla_District" target="_blank" rel="noopener">Commons</a><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Ventanilla%20Callao" target="_blank" rel="noopener">Maps</a></div>
+</article>
+<article class="card" id="rejas-puertas">
+  <header><h3>Rejas, puertas y persianas</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">Rejas de Chucuito y persianas de Sáenz Peña vistas en foto; rótulos pintados a mano no verificados con foto.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:CASONAS_DE_CHUCUITO%2C_CALLAO%2C_PERU.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/CASONAS_DE_CHUCUITO%2C_CALLAO%2C_PERU.jpg/330px-CASONAS_DE_CHUCUITO%2C_CALLAO%2C_PERU.jpg" alt="Rejas, puertas y persianas" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>MSEP31 · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:CASONAS_DE_CHUCUITO%2C_CALLAO%2C_PERU.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Peligro_en_las_veredas.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Peligro_en_las_veredas.jpg/330px-Peligro_en_las_veredas.jpg" alt="Rejas, puertas y persianas" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Mariateresa Choy · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Peligro_en_las_veredas.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#191716"></i><b>#191716</b><em>reja negra</em></span><span class="chip"><i style="background:#3F4C85"></i><b>#3F4C85</b><em>persiana azul</em></span><span class="chip"><i style="background:#707479"></i><b>#707479</b><em>persiana gris</em></span><span class="chip"><i style="background:#C9A66B"></i><b>#C9A66B</b><em>madera clara</em></span><span class="chip"><i style="background:#8F5B47"></i><b>#8F5B47</b><em>puerta oxidada</em></span></div>
+  <ul class="tr"><li>Rejas de ventana en fierro forjado negro con volutas simples (Chucuito); puertas altas de madera o plancha con marco contrastante.</li><li>Persianas enrollables corrugadas azules y grises, normalmente bajadas en comercios cerrados; rótulos sobre ellas.</li><li>Portones de cochera anchos de plancha.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Puerta 0,9 x 2,1 m; portón de cochera 2,4 x 2,4 m; persiana de local 2,4 x 2,4 m; portón de almacén 5 x 5 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>14 x 34 px; 38 x 38 px; 38 x 38 px; 80 x 80 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Set de puertas con variantes de color, daño y candado; persiana como sprite de 3 estados (cerrada / mitad / abierta).</p>
+  <p class="brand"><b>Marcas a inventar:</b> Rótulos hechos a mano con nombres inventados.</p>
+  <div class="links"><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0592,-77.1303&amp;heading=0" target="_blank" rel="noopener">Street View (Sáenz Peña)</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Streets_in_Callao_District" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="postes-cables">
+  <header><h3>Postes, cables y alumbrado</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons y Street View de Gambetta.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Cables_enredados_en_un_poste_de_luz.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Cables_enredados_en_un_poste_de_luz.jpg/330px-Cables_enredados_en_un_poste_de_luz.jpg" alt="Postes, cables y alumbrado" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Gaboct · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Cables_enredados_en_un_poste_de_luz.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:%C3%81rboles_enredados_en_los_cables_el%C3%A9ctricos.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/%C3%81rboles_enredados_en_los_cables_el%C3%A9ctricos.jpg/330px-%C3%81rboles_enredados_en_los_cables_el%C3%A9ctricos.jpg" alt="Postes, cables y alumbrado" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Mariateresa Choy · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:%C3%81rboles_enredados_en_los_cables_el%C3%A9ctricos.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#A7A9A4"></i><b>#A7A9A4</b><em>concreto</em></span><span class="chip"><i style="background:#1C1D1F"></i><b>#1C1D1F</b><em>cable negro</em></span><span class="chip"><i style="background:#C7D6D7"></i><b>#C7D6D7</b><em>cielo</em></span><span class="chip"><i style="background:#2C4A3C"></i><b>#2C4A3C</b><em>follaje</em></span><span class="chip"><i style="background:#8B9A9E"></i><b>#8B9A9E</b><em>pared gris</em></span></div>
+  <ul class="tr"><li>Postes de concreto grises con haces de 6-20 cables negros, cajas y transformadores; cables cruzan la calle de lado a lado.</li><li>Postes de alumbrado metálicos de 1-2 brazos con lámpara curva; mástil alto en cruces; semáforo con brazo.</li><li>Los árboles de vereda crecen enredados con los cables.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Poste de concreto 11-12 m (diámetro 0,3 m); poste de alumbrado 10-12 m; mástil 18-25 m; farola peatonal 3,5 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Poste 176-192 px de alto, 5 px de ancho; farola peatonal 56 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Capa de cables como overlay semi-transparente sobre las calles; postes como obstáculos finos que alternan con árboles.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0446,-77.1264&amp;heading=200" target="_blank" rel="noopener">Street View (Gambetta)</a><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Street_furniture_in_Lima" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="veredas">
+  <header><h3>Veredas, sardineles, bolardos y paraderos</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons de Sáenz Peña, La Punta y Ventanilla.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Peligro_en_las_veredas.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Peligro_en_las_veredas.jpg/330px-Peligro_en_las_veredas.jpg" alt="Veredas, sardineles, bolardos y paraderos" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Mariateresa Choy · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Peligro_en_las_veredas.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Paradero_de_Ventanilla.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Paradero_de_Ventanilla.jpg/330px-Paradero_de_Ventanilla.jpg" alt="Veredas, sardineles, bolardos y paraderos" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Gianpier Yair Venegas Ambia · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Paradero_de_Ventanilla.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Falta_de_sem%C3%A1foros_en_paradero_de_escolares.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Falta_de_sem%C3%A1foros_en_paradero_de_escolares.jpg/330px-Falta_de_sem%C3%A1foros_en_paradero_de_escolares.jpg" alt="Veredas, sardineles, bolardos y paraderos" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Juan Daniel Chumbe Zapata · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Falta_de_sem%C3%A1foros_en_paradero_de_escolares.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#9A9895"></i><b>#9A9895</b><em>loseta</em></span><span class="chip"><i style="background:#BDB8AE"></i><b>#BDB8AE</b><em>parche</em></span><span class="chip"><i style="background:#E3C23A"></i><b>#E3C23A</b><em>sardinel amarillo</em></span><span class="chip"><i style="background:#F0F0EC"></i><b>#F0F0EC</b><em>pintura blanca</em></span><span class="chip"><i style="background:#E8C21A"></i><b>#E8C21A</b><em>bolardo amarillo</em></span><span class="chip"><i style="background:#222222"></i><b>#222222</b><em>bolardo negro</em></span></div>
+  <ul class="tr"><li>Losetas de concreto con parches y grietas; sardineles bajos pintados de amarillo en cruces (La Punta) o de blanco con franjas diagonales (Ventanilla).</li><li>Bolardos o remates de barrera con rayas negras y amarillas; veredas anchas junto a avenidas, angostas en el casco antiguo.</li><li>Paraderos informales: combis paradas en doble fila, vendedores en la vereda.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Vereda 1,2-3 m; sardinel 0,15 m de alto; bolardo 0,8-1 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Vereda 19-48 px; sardinel 2-3 px de alto (dibujar con sombra de 1 px); bolardo 13-16 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Tile de vereda con 3 variantes (limpia, parchada, rota); sardinel pintado como decal sobre el borde.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Streets_in_Callao_District" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="pavimento">
+  <header><h3>Pavimento, marcas viales y baches</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">Asfalto, textos viales y parches verificados en Street View y Commons; los rompemuelles no se vieron en foto (solo en la investigación previa).</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg/330px-Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" alt="Pavimento, marcas viales y baches" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Michael junior obregon pozo · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#6D6C69"></i><b>#6D6C69</b><em>asfalto</em></span><span class="chip"><i style="background:#85837E"></i><b>#85837E</b><em>asfalto claro</em></span><span class="chip"><i style="background:#9A8F7B"></i><b>#9A8F7B</b><em>arena</em></span><span class="chip"><i style="background:#E9E9E4"></i><b>#E9E9E4</b><em>pintura blanca</em></span><span class="chip"><i style="background:#4A4846"></i><b>#4A4846</b><em>parche oscuro</em></span></div>
+  <ul class="tr"><li>Asfalto gris con huellas lisas de neumáticos, grietas, parches oscuros y arena acumulada a los bordes.</li><li>Marcas en blanco desgastado: rayas discontinuas, cebras con trazos gastados y letras gigantes en el piso.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Carril 3,2-3,6 m; raya 0,15 m; letras viales 2-3 m de alto; cebra 3-4 m de ancho.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Carril 52-58 px; raya 2 px; letras viales 32-48 px; cebra 48-64 px de ancho.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Calzada con 4 variantes de tile + decales de baches, parches y arena; letras viales como decal único.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0446,-77.1264&amp;heading=200" target="_blank" rel="noopener">Street View (Gambetta)</a></div>
+</article>
+<article class="card" id="senales-murales">
+  <header><h3>Señalética elevada, murales y vallas</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons de Ventanilla y Faucett + Street View de Gambetta.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Paradero_de_Ventanilla.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Paradero_de_Ventanilla.jpg/330px-Paradero_de_Ventanilla.jpg" alt="Señalética elevada, murales y vallas" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Gianpier Yair Venegas Ambia · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Paradero_de_Ventanilla.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Lima_trip_2012_61.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Lima_trip_2012_61.jpg/330px-Lima_trip_2012_61.jpg" alt="Señalética elevada, murales y vallas" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>JohnSeb · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener">CC BY 2.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Lima_trip_2012_61.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#2C5E9E"></i><b>#2C5E9E</b><em>letrero azul</em></span><span class="chip"><i style="background:#FFFFFF"></i><b>#FFFFFF</b><em>texto blanco</em></span><span class="chip"><i style="background:#246B78"></i><b>#246B78</b><em>mural teal</em></span><span class="chip"><i style="background:#6D6E70"></i><b>#6D6E70</b><em>poste</em></span><span class="chip"><i style="background:#BDBBB8"></i><b>#BDBBB8</b><em>cielo</em></span></div>
+  <ul class="tr"><li>Letreros elevados azules con texto blanco, por ejemplo 'PUERTO EL CALLAO / AV. LA PLAYA / COSTA AZUL', en brazo curvo o pórtico.</li><li>Muros de avenida con murales en franja; vallas publicitarias sobre mástiles metálicos.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Letrero 2,5 x 1,2 m a 5-6 m de altura; valla 6 x 12 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Letrero 40 x 19 px sobre poste de 90 px; valla 96 x 192 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Letreros con nombres inventados ('Ruta 77 Puerto-Norte'). Murales de formas abstractas.</p>
+  
+  <div class="links"><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0446,-77.1264&amp;heading=200" target="_blank" rel="noopener">Street View (Gambetta)</a></div>
+</article>
+<article class="card" id="berma-arboles">
+  <header><h3>Bermas, árboles y palmeras</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons de Ventanilla, Plaza Grau y Callao Monumental.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg/330px-Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" alt="Bermas, árboles y palmeras" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Michael junior obregon pozo · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Autopista_N%C3%A9stor_Gambetta_-_Mi_Per%C3%BA.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Parque_Miguel_Grau.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Parque_Miguel_Grau.jpg/330px-Parque_Miguel_Grau.jpg" alt="Bermas, árboles y palmeras" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Pol eck · <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener">CC BY-SA 2.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Parque_Miguel_Grau.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Monumental_Callao_01.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Monumental_Callao_01.jpg/330px-Monumental_Callao_01.jpg" alt="Bermas, árboles y palmeras" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Ibrehaut · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Monumental_Callao_01.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#587607"></i><b>#587607</b><em>césped berma</em></span><span class="chip"><i style="background:#879803"></i><b>#879803</b><em>césped claro</em></span><span class="chip"><i style="background:#4C6B3A"></i><b>#4C6B3A</b><em>palmera</em></span><span class="chip"><i style="background:#2C4A3C"></i><b>#2C4A3C</b><em>follaje oscuro</em></span><span class="chip"><i style="background:#FFFFFF"></i><b>#FFFFFF</b><em>cal del tronco</em></span></div>
+  <ul class="tr"><li>Berma central de césped verde brillante en autopistas de Ventanilla; palmeras abanico en plazas y bermas; árboles de copa redonda podada.</li><li>El tronco de algunos árboles tiene la base pintada de blanco (cal), confirmado en foto de Callao Monumental.</li><li>Fuera de las zonas regadas la tierra es seca; cerros sin vegetación.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Berma 2-6 m; palmera 10-14 m; árbol de calle 4-6 m; ficus de plaza 8-12 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Berma 32-96 px; palmera 160-224 px; árbol 64-96 px; copa de 48-80 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Contraste de verde vivo contra gris: es una de las pocas notas saturadas del nivel 1.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Nature_of_Callao_Province" target="_blank" rel="noopener">Commons</a></div>
+</article>
+</div>
+<h2 class="grp" id="g-transporte">Transporte</h2>
+<div class="grid">
+<article class="card" id="combi">
+  <header><h3>Combi (Toyota Hiace / Nissan Urvan)</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons de rutas de Lima (Hiace y Urvan).</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Ruta_8614_Jos%C3%A9_G%C3%A1lvez_Express_S.A._Toyota_HiAce_-_captured_2024.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Ruta_8614_Jos%C3%A9_G%C3%A1lvez_Express_S.A._Toyota_HiAce_-_captured_2024.jpg/330px-Ruta_8614_Jos%C3%A9_G%C3%A1lvez_Express_S.A._Toyota_HiAce_-_captured_2024.jpg" alt="Combi (Toyota Hiace / Nissan Urvan)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Fabco09 (Lima) · <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0</a> · <a href="https://commons.wikimedia.org/wiki/File:Ruta_8614_Jos%C3%A9_G%C3%A1lvez_Express_S.A._Toyota_HiAce_-_captured_2024.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Ruta_8711_281224_Villa_Alejandro_S.A._Nissan_Urvan.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Ruta_8711_281224_Villa_Alejandro_S.A._Nissan_Urvan.jpg/330px-Ruta_8711_281224_Villa_Alejandro_S.A._Nissan_Urvan.jpg" alt="Combi (Toyota Hiace / Nissan Urvan)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Fabco09 (Lima) · <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0</a> · <a href="https://commons.wikimedia.org/wiki/File:Ruta_8711_281224_Villa_Alejandro_S.A._Nissan_Urvan.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#E9E9E6"></i><b>#E9E9E6</b><em>blanco</em></span><span class="chip"><i style="background:#2F5FB4"></i><b>#2F5FB4</b><em>franja azul</em></span><span class="chip"><i style="background:#E9822F"></i><b>#E9822F</b><em>franja naranja</em></span><span class="chip"><i style="background:#F0C020"></i><b>#F0C020</b><em>franja amarilla</em></span><span class="chip"><i style="background:#C0392B"></i><b>#C0392B</b><em>franja roja</em></span><span class="chip"><i style="background:#232226"></i><b>#232226</b><em>ventana</em></span><span class="chip"><i style="background:#8A8785"></i><b>#8A8785</b><em>gris</em></span></div>
+  <ul class="tr"><li>Furgoneta alta blanca (Hiace de techo alto) o Urvan blanca; franjas laterales de dos o tres colores a media altura y en el parachoques; placa de ruta en el parabrisas.</li><li>Luna delantera grande, puerta corrediza lateral, ventanillas con cortinillas; abolladuras y pintura gastada.</li><li>Los nombres de empresa van en el costado y el techo (inventar).</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Hiace 5,3 x 1,9 x 2,3 m; Urvan 5,2 x 1,9 x 2,3 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>86 x 30 px en planta; ~36 px de alto.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> 3 paletas de franjas por 2 carrocerías = 6 variantes con cobrador colgando de la puerta (anim 2 cuadros).</p>
+  <p class="brand"><b>Marcas a inventar:</b> Evitar el logo del fabricante y el nombre de empresa de la foto; inventar ruta y nombre.</p>
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Special:ListFiles/Fabco09" target="_blank" rel="noopener">Commons (Fabco09)</a></div>
+</article>
+<article class="card" id="custer">
+  <header><h3>Custer (Toyota Coaster)</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons de rutas de Lima.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Ruta_NH25_5_Continentes_S.A._Toyota_Coaster_High_Roof.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Ruta_NH25_5_Continentes_S.A._Toyota_Coaster_High_Roof.jpg/330px-Ruta_NH25_5_Continentes_S.A._Toyota_Coaster_High_Roof.jpg" alt="Custer (Toyota Coaster)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Fabco09 (Lima) · <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">CC0</a> · <a href="https://commons.wikimedia.org/wiki/File:Ruta_NH25_5_Continentes_S.A._Toyota_Coaster_High_Roof.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#FCFCFB"></i><b>#FCFCFB</b><em>blanco</em></span><span class="chip"><i style="background:#8A8785"></i><b>#8A8785</b><em>gris lateral</em></span><span class="chip"><i style="background:#2A57A5"></i><b>#2A57A5</b><em>franja azul</em></span><span class="chip"><i style="background:#C0392B"></i><b>#C0392B</b><em>franja roja</em></span><span class="chip"><i style="background:#252729"></i><b>#252729</b><em>ventana / neumático</em></span></div>
+  <ul class="tr"><li>Minibús de ~7 m con techo alto; carrocería blanca y franja diagonal azul y roja o dos tonos; ventanas rectangulares grandes con cortinillas.</li><li>Letreros de ruta en el parabrisas; ruedas pequeñas y trompa corta.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>6,2-7,0 x 2,1 x 2,6 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>100-112 x 33 px; 42 px de alto.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Más larga que la combi; variantes de franja; sirve como barricada.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Sin logos de fabricante ni nombre de empresa real.</p>
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Special:ListFiles/Fabco09" target="_blank" rel="noopener">Commons (Fabco09)</a></div>
+</article>
+<article class="card" id="bus">
+  <header><h3>Bus de corredor y bus urbano</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Foto de Commons del Corredor Rojo + bus verde visto en Street View de Gambetta.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Corredor_Rojo_1.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Corredor_Rojo_1.jpg/330px-Corredor_Rojo_1.jpg" alt="Bus de corredor y bus urbano" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>(SVPG) · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Corredor_Rojo_1.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#F5F5F3"></i><b>#F5F5F3</b><em>blanco</em></span><span class="chip"><i style="background:#C8402F"></i><b>#C8402F</b><em>rojo corredor</em></span><span class="chip"><i style="background:#272629"></i><b>#272629</b><em>negro</em></span><span class="chip"><i style="background:#66666A"></i><b>#66666A</b><em>vidrio</em></span><span class="chip"><i style="background:#2F5E3B"></i><b>#2F5E3B</b><em>verde bus urbano</em></span></div>
+  <ul class="tr"><li>Bus largo de piso bajo con gran parabrisas, dos puertas dobles; mitad superior blanca o plateada y franja baja de color del corredor (rojo).</li><li>Buses urbanos más viejos: verdes o violeta con franjas, con lunas empañadas.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>12 x 2,55 x 3,2 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>192 x 41 px; 51 px de alto.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Bus como muro largo móvil; color por corredor sin nombres ni logos reales (ATU, empresas).</p>
+  <p class="brand"><b>Marcas a inventar:</b> Inventar nombres de línea; no usar colores y logos oficiales como 'marca'.</p>
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Corredor_Rojo_(SIT)" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="taxi">
+  <header><h3>Taxi tipo Tico</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Foto de Commons de un taxi amarillo en el centro de Lima + otro visto en Street View.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:2017_Lima_-_Taxi_junto_al_Edificio_R%C3%ADmac_en_el_jir%C3%B3n_Carabaya.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/2017_Lima_-_Taxi_junto_al_Edificio_R%C3%ADmac_en_el_jir%C3%B3n_Carabaya.jpg/330px-2017_Lima_-_Taxi_junto_al_Edificio_R%C3%ADmac_en_el_jir%C3%B3n_Carabaya.jpg" alt="Taxi tipo Tico" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Felipe Restrpo Acosta (Lima centro) · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:2017_Lima_-_Taxi_junto_al_Edificio_R%C3%ADmac_en_el_jir%C3%B3n_Carabaya.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#FBC805"></i><b>#FBC805</b><em>amarillo</em></span><span class="chip"><i style="background:#A87903"></i><b>#A87903</b><em>sombra amarilla</em></span><span class="chip"><i style="background:#09070A"></i><b>#09070A</b><em>negro</em></span><span class="chip"><i style="background:#666666"></i><b>#666666</b><em>gris</em></span><span class="chip"><i style="background:#353A46"></i><b>#353A46</b><em>vidrio</em></span></div>
+  <ul class="tr"><li>Autos compactos pintados de amarillo vivo con letrero de taxi sobre el techo o en el parabrisas; carrocería abollada y gastada.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Tico 3,3 x 1,4 x 1,4 m; sedán 4,4 x 1,75 x 1,45 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Tico 53 x 22 px; sedán 70 x 28 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Pocas siluetas de sedán/hatch; un amarillo fuerte entre grises = señal de lectura.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Sin logos de marca ni de plataformas.</p>
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Taxis_in_Lima" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="mototaxi">
+  <header><h3>Mototaxi</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">Fotos de mototaxis peruanos de Commons pero NO de Callao (Andahuaylas y Huanchaco). Se ven en periferias; no los vi en avenidas pesadas como Gambetta.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Andahuaylas_Mototaxis.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Andahuaylas_Mototaxis.jpg/330px-Andahuaylas_Mototaxis.jpg" alt="Mototaxi" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>AgainErick (Andahuaylas, no Callao) · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Andahuaylas_Mototaxis.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Auto_rickshaw_in_Huanchaco.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Auto_rickshaw_in_Huanchaco.jpg/330px-Auto_rickshaw_in_Huanchaco.jpg" alt="Mototaxi" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Bernard Gagnon (Huanchaco, no Callao) · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Auto_rickshaw_in_Huanchaco.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#1767A9"></i><b>#1767A9</b><em>azul</em></span><span class="chip"><i style="background:#E8D9A8"></i><b>#E8D9A8</b><em>toldo crema</em></span><span class="chip"><i style="background:#B8322E"></i><b>#B8322E</b><em>rojo</em></span><span class="chip"><i style="background:#D6567A"></i><b>#D6567A</b><em>rosa gráfico</em></span><span class="chip"><i style="background:#171918"></i><b>#171918</b><em>negro</em></span><span class="chip"><i style="background:#A59C92"></i><b>#A59C92</b><em>tierra</em></span></div>
+  <ul class="tr"><li>Triciclo con cabina de plástico o fibra, techo/toldo de color distinto al cuerpo; azul, rojo o con gráficos rosados envolventes.</li><li>Cabina cerrada con faro simple; llantas pequeñas.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>2,6 x 1,2 x 1,75 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>42 x 19 px; 28 px de alto.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Vehículo rápido y pequeño para barrios y cerros; decoración personal por unidad.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Mototaxis_in_Peru" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="tractocamion">
+  <header><h3>Tractocamión con contenedor</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Street View de Gambetta (solo link).</p>
+  <div class="noimg">Sin imagen libre incrustada. Usa los enlaces de abajo para ver fotos o Street View.</div>
+  <div class="sw"><span class="chip"><i style="background:#E8E8E6"></i><b>#E8E8E6</b><em>cabina blanca</em></span><span class="chip"><i style="background:#E3B82A"></i><b>#E3B82A</b><em>tractor amarillo</em></span><span class="chip"><i style="background:#3C5A99"></i><b>#3C5A99</b><em>chasis azul</em></span><span class="chip"><i style="background:#2E4F8F"></i><b>#2E4F8F</b><em>contenedor azul</em></span><span class="chip"><i style="background:#D5D8DA"></i><b>#D5D8DA</b><em>contenedor blanco</em></span><span class="chip"><i style="background:#1E1E20"></i><b>#1E1E20</b><em>neumático</em></span></div>
+  <ul class="tr"><li>Cabina plana (cab-over) blanca de tractocamión, o cabina de trompa amarilla con chasis azul; semirremolque con contenedor de 40' blanco o azul, a veces refrigerado.</li><li>Largas filas en la calzada, paradas a lo largo de la avenida.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Tractor ~6 x 2,5 x 3,2 m; con semirremolque ~16,5 x 2,6 x 4,1 m; contenedor 12,2 x 2,44 x 2,9 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Conjunto 264 x 42 px; alto 66 px; tractor solo 96 x 40 px; contenedor 195 x 39 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> 3 cabinas x 4 colores de contenedor; atascos como puzzle; ruido/vibración opcional.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Sin estrellas de fabricante ni logos de empresas navieras.</p>
+  <div class="links"><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0446,-77.1264&amp;heading=200" target="_blank" rel="noopener">Street View (Gambetta)</a><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0446,-77.1264&amp;heading=0" target="_blank" rel="noopener">Street View (otro sentido)</a></div>
+</article>
+</div>
+<h2 class="grp" id="g-gente-y-fauna">Gente y fauna</h2>
+<div class="grid">
+<article class="card" id="emolientero">
+  <header><h3>Emolientero y carritos ambulantes</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Foto de Commons de un carrito de emoliente + vendedor con carrito de compras visto en Ventanilla.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Carro_emoliente.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Carro_emoliente.jpg/330px-Carro_emoliente.jpg" alt="Emolientero y carritos ambulantes" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>rat_racer · <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener">CC BY-SA 2.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Carro_emoliente.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Paradero_de_Ventanilla.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Paradero_de_Ventanilla.jpg/330px-Paradero_de_Ventanilla.jpg" alt="Emolientero y carritos ambulantes" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Gianpier Yair Venegas Ambia · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Paradero_de_Ventanilla.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#1E7F7B"></i><b>#1E7F7B</b><em>verde azulado</em></span><span class="chip"><i style="background:#FCFDFD"></i><b>#FCFDFD</b><em>blanco del vendedor</em></span><span class="chip"><i style="background:#878886"></i><b>#878886</b><em>acero</em></span><span class="chip"><i style="background:#484947"></i><b>#484947</b><em>sombra</em></span><span class="chip"><i style="background:#B99A5E"></i><b>#B99A5E</b><em>emoliente</em></span></div>
+  <ul class="tr"><li>Carrito vitrina de metal verde azulado con puerta de vidrio y bidón; el vendedor viste uniforme blanco, gorra y delantal.</li><li>Vendedores ambulantes con carritos de supermercado cargados de mercadería junto a los paraderos.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Carrito 1,7 x 0,8 x 1,9 m con toldo/vitrina; carrito de compras 1,0 x 0,6 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>27 x 13 px; 30 px de alto con vitrina; carrito de compras 16 x 10 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Puesto como pickup (recupera vida); lenguaje digno, no estorbo.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Emoliente_stands_in_Lima" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="transito">
+  <header><h3>Agente de tránsito y chalecos reflectivos</h3><span class="st par">Verificado en parte</span></header>
+  <p class="vis">Visto en Street View de Gambetta (solo link).</p>
+  <div class="noimg">Sin imagen libre incrustada. Usa los enlaces de abajo para ver fotos o Street View.</div>
+  <div class="sw"><span class="chip"><i style="background:#C8E04A"></i><b>#C8E04A</b><em>chaleco verde-lima</em></span><span class="chip"><i style="background:#F0F0EC"></i><b>#F0F0EC</b><em>casco blanco</em></span><span class="chip"><i style="background:#232226"></i><b>#232226</b><em>pantalón / botas</em></span><span class="chip"><i style="background:#9AA0A6"></i><b>#9AA0A6</b><em>banda reflectiva</em></span></div>
+  <ul class="tr"><li>Agente con chaleco verde-lima, casco blanco, pantalón oscuro; de pie en medio de un cruce.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Persona 1,70 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>28 px de alto; chaleco 8 x 10 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> NPC o zombi con chaleco = lectura rápida; colores reflectantes llamativos.</p>
+  <p class="brand"><b>Marcas a inventar:</b> Sin escudos ni insignias reales de la policía.</p>
+  <div class="links"><a class="btn" href="https://www.google.com/maps/@?api=1&amp;map_action=pano&amp;viewpoint=-12.0446,-77.1264&amp;heading=200" target="_blank" rel="noopener">Street View (Gambetta)</a></div>
+</article>
+<article class="card" id="gallinazo">
+  <header><h3>Gallinazo (buitre de cabeza negra)</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:GALLINAZO.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/GALLINAZO.jpg/330px-GALLINAZO.jpg" alt="Gallinazo (buitre de cabeza negra)" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>JosiasZ · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:GALLINAZO.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#151717"></i><b>#151717</b><em>plumaje</em></span><span class="chip"><i style="background:#8E8A86"></i><b>#8E8A86</b><em>cabeza gris</em></span><span class="chip"><i style="background:#D8D2C6"></i><b>#D8D2C6</b><em>pico claro</em></span><span class="chip"><i style="background:#C9BFB5"></i><b>#C9BFB5</b><em>patas</em></span></div>
+  <ul class="tr"><li>Plumaje negro, cabeza pelada y arrugada gris, pico corto y curvo, alas anchas con puntas claras al volar.</li><li>Posado en techos, postes y bordillos con las alas abiertas.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Largo ~65 cm; envergadura ~1,3-1,5 m.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Cuerpo 10 x 6 px; con alas abiertas 22 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Ambientación: aparece sobre cadáveres/zombis; vuelo en círculos como pista de peligro.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Coragyps_atratus_in_Peru" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="perros">
+  <header><h3>Perros callejeros</h3><span class="st no">No verificado</span></header>
+  <p class="vis">No apareció ningún perro en las fotos revisadas; se mantiene la descripción general de la investigación previa.</p>
+  <div class="noimg">Sin imagen libre incrustada. Usa los enlaces de abajo para ver fotos o Street View.</div>
+  <p class="mut">Paleta no muestreada (sin foto verificada).</p>
+  <ul class="tr"><li>Pelaje corto beige o marrón, flaco, sueltos en esquinas (sin verificar con foto).</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>~0,5 m de alto, 0,9 m de largo.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>14 x 8 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Mantener como estimado; buscar fotos antes de dibujar.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/w/index.php?search=perros+callejeros+Callao&amp;ns6=1" target="_blank" rel="noopener">Buscar en Commons</a></div>
+</article>
+</div>
+<h2 class="grp" id="g-cielo-y-luz">Cielo y luz</h2>
+<div class="grid">
+<article class="card" id="garua">
+  <header><h3>Garúa y cielo bajo</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons de la bahía, la isla y las calles de Ventanilla.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Mar_del_Callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Mar_del_Callao.jpg/330px-Mar_del_Callao.jpg" alt="Garúa y cielo bajo" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Wasiwatana · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Mar_del_Callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:El_Front%C3%B3n%2C_May_2012.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/El_Front%C3%B3n%2C_May_2012.jpg/330px-El_Front%C3%B3n%2C_May_2012.jpg" alt="Garúa y cielo bajo" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Jersey Devil · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> · <a href="https://commons.wikimedia.org/wiki/File:El_Front%C3%B3n%2C_May_2012.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#C9C7C6"></i><b>#C9C7C6</b><em>cielo garúa</em></span><span class="chip"><i style="background:#A8ABB8"></i><b>#A8ABB8</b><em>nube baja</em></span><span class="chip"><i style="background:#8A7765"></i><b>#8A7765</b><em>orilla</em></span><span class="chip"><i style="background:#7C8893"></i><b>#7C8893</b><em>mar</em></span><span class="chip"><i style="background:#ABB4B5"></i><b>#ABB4B5</b><em>isla en bruma</em></span><span class="chip"><i style="background:#F2E5D8"></i><b>#F2E5D8</b><em>brillo del sol</em></span></div>
+  <ul class="tr"><li>Cielo continuo gris perla que ocupa casi la mitad del cuadro; mar y orilla de grises y pardos; la isla se disuelve en la bruma.</li><li>Cerros pardos desaturados en el fondo; muy poca sombra marcada.</li><li>Hay días de cielo azul brillante (verano) pero la identidad visual dominante es gris.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>-</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Capa de niebla a 20-30 % de opacidad por distancia; skybox plano.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Gradiente de distancia hacia #C9C7C6; sombras suaves y alargadas; reservar el azul para la escena de playa de verano.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Callao_Bay" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="mar-escollera">
+  <header><h3>Mar, escollera y guijarros</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Mar_del_Callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Mar_del_Callao.jpg/330px-Mar_del_Callao.jpg" alt="Mar, escollera y guijarros" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Wasiwatana · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Mar_del_Callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:Beach_of_Callao%2C_Peru.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Beach_of_Callao%2C_Peru.jpg/330px-Beach_of_Callao%2C_Peru.jpg" alt="Mar, escollera y guijarros" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Tremoro0 · <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Beach_of_Callao%2C_Peru.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#8A7765"></i><b>#8A7765</b><em>guijarro pardo</em></span><span class="chip"><i style="background:#A99785"></i><b>#A99785</b><em>piedra clara</em></span><span class="chip"><i style="background:#6B5745"></i><b>#6B5745</b><em>piedra oscura</em></span><span class="chip"><i style="background:#7C8893"></i><b>#7C8893</b><em>agua</em></span><span class="chip"><i style="background:#C9C7C6"></i><b>#C9C7C6</b><em>cielo</em></span></div>
+  <ul class="tr"><li>Orillas de piedras redondeadas pardas y grises, sin arena fina; botes pesqueros de casco oscuro a poca distancia.</li><li>Escollera de roca gris al borde del terminal.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>Piedra 5-15 cm.</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Tile 16 x 16 con 3 tonos y puntos de luz de 1 px.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Orilla con sonido de crujido; agua gris-azulada plana.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Beaches_of_Isla_San_Lorenzo" target="_blank" rel="noopener">Commons</a></div>
+</article>
+<article class="card" id="atardecer-noche">
+  <header><h3>Atardecer y noche en plaza</h3><span class="st ok">Verificado en foto</span></header>
+  <p class="vis">Fotos de Commons de Plaza Grau al atardecer y de la Iglesia Matriz de noche.</p>
+  <div class="imgs"><figure><a href="https://commons.wikimedia.org/wiki/File:Plaza_Grau_del_Callao.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Plaza_Grau_del_Callao.jpg/330px-Plaza_Grau_del_Callao.jpg" alt="Atardecer y noche en plaza" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>DORM · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:Plaza_Grau_del_Callao.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure><figure><a href="https://commons.wikimedia.org/wiki/File:CAL-002_%282%29.jpg" target="_blank" rel="noopener"><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/CAL-002_%282%29.jpg/330px-CAL-002_%282%29.jpg" alt="Atardecer y noche en plaza" onerror="this.closest('figure').classList.add('broken')"></a><figcaption>Jonathan Marco Corredor Obispo · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> · <a href="https://commons.wikimedia.org/wiki/File:CAL-002_%282%29.jpg" target="_blank" rel="noopener">Commons</a></figcaption></figure></div>
+  <div class="sw"><span class="chip"><i style="background:#E5946B"></i><b>#E5946B</b><em>cielo atardecer</em></span><span class="chip"><i style="background:#7A4A55"></i><b>#7A4A55</b><em>nube morada</em></span><span class="chip"><i style="background:#15171C"></i><b>#15171C</b><em>silueta</em></span><span class="chip"><i style="background:#E8A93A"></i><b>#E8A93A</b><em>luz ámbar de farola</em></span><span class="chip"><i style="background:#C9C7C6"></i><b>#C9C7C6</b><em>fachada iluminada</em></span></div>
+  <ul class="tr"><li>Al atardecer, siluetas de palmeras y la columna contra un cielo naranja-rosado y sol bajo.</li><li>De noche, farolas de luz ámbar y fachadas blancas iluminadas; el cielo es casi negro.</li></ul>
+  <dl>
+    <dt>Dimensiones reales</dt><dd>-</dd>
+    <dt>En píxeles (16 px/m)</dt><dd>Luces como círculos de 24-48 px con degradado de 3 pasos.</dd>
+  </dl>
+  <p class="game"><b>Cómo llevarlo al juego:</b> Ciclo de luz para Plaza Grau y plazas; farolas cálidas contra grises fríos.</p>
+  
+  <div class="links"><a class="btn" href="https://commons.wikimedia.org/wiki/Category:Plaza_Grau_(Callao)" target="_blank" rel="noopener">Commons (Plaza Grau)</a></div>
+</article>
+</div>
+
+<h2 class="grp" id="escala">Tabla de escala (16 px por metro)</h2>
+<div class="tblwrap"><table><thead><tr><th>Objeto</th><th>Medida real (m)</th><th>Píxeles</th><th>Nota</th></tr></thead><tbody>
+<tr><td>Persona adulta</td><td>1,65-1,75 alto; 0,5 ancho</td><td>28 alto x 8 ancho</td><td>Referencia de todo el juego</td></tr>
+<tr><td>Niño</td><td>1,2</td><td>19 alto</td><td></td></tr>
+<tr><td>Puerta peatonal</td><td>0,9 x 2,1</td><td>14 x 34</td><td>Frente de casa y local</td></tr>
+<tr><td>Portón de cochera / persiana de local</td><td>2,4 x 2,4</td><td>38 x 38</td><td></td></tr>
+<tr><td>Portón de almacén corredizo</td><td>5 x 5</td><td>80 x 80</td><td>Gambetta</td></tr>
+<tr><td>Ventana de casa</td><td>1,2 x 1,2</td><td>19 x 19</td><td>Con reja</td></tr>
+<tr><td>Piso de casa (con losa)</td><td>2,6-2,8</td><td>42-45 alto</td><td>Casona de Chucuito: 1 piso = 5-6 m (80-96 px)</td></tr>
+<tr><td>Casa autoconstruida 2 pisos</td><td>6-8 frente x 5,6 alto</td><td>96-128 x 90</td><td>+13 px de fierros y pretil</td></tr>
+<tr><td>Casa autoconstruida 3 pisos</td><td>6-8 frente x 8,4 alto</td><td>96-128 x 134</td><td></td></tr>
+<tr><td>Casona 2 pisos (Chucuito / Callao Monumental)</td><td>7-9 frente x 8-9 alto</td><td>112-144 x 130-144</td><td></td></tr>
+<tr><td>Tanque de azotea</td><td>1,1 diámetro x 1,7 alto</td><td>18 x 27</td><td>Negro, tapa; también azul</td></tr>
+<tr><td>Combi (Hiace / Urvan)</td><td>5,3 x 1,9 x 2,3</td><td>86 x 30 (36 alto)</td><td></td></tr>
+<tr><td>Custer (Coaster)</td><td>6,2-7,0 x 2,1 x 2,6</td><td>100-112 x 33 (42 alto)</td><td></td></tr>
+<tr><td>Bus de corredor</td><td>12 x 2,55 x 3,2</td><td>192 x 41 (51 alto)</td><td></td></tr>
+<tr><td>Auto sedán</td><td>4,4 x 1,75 x 1,45</td><td>70 x 28 (23 alto)</td><td></td></tr>
+<tr><td>Taxi Tico</td><td>3,3 x 1,4 x 1,4</td><td>53 x 22 (22 alto)</td><td></td></tr>
+<tr><td>Mototaxi</td><td>2,6 x 1,2 x 1,75</td><td>42 x 19 (28 alto)</td><td></td></tr>
+<tr><td>Tractor solo</td><td>6 x 2,5 x 3,2</td><td>96 x 40 (51 alto)</td><td></td></tr>
+<tr><td>Tractocamión con semirremolque 40'</td><td>16,5 x 2,6 x 4,1</td><td>264 x 42 (66 alto)</td><td>Gambetta</td></tr>
+<tr><td>Contenedor 20'</td><td>6,06 x 2,44 x 2,59</td><td>97 x 39 (41 alto)</td><td></td></tr>
+<tr><td>Contenedor 40' HC</td><td>12,19 x 2,44 x 2,90</td><td>195 x 39 (46 alto)</td><td></td></tr>
+<tr><td>Grúa pórtico STS</td><td>~60-70 alto, ~30 entre rieles (est.)</td><td>~960-1120 alto</td><td>Dibujar recortada o como fondo</td></tr>
+<tr><td>Poste de concreto</td><td>11-12 alto x 0,3</td><td>176-192 x 5</td><td></td></tr>
+<tr><td>Poste de alumbrado (1-2 brazos)</td><td>10-12</td><td>160-192</td><td></td></tr>
+<tr><td>Farola peatonal</td><td>3,5</td><td>56</td><td>Chucuito / Plaza Grau</td></tr>
+<tr><td>Palmera abanico</td><td>10-14</td><td>160-224</td><td></td></tr>
+<tr><td>Árbol de calle</td><td>4-6 (ficus de plaza 8-12)</td><td>64-96 (128-192)</td><td></td></tr>
+<tr><td>Carril de calle</td><td>3,2-3,6</td><td>52-58</td><td></td></tr>
+<tr><td>Vereda</td><td>1,2-3</td><td>19-48</td><td>Casco antiguo: 1-1,5 m</td></tr>
+<tr><td>Berma central</td><td>2-6</td><td>32-96</td><td></td></tr>
+<tr><td>Cruce de Gambetta</td><td>21-28 (6-8 carriles)</td><td>336-448</td><td>Sin bermas</td></tr>
+<tr><td>Sardinel</td><td>0,15 alto</td><td>2-3 alto</td><td></td></tr>
+<tr><td>Gallinazo</td><td>0,65 largo; 1,4 de alas</td><td>10 largo; 22 con alas abiertas</td><td></td></tr>
+<tr><td>Perro</td><td>0,9 largo x 0,5 alto</td><td>14 x 8</td><td>Estimado</td></tr>
+<tr><td>Carrito de emoliente</td><td>1,7 x 0,8 x 1,9</td><td>27 x 13</td><td></td></tr>
+<tr><td>Monumento a Grau (columna con figura)</td><td>~18-25 (estimado)</td><td>~290-400 alto</td><td></td></tr>
+<tr><td>Torreón del Rey (Real Felipe)</td><td>~20 diámetro x 12-14 alto (estimado)</td><td>320 diámetro x ~190-220 alto</td><td></td></tr>
+</tbody></table></div>
+
+<h2 class="grp" id="correcciones">Lo que la investigación previa decía mal o no vio</h2>
+<div class="box"><ul><li>Real Felipe: la investigación previa decía muros 'de piedra pardo-grisácea, de unos 4 m' y estilo Vauban en general. En las fotos el color es pardo-arena cálido (no gris), con copetes y bandas de ladrillo rojizo; el rasgo icónico es el Torreón del Rey, una torre cilíndrica con merlones. Los muros son más altos que 4 m en las fotos (~6-8 m con talud).</li><li>Plaza Grau: se describió como 'pedestal de piedra con figura de bronce verdoso'. En las fotos es una columna esbelta de piedra clara con anillos y ornamentos de bronce oscuro, sobre una base circular escalonada, con hileras de palmeras y una plaza con pisos rojos/rosados con dibujos amarillos.</li><li>Iglesia Matriz: se decía 'torres de campanario' y color 'crema-ocre'. Las fotos muestran UNA torre central con cupulín y fachada blanco hueso; el ocre y el rosa son de los edificios vecinos.</li><li>Chucuito: se decía 'casas de madera con balcón de cajón, pastel desteñido'. Las fotos muestran fachadas planas (de albañilería) de 1 piso alto o 2, con colores saturados (naranja, violeta, mostaza, coral, turquesa) y marcos contrastantes; los balcones de cajón de madera aparecen en Callao Monumental (verde-gris oscuro), no en cada casa.</li><li>Puerto: se hablaba de 'pórticos grúa azul/rojo desteñido'. En la foto son rojo-óxido terroso; lo azul son contenedores. Faltaba la imagen de galpones grises a dos aguas y en arco con patios.</li><li>Av. Gambetta: se imaginaba 'muros altos sin ventanas con portón corredizo'. En Street View domina la silueta de galpones en ARCO (bóveda) y una calzada de 6+ carriles con tractocamiones blancos y amarillos, letras viales ('Av. Néstor Gambetta', 'PE 20'), cables y postes dobles. Los grifos siguen sin verificar.</li><li>Berma con troncos blanqueados con cal: confirmado en foto de Callao Monumental, pero no en la Gambetta de Ventanilla, donde la berma es de césped con palmeras.</li><li>La Punta: no verificado el 'faro de La Punta' pedido. El faro verificado (según PromPerú) es el Faro Torre Reloj del Muelle Dársena. La playa de guijarros sí se confirma en foto.</li><li>Combis: se confirma base blanca con franjas, pero faltaban detalles: franjas de 2-3 colores a media altura y en el parachoques, placa de ruta en el parabrisas, dimensiones reales (Hiace 5,3 m; Coaster ~7 m) y el bus de corredor rojo y blanco.</li><li>Taxis: se dijo 'a veces amarillo'. En las fotos es amarillo vivo con letrero.</li><li>Mototaxis: se decía que son más comunes en barrios altos. No se encontró foto de Callao: las fotos libres son de otras ciudades; dejar como periferia.</li><li>Asentamientos: la investigación previa sugería casas de esteras, escaleras pintadas. Las fotos de Ventanilla/Pachacútec muestran ladrillo visto de 2-4 pisos, módulos prefabricados amarillos, calles de arena y una maraña enorme de cables sobre cerros pelados. Esteras y escaleras pintadas no se vieron.</li><li>El cielo: se confirma el techo gris, pero en las fotos aparecen también días azules de verano; usar ambos con la garúa como base.</li><li>Faltaba: letreros elevados azules con texto blanco, señalética vial pintada en el piso, policía de tránsito con chaleco verde-lima, vallas sobre mástiles, muros con murales a lo largo de las avenidas, mercado con persianas y techos de madera, carritos de emoliente verde azulado.</li><li>Mercado Central, Sarita Colonia, Chacaritas, Puerto Nuevo, Castilla y perros callejeros: sin foto libre verificada. Marcados como no verificados en vez de describirlos de memoria.</li></ul></div>
+
+<h2 class="grp" id="marcas">Marcas, logos y obras vistas: hay que inventar reemplazos</h2>
+<div class="box"><ul><li>Gambetta (Street View): estrella de marca europea en cabina blanca, cabina amarilla de marca estadounidense, textos de empresas en galpones y contenedores. Todo a inventar.</li><li>Combis y custers (Commons): nombres de empresas reales en el costado y logos de Toyota/Nissan. No copiar; inventar nombres y rutas.</li><li>Interior del Mercado Central (Street View): vitrina con nombre de óptica y logo de tarjeta de pago. Inventar.</li><li>Estadio Miguel Grau: escudo y camiseta del club rosado. Inventar identidad (rayas o bloques rosados sin escudo).</li><li>Corredores de buses: colores y nombres oficiales (ATU y empresas). Usar color sin nombre.</li><li>Murales de Callao Monumental y Atahualpa: obras de artistas. Inventar murales propios, sin rostros reales.</li><li>Monumento a Grau: la figura real es un personaje histórico con rostro; usar silueta genérica de almirante.</li></ul></div>
+
+<footer>
+<p>Todas las dimensiones marcadas como estimadas salen de comparar con personas en las fotos y no son medidas oficiales. Coordenadas de Maps y Street View tomadas de OpenStreetMap (Nominatim); el Street View de la Gambetta (nov. 2025) fue verificado en el punto indicado. Las imágenes embebidas siguen sus licencias de Wikimedia Commons; haz clic en la foto o en 'Commons' para ver la ficha completa.</p>
+</footer>
+</div>
+</body>
+</html>

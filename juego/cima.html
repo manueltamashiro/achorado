@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#131015">
+<title>La cima del cerro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Patrick+Hand&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/cima.css">
+</head>
+<body>
+<!-- Portada chicha: el clic desbloquea el audio -->
+<div id="portada" class="pv on">
+  <div class="poster">
+    <p class="kicker">LA CIMA DEL CERRO · CALLAO</p>
+    <h1>ACHORADO</h1>
+    <h2>La cima (vista previa)</h2>
+    <p class="sub">Cinemática de 18 s y mapa de distritos.</p>
+    <p class="go"><button id="btnGo" class="pvbtn" type="button">▶ VER LA CINEMÁTICA</button></p>
+    <small>La primera vez no se salta; después, ENTER / CLIC la salta · en el mapa: flechas o WASD + ENTER</small>
+  </div>
+</div>
+<!-- Al escoger un distrito -->
+<div id="fin" class="pv over">
+  <div class="poster">
+    <h2 id="finH">MIRAFLORES</h2>
+    <p class="sub">próximamente</p>
+    <p class="go"><button id="btnRep" class="pvbtn" type="button">Repetir</button><button id="btnMap" class="pvbtn alt" type="button">Volver al mapa</button></p>
+  </div>
+</div>
+
+<script src="js/sprites/cine.js"></script>
+<script src="js/audio/himno.js"></script>
+<script src="js/cine/cima.js"></script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var q = new URLSearchParams(location.search);
+  function fit() {   // --u como en game.css: 1 px lógico del juego (480×270)
+    var u = Math.max(1, Math.min(window.innerWidth / 480, window.innerHeight / 270));
+    document.documentElement.style.setProperty('--u', u + 'px');
+  }
+  fit(); window.addEventListener('resize', fit);
+
+  var opts = {
+    onChoose: function (id) {
+      var nm = (ACH.cima.nombre && ACH.cima.nombre(id)) || id.replace(/-/g, ' ');
+      $('finH').textContent = nm.toUpperCase();
+      $('fin').classList.add('on'); $('btnMap').focus();
+    },
+    onBack: function () { ACH.cima.close(); $('fin').classList.remove('on'); $('portada').classList.add('on'); $('btnGo').focus(); }   // v0.10: «◀ VOLVER» / ESC en el mapa
+  };
+  function start(auto) {
+    $('portada').classList.remove('on');
+    $('fin').classList.remove('on');
+    var o = { onChoose: opts.onChoose, onBack: opts.onBack };
+    if (q.get("unlock") === "all") o.unlock = "all";
+    if (!auto) { ACH.cima.play(o); return; }   // Repetir y el botón de la portada ignoran ?t= ?map= ?freeze=
+    if (q.get("freeze") === "1") o.freeze = true;
+    if (q.get("t") != null && !isNaN(parseFloat(q.get("t")))) o.t = parseFloat(q.get("t"));
+    if (q.get("map") === "1") ACH.cima.showMap(o); else ACH.cima.play(o);
+  }
+  $('btnGo').addEventListener('click', function () { start(false); });
+  $('btnRep').addEventListener('click', function () { ACH.cima.close(); start(false); });
+  $('btnMap').addEventListener('click', function () { $('fin').classList.remove('on'); ACH.cima.showMap({ onChoose: opts.onChoose, onBack: opts.onBack }); });
+  // con parámetros de QA arranca solo (sin portada)
+  if (q.has('t') || q.has('map') || q.has('freeze')) start(true); else $('btnGo').focus();
+})();
+</script>
+</body>
+</html>

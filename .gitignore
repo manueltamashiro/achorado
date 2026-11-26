@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Build output (regenerate with: sh juego/build.sh and the other build-*.sh scripts)
+juego/dist/
+
+# Old manual backups — git history replaces these from now on
+respaldos/
+
+# Editor / misc
+*.log
+*.swp
+.vscode/
+.idea/

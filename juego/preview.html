@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO - hoja de sprites</title>
+<style>
+  :root { --bg:#2a2833; --panel:#34323f; --ink:#e9e4d4; --dim:#9a97a6; --line:#4a4757; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px 20px 60px; background:var(--bg); color:var(--ink); font:13px/1.35 ui-monospace, Menlo, Consolas, monospace; }
+  h1 { margin:0 0 4px; font-size:20px; }
+  h2 { margin:28px 0 8px; padding-top:10px; border-top:1px solid var(--line); font-size:15px; color:#f2e63c; }
+  p.note { margin:0 0 8px; color:var(--dim); max-width:900px; }
+  nav a { color:#38c8e8; margin-right:12px; text-decoration:none; }
+  .grid { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
+  figure { margin:0; padding:6px; background:var(--panel); border:1px solid var(--line); border-radius:3px; }
+  figcaption { margin-top:4px; max-width:100%; font-size:11px; color:var(--dim); overflow-wrap:anywhere; }
+  figcaption b { color:var(--ink); font-weight:600; }
+  canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; }
+  .chk { background-color:#6e6c78; background-image:linear-gradient(45deg,#625f6d 25%,transparent 25%,transparent 75%,#625f6d 75%),linear-gradient(45deg,#625f6d 25%,transparent 25%,transparent 75%,#625f6d 75%); background-size:16px 16px; background-position:0 0,8px 8px; }
+  .row { display:flex; gap:14px; align-items:flex-end; flex-wrap:wrap; margin:6px 0; }
+  .bad { color:#ff8a2a; }
+  .lot figure { padding:6px 6px 4px; }
+  label { margin-right:12px; color:var(--dim); }
+</style>
+</head>
+<body>
+<h1>ACHORADO - hoja de sprites</h1>
+<p class="note">Todo a ×4 (los lotes a ×3) sobre cuadros grises. En las props, Alexander (20×28, 1,70 m) va al lado sobre una regla donde 16 px = 1 m. Abre este archivo desde <code>dist/preview.html</code> o directo desde la carpeta.</p>
+<nav id="nav"></nav>
+<div id="out"></div>
+
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/calle.js"></script>
+<script src="js/sprites/edificios-casas.js"></script>
+<script src="js/sprites/edificios-industria.js"></script>
+<script src="js/sprites/vehiculos.js"></script>
+<script src="js/sprites/mobiliario.js"></script>
+<script src="js/sprites/luz.js"></script>
+<script src="js/sprites/letreros.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/cerro-suelo.js"></script>
+<script src="js/sprites/cerro-casas.js"></script>
+<script src="js/sprites/cerro-props.js"></script>
+<script src="js/sprites/aves.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script>
+(function () {
+"use strict";
+var S = ACH.sprites, px = ACH.px, Z = 4;
+var out = document.getElementById('out'), nav = document.getElementById('nav');
+
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function isCanvas(o) { return o && typeof o === 'object' && typeof o.getContext === 'function' && o.width > 0; }
+function show(c, z) {                                  // copia visible del canvas, con zoom entero y sin suavizado
+  var v = document.createElement('canvas'); v.width = c.width; v.height = c.height;
+  v.getContext('2d').drawImage(c, 0, 0);
+  v.style.width = (c.width * z) + 'px'; v.style.height = (c.height * z) + 'px';
+  v.className = 'chk';
+  return v;
+}
+function fig(canvasEl, caption) { var f = el('figure'); f.appendChild(canvasEl); f.appendChild(el('figcaption', '', caption)); return f; }
+function section(id, title, note) {
+  var h = el('h2', '', title); h.id = id; out.appendChild(h);
+  var a = el('a', '', title.split(' (')[0]); a.href = '#' + id; nav.appendChild(a);
+  if (note) out.appendChild(el('p', 'note', note));
+  var d = el('div', 'grid'); out.appendChild(d); return d;
+}
+function walk(o, path, acc, depth) {                    // junta todos los canvas de un arbol: { 'props.combi': canvas, 'props.car[0]': canvas ... }
+  if (isCanvas(o)) { acc.push({ key: path, c: o }); return; }
+  if (!o || typeof o !== 'object' || depth > 6) return;
+  if (Array.isArray(o)) { o.forEach(function (v, i) { walk(v, path + '[' + i + ']', acc, depth + 1); }); return; }
+  Object.keys(o).forEach(function (k) { walk(o[k], path ? path + '.' + k : k, acc, depth + 1); });
+}
+function meta(it) {
+  var c = it.c, s = '<b>' + it.key + '</b><br>' + c.width + '×' + c.height;
+  if (c.ax !== undefined) s += ' · ancla ' + c.ax + ',' + c.ay;
+  if (c.fw !== undefined) s += ' · huella ' + c.fw + '×' + c.fh;
+  if (c.tall) s += ' · tall';
+  if (c.lamp) s += ' · lamp ' + c.lamp.x + ',' + c.lamp.y;
+  return s;
+}
+
+/* ---- Alexander junto a una prop, sobre una regla en metros (16 px = 1 m) ---- */
+function alexRef() { var a = S.alex && S.alex.nobird && S.alex.nobird.idle && S.alex.nobird.idle.down; return a || null; }
+function withAlex(p) {
+  var al = alexRef(), ax = p.ax !== undefined ? p.ax : (p.width >> 1), ay = p.ay !== undefined ? p.ay : p.height - 1;
+  var aax = al ? (al.ax !== undefined ? al.ax : 10) : 0, aay = al ? (al.ay !== undefined ? al.ay : 26) : 0;
+  var up = Math.max(ay, aay) + 4, gap = 12, left = 14;
+  var W = left + p.width + gap + (al ? al.width : 0) + 6, rulerH = 14;
+  var below = Math.max(p.height - 1 - ay, al ? al.height - 1 - aay : 0) + 3;
+  var H = up + below + rulerH;
+  var c = px.canvas(W, H), g = c.getContext('2d');
+  var base = up;                                         // fila del suelo
+  g.fillStyle = '#6e6c78'; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#625f6d'; g.fillRect(0, base, W, below + rulerH);          // suelo
+  var px0 = left + 0, py0 = base - ay;
+  g.drawImage(p, px0, py0);
+  if (p.fw !== undefined) { g.strokeStyle = 'rgba(255,207,138,.9)'; g.lineWidth = 1; g.strokeRect(px0 + ax - Math.floor(p.fw / 2) + .5, base - p.fh + .5, p.fw - 1, p.fh - 1); }
+  if (al) g.drawImage(al, left + p.width + gap - 0, base - aay);
+  // regla horizontal desde el ancla: cada 16 px = 1 m
+  var ry = base + below + 2;
+  g.fillStyle = '#e9e4d4'; g.fillRect(left, ry, W - left - 2, 1);
+  var gl = new px.G(40, 6), mx = 0;
+  for (var x = left, m = 0; x <= W - 3; x += 16, m++) {
+    g.fillStyle = '#e9e4d4'; g.fillRect(x, ry - (m % 5 === 0 ? 3 : 2), 1, m % 5 === 0 ? 4 : 3);
+    if (m % 2 === 0 && m > 0) { gl = new px.G(12, 6); px.text(gl, String(m), 0, 1, { font: 'a5', ink: '#e9e4d4' }); g.drawImage(gl.toCanvas(), x + 2, ry + 2); }
+  }
+  // regla vertical (a la izquierda): 16 px por metro hasta 2,2 m; despues 12 px/m
+  g.fillStyle = '#e9e4d4'; g.fillRect(4, base - 16 * 2 - 12 * 3, 1, 16 * 2 + 12 * 3);
+  for (var k = 1; k <= 2; k++) g.fillRect(2, base - 16 * k, 5, 1);
+  for (k = 1; k <= 3; k++) { g.fillStyle = '#ffcf8a'; g.fillRect(3, base - 32 - 12 * k, 3, 1); }
+  return c;
+}
+
+/* ================= Secciones =================
+   props, tiles, decals, npc, zombie, alex, titina, y cualquier otra clave nueva. */
+var KNOWN = ['props', 'tiles', 'decals', 'npc', 'zombie', 'alex', 'titina', 'fx', 'light', 'lots'];
+var all = []; walk(S, '', all, 0);
+var byTop = {};
+all.forEach(function (it) { var t = it.key.split(/[.\[]/)[0]; (byTop[t] = byTop[t] || []).push(it); });
+var order = ['props', 'tiles', 'decals', 'npc', 'zombie', 'alex', 'titina'].concat(Object.keys(byTop).filter(function (k) { return ['props', 'tiles', 'decals', 'npc', 'zombie', 'alex', 'titina'].indexOf(k) < 0; }));
+var missingNote = [];
+order.forEach(function (top) {
+  var list = byTop[top]; if (!list) return;
+  var d = section('s-' + top, top + ' (' + list.length + ' canvas)', top === 'props' ? 'Cada prop junto a Alexander; el recuadro naranja es la huella de colisión (fw×fh) en el suelo. Los números de la regla son metros.' : '');
+  list.forEach(function (it) {
+    var c = it.c;
+    if (top === 'props') { var comp = withAlex(c); d.appendChild(fig(show(comp, Z), meta(it))); }
+    else d.appendChild(fig(show(c, Z), meta(it)));
+  });
+});
+
+/* ================= v0.6 (F3): estados de daño, rotos, gatos, ítems, resortera, orquesta, ventanas ================= */
+(function () {
+  var P = S.props || {};
+  function get(k) { var c = P[k[0]]; if (k.length > 1) c = c && c[k[1]]; return c; }
+  function nm(k) { return k.length > 1 ? k[0] + '[' + k[1] + ']' : k[0]; }
+  function strip(cvs, z, bg) { var w = el('div'); w.style.cssText = 'display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap'; cvs.forEach(function (c) { if (c) w.appendChild(show(c, z)); }); return w; }
+  function same(a, b) { return a.width === b.width && a.height === b.height && a.ax === b.ax && a.ay === b.ay && a.fw === b.fw && a.fh === b.fh; }
+  /* ---- vehículos ---- */
+  var d = section('s-dmg', 'vehículos: estados de daño (.dmg)', 'Cada fila: sano · c1 abolladuras y parabrisas rajado · c2 lunas rotas con esquirlas, faro colgando, paragolpes torcido, rayones · c3 carcasa: techo hundido, sin vidrio, llantas bajas, óxido y hollín. Mismo lienzo, ancla y huella.');
+  [['combiE', 0], ['combiE', 1], ['combiE', 2], ['combiW', 0], ['custerE'], ['custerW'], ['carVar', 0], ['carVar', 1], ['carVar', 2], ['carVarW', 1], ['tico', 0], ['tico', 1], ['ticoW', 0],
+   ['mototaxiVar', 0], ['mototaxiVar', 1], ['mototaxiVar', 2], ['mototaxiVarW', 2], ['mototaxi'], ['combiN', 0], ['combiN', 1], ['combiS', 0], ['combiS', 2], ['car']].forEach(function (k) {
+    var c = get(k);
+    if (!c || !c.dmg) { d.appendChild(fig(el('div', 'bad', 'sin .dmg'), nm(k))); return; }
+    var ok = c.dmg.length === 3 && c.dmg.every(function (x) { return same(c, x); });
+    d.appendChild(fig(strip([c].concat(c.dmg), c.width > 90 ? 2 : (c.width > 50 ? 3 : 4)), '<b>' + nm(k) + '</b> · ' + c.width + '×' + c.height + ' · ancla ' + c.ax + ',' + c.ay + ' · huella ' + c.fw + '×' + c.fh + ' · sano · c1 · c2 · c3' + (ok ? '' : ' <span class="bad">¡TAMAÑO/ANCLA DISTINTO!</span>')));
+  });
+  /* ---- rotos y apagados ---- */
+  var d2 = section('s-broken', 'rotos (.broken) y postes apagados (.dark)', 'Izquierda: sano; derecha: estado roto o apagado. Los rotos conservan el ancla y achican la huella; .dark es la luminaria muerta con el cable colgando.');
+  [['trash'], ['bags'], ['bolsas', 0], ['bolsas', 1], ['emoliente'], ['anticuchos'], ['quiosco'], ['triciclo']].forEach(function (k) {
+    var c = get(k); if (!c || !c.broken) { d2.appendChild(fig(el('div', 'bad', 'sin .broken'), nm(k))); return; }
+    d2.appendChild(fig(strip([c, c.broken], 4), '<b>' + nm(k) + '.broken</b> · ' + c.broken.width + '×' + c.broken.height + ' · ancla ' + c.broken.ax + ',' + c.broken.ay + ' (sano ' + c.ax + ',' + c.ay + ') · huella ' + c.broken.fw + '×' + c.broken.fh + ' (sano ' + c.fw + '×' + c.fh + ')'));
+  });
+  [['poste'], ['posteCables'], ['posteAfiche'], ['posteAfiches', 2], ['posteLuz', 0], ['posteLuz', 1]].forEach(function (k) {
+    var c = get(k); if (!c || !c.dark) { d2.appendChild(fig(el('div', 'bad', 'sin .dark'), nm(k))); return; }
+    var cut = function (cv) { var o = px.canvas(cv.width, 80); o.getContext('2d').drawImage(cv, 0, 0, cv.width, 80, 0, 0, cv.width, 80); return o; };
+    d2.appendChild(fig(strip([cut(c), cut(c.dark)], 4), '<b>' + nm(k) + '.dark</b> · mitad alta del poste, sano a la izquierda, apagado a la derecha · lamp ' + (c.lamp ? c.lamp.x + ',' + c.lamp.y : '-')));
+  });
+  /* ---- gatos ---- */
+  var N = S.npc || {}, d3 = section('s-gatos', 'gatos (npc.gato y npc.gatoVar[3])', 'sentado · lamiéndose · caminar der/izq · correr der/izq · escondido (solo ojos y punta de cola). 14×10, ancla en los pies. Fila de abajo: tamaño real.');
+  [N.gato].concat(N.gatoVar || []).forEach(function (c, i) {
+    if (!c) return;
+    d3.appendChild(fig(strip([].concat(c.sit, c.lick), 6), '<b>' + (i === 0 ? 'gato' : 'gatoVar[' + (i - 1) + ']') + '</b> · sit[' + c.sit.length + '] lick[' + c.lick.length + '] · ' + c.sit[0].width + '×' + c.sit[0].height + ' ancla ' + c.sit[0].ax + ',' + c.sit[0].ay));
+    d3.appendChild(fig(strip([].concat(c.walk.right, c.walk.left), 6), 'walk right[' + c.walk.right.length + '] · left[' + c.walk.left.length + ']'));
+    d3.appendChild(fig(strip([].concat(c.run.right, c.run.left), 6), 'run right[' + c.run.right.length + '] · left[' + c.run.left.length + ']'));
+    d3.appendChild(fig(strip([].concat(c.hide), 6), 'hide[' + c.hide.length + '] (sobre fondo oscuro)'));
+  });
+  var oneRow = el('div', 'row'); (N.gatoVar || []).forEach(function (c) { oneRow.appendChild(show(c.sit[0], 1)); oneRow.appendChild(show(c.walk.right[0], 1)); oneRow.appendChild(show(c.run.right[1], 1)); });
+  d3.appendChild(fig(oneRow, 'a 1× (los tres pelajes)'));
+  /* ---- ítems ---- */
+  var I = S.items || {}, d4 = section('s-items', 'ítems (items[id] 12×12 y .big 24×24)', 'Cada ítem: ×8 (12×12), ×4 (.big 24×24), a 1× sobre claro y oscuro, y a 2×. El gaseosa usa ACH.px.marca(\'gaseosa_amarilla\') si existe.');
+  Object.keys(I).forEach(function (id) {
+    var c = I[id], w = el('div'); w.style.cssText = 'display:flex;gap:10px;align-items:flex-end';
+    w.appendChild(show(c, 8)); if (c.big) w.appendChild(show(c.big, 4));
+    var small = el('div'); small.style.cssText = 'display:flex;gap:4px;align-items:flex-end;padding:4px;background:#d8d4c4';
+    small.appendChild((function () { var v = show(c, 1); v.className = ''; return v; })()); if (c.big) small.appendChild((function () { var v = show(c.big, 1); v.className = ''; return v; })());
+    var dark = el('div'); dark.style.cssText = 'display:flex;gap:4px;align-items:flex-end;padding:4px;background:#24222c';
+    dark.appendChild((function () { var v = show(c, 2); v.className = ''; return v; })());
+    w.appendChild(small); w.appendChild(dark);
+    d4.appendChild(fig(w, '<b>items.' + id + '</b> · ' + c.width + '×' + c.height + (c.big ? ' · big ' + c.big.width + '×' + c.big.height : ' <span class="bad">sin .big</span>') + ' · ancla ' + c.ax + ',' + c.ay));
+  });
+  /* ---- resortera ---- */
+  var d5 = section('s-sling', 'Alexander con resortera (alex.bird/nobird.sling[dir] = [estirar, soltar])', 'Primero el cuadro de ataque (referencia de tamaño y ancla), luego estirar y soltar. Misma anchura, altura y ancla que attack. Arriba con Titina, abajo sin.');
+  ['bird', 'nobird'].forEach(function (v) {
+    var A = S.alex && S.alex[v]; if (!A || !A.sling) { d5.appendChild(fig(el('div', 'bad', 'sin sling'), v)); return; }
+    ['right', 'left', 'down', 'up'].forEach(function (dir) {
+      var atk = A.attack[dir][0], sl = A.sling[dir], ok = sl.length === 2 && sl.every(function (c) { return same(atk, c); });
+      d5.appendChild(fig(strip([atk, sl[0], sl[1]], 5), '<b>' + v + '.sling.' + dir + '</b> · ' + sl[0].width + '×' + sl[0].height + ' ancla ' + sl[0].ax + ',' + sl[0].ay + ' (attack ' + atk.width + '×' + atk.height + ' @' + atk.ax + ',' + atk.ay + ')' + (ok ? '' : ' <span class="bad">¡DISTINTO!</span>')));
+    });
+  });
+  /* ---- orquesta, baile, tarima, ventanas ---- */
+  var Zb = S.zombie || {}, d6 = section('s-orquesta', 'orquesta zombie, bailarín y escenario', 'Cada músico a ×4 con Alexander al lado para la escala (4 cuadros: el pulso baja el cuerpo en los impares). Tarima con foco, y las dos ventanas (cantante y siluetas) a ×8.');
+  var al = alexRef();
+  function withA(frames, z) { var w = strip((al ? [al] : []).concat(frames), z); return w; }
+  if (Zb.musico) Object.keys(Zb.musico).forEach(function (k) { var f = Zb.musico[k]; d6.appendChild(fig(withA(f, 4), '<b>zombie.musico.' + k + '</b> · ' + f.length + ' cuadros · ' + f[0].width + '×' + f[0].height + ' · ancla ' + f[0].ax + ',' + f[0].ay)); });
+  if (Zb.baile) d6.appendChild(fig(withA(Zb.baile, 4), '<b>zombie.baile</b> · ' + Zb.baile.length + ' cuadros · ' + Zb.baile[0].width + '×' + Zb.baile[0].height + ' · ancla ' + Zb.baile[0].ax + ',' + Zb.baile[0].ay));
+  if (P.tarima) { var tr = P.tarima; d6.appendChild(fig(show(withAlex(tr), 4), '<b>props.tarima</b> · ' + tr.width + '×' + tr.height + ' · ancla ' + tr.ax + ',' + tr.ay + ' · huella ' + tr.fw + '×' + tr.fh + ' · lamp ' + (tr.lamp ? tr.lamp.x + ',' + tr.lamp.y : '-') + (tr.deck ? ' · deck ' + tr.deck.x0 + '..' + tr.deck.x1 + ', pies ' + tr.deck.feet : ''))); }
+  var Fx = S.fx || {};
+  if (Fx.cantanteVentana) d6.appendChild(fig(strip(Fx.cantanteVentana, 8), '<b>fx.cantanteVentana</b> · ' + Fx.cantanteVentana.length + ' cuadros · ' + Fx.cantanteVentana[0].width + '×' + Fx.cantanteVentana[0].height));
+  if (Fx.siluetaVentana) { d6.appendChild(fig(strip(Fx.siluetaVentana, 8), '<b>fx.siluetaVentana</b> · ' + Fx.siluetaVentana.length + ' cuadros · ' + Fx.siluetaVentana[0].width + '×' + Fx.siluetaVentana[0].height)); d6.appendChild(fig(strip(Fx.siluetaVentana.map(function (c) { return c.sil; }), 8), 'siluetaVentana[i].sil · solo siluetas, sin fondo')); }
+  if (Fx.piedra) { var pr = el('div', 'row'); pr.appendChild(show(Fx.piedra, 16)); if (Fx.piedraSombra) pr.appendChild(show(Fx.piedraSombra, 16)); pr.appendChild(show(Fx.piedra, 1)); d6.appendChild(fig(pr, '<b>fx.piedra</b> ' + Fx.piedra.width + '×' + Fx.piedra.height + ' · <b>fx.piedraSombra</b> ' + (Fx.piedraSombra ? Fx.piedraSombra.width + '×' + Fx.piedraSombra.height : '-'))); }
+})();
+
+/* ================= CALLE: muestras tileadas (js/sprites/calle.js) =================
+   Seccion propia del suelo: (1) 12x8 vereda / sardinel N / pista con raya / berma, a x4;
+   (2) escena de 30x17 tiles (480x270) a x2, con cebra, resalto y calcomanias, para juzgar grilla y valores a tamano de juego. */
+(function () {
+  var T = S.tiles, D = S.decals;
+  if (!T || !T.asphalt) return;
+  var d = section('s-calle', 'calle: muestras tileadas', 'Arriba: 12×8 tiles (vereda · sardinel N · pista con raya · berma) a ×4, variantes por hash como en el motor. Abajo: escena de 480×270 (30×17 tiles) a ×2 con cebra, resalto, calcomanías y leyendas (sin vehículos ni edificios).');
+  function hsh(c, r) { var h = (Math.imul(c, 73856093) ^ Math.imul(r, 19349663)) >>> 0; return (h ^ (h >>> 11)) >>> 0; }
+  function pick(a, c, r) { return Array.isArray(a) ? a[hsh(c, r) % a.length] : a; }
+  (function () {
+    var C = 12, R = 8, cv = px.canvas(C * 16, R * 16), g = cv.getContext('2d');
+    var rows = ['sidewalk', 'sidewalk', 'curbN', 'asphalt', 'laneDashH', 'asphalt', 'berma', 'berma'];
+    for (var r = 0; r < R; r++) for (var c = 0; c < C; c++) g.drawImage(pick(T[rows[r]], c, r), c * 16, r * 16);
+    d.appendChild(fig(show(cv, 4), '<b>12×8</b> · vereda, vereda, curbN, asfalto, laneDashH, asfalto, berma, berma'));
+  })();
+  (function () {
+    var C = 30, R = 17, cv = px.canvas(C * 16, R * 16), g = cv.getContext('2d'), r, c;
+    var map = ['sidewalk', 'sidewalk', 'sidewalk', 'curbN', 'asphalt', 'asphalt', 'asphalt', 'laneDashH', 'laneDashH', 'asphalt', 'asphalt', 'asphalt', 'bermaN', 'berma', 'berma', 'bermaS', 'asphalt'];
+    for (r = 0; r < R; r++) for (c = 0; c < C; c++) {
+      var name = map[r];
+      if (r >= 4 && r <= 11 && c >= 11 && c <= 14) name = 'zebraH';
+      if (r >= 4 && r <= 11 && c === 23) name = 'humpV';
+      var t = (name === 'asphalt' && hsh(c, r) % 100 < 8) ? T.asphaltCrack : T[name];
+      g.drawImage(pick(t, c, r), c * 16, r * 16);
+    }
+    function deco(name, k, x, y) { var s = D[name] && D[name][k]; if (s) g.drawImage(s, x - s.ax, y - s.ay); }
+    [[104, 246], [330, 242]].forEach(function (p, i) { deco('sombraArbol', i, p[0], p[1]); });
+    deco('arena', 0, 60, 74); deco('arena', 0, 150, 74); deco('arena', 2, 264, 80); deco('arena', 1, 90, 191); deco('arena', 1, 300, 191); deco('arena', 0, 200, 266);
+    deco('parche', 0, 100, 112); deco('parche', 1, 430, 112); deco('parche', 2, 300, 186);
+    deco('charco', 0, 60, 106); deco('charco', 1, 300, 168); deco('charco', 2, 446, 150); deco('charco', 3, 150, 100);
+    deco('aceite', 0, 310, 138); deco('aceite', 1, 120, 168);
+    deco('frenada', 0, 335, 100); deco('frenada', 1, 150, 150);
+    deco('buzon', 0, 262, 104); deco('buzon', 1, 330, 77);
+    deco('vidrio', 0, 345, 150); deco('vidrio', 1, 70, 134);
+    deco('sangre', 0, 285, 154); deco('sangre', 1, 435, 180); deco('sangre', 2, 62, 150);
+    deco('rodada', 0, 100, 100); deco('rodada', 1, 440, 190); deco('lavado', 0, 270, 160); deco('lavado', 1, 60, 100);
+    deco('legend', 0, 92, 187); deco('legend', 3, 305, 126); deco('legend', 2, 420, 187);
+    d.appendChild(fig(show(cv, 2), '<b>escena 480×270</b> · ancla de calcomanías = centro inferior'));
+  })();
+})();
+
+/* ================= Fuentes ================= */
+(function () {
+  var d = section('s-fonts', 'fuentes (a5, a7, a12)', 'Tres fuentes bitmap compartidas. Cada línea: a ×4 y, debajo, a tamaño nativo (×1). Nombres de ejemplo: los de la revisión 2.4.');
+  var SAMPLES = ['BODEGA DOÑA LUZ', 'CHIFA LA SUERTE', '¡AL FONDO HAY SITIO!', 'RUTA 77', 'CALLAO'];
+  var BG = [['#8f3a32', '#f3efe2', '#4e1f1a'], ['#2f4470', '#e6c85a', '#1d2a48'], ['#2f5a52', '#f3efe2', '#1f3a36'], ['#e6c85a', '#1c1a22', '#a88a3c'], ['#f3efe2', '#1c1a22', '#b9b49c']];
+  function block(font, label, scale, withOutline) {
+    var wrap = el('div'); wrap.style.cssText = 'background:var(--panel);border:1px solid var(--line);padding:8px;margin:6px 0;width:100%';
+    wrap.appendChild(el('div', '', '<b>' + label + '</b>'));
+    var rowEl = el('div', 'row');
+    SAMPLES.forEach(function (s, i) {
+      var info = px.fontInfo(font, scale), pad = 5, w = px.measure(s, font, scale) + pad * 2 + 2, h = info.top + info.h + pad * 2 + 2;
+      var g = new px.G(w, h), b = BG[i % BG.length];
+      g.rect(0, 0, w, h, b[0]);
+      px.text(g, s, pad, pad + info.top, { font: font, ink: b[1], shadow: font === 'a5' ? null : b[2], outline: withOutline ? b[2] : null, scale: scale });
+      var cv = g.toCanvas();
+      var cell = el('div'); cell.appendChild(show(cv, scale > 1 ? 2 : 4)); var one = show(cv, 1); one.style.marginTop = '4px'; cell.appendChild(one);
+      cell.appendChild(el('div', '', '<span style="color:var(--dim);font-size:11px">' + w + '×' + h + '</span>'));
+      rowEl.appendChild(cell);
+    });
+    wrap.appendChild(rowEl); d.appendChild(wrap);
+  }
+  block('a5', 'a5 · 3×5 · paso 4 · sin sombra ni contorno', 1, false);
+  block('a7', 'a7 · 5×7 · paso 6 · sombra de 1 px', 1, false);
+  block('a12', 'a12 · 9×12 · paso 11 · contorno y sombra de 1 px', 1, true);
+  block('a12', 'a12 ×2 (24 px de alto, para murales)', 2, true);
+  // alfabeto completo
+  var ALPHA = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ 0123456789 ¡!?/$.,-:\' ÁÉÍÓÚÜ';
+  ['a5', 'a7', 'a12'].forEach(function (f) {
+    var info = px.fontInfo(f), w = px.measure(ALPHA, f) + 8, h = info.top + info.h + 8;
+    var g = new px.G(w, h); g.rect(0, 0, w, h, '#2a2833');
+    px.text(g, ALPHA, 4, 4 + info.top, { font: f, ink: '#f3efe2' });
+    var wrap = el('div'); wrap.style.cssText = 'background:var(--panel);border:1px solid var(--line);padding:8px;margin:6px 0;width:100%;overflow-x:auto';
+    wrap.appendChild(el('div', '', '<b>' + f + '</b> alfabeto completo')); var cv = g.toCanvas(); wrap.appendChild(show(cv, f === 'a12' ? 2 : 4)); d.appendChild(wrap);
+  });
+})();
+
+/* ================= placeholderLot ================= */
+(function () {
+  var d = section('s-placeholder', 'placeholderLot (bloque provisorio del motor)', 'Lado N: azotea gris arriba + cara sur (3 / 5 / 7 tiles; almacén 4) con puerta 16×34, ventanas 18×16 y el nombre en a7 sobre la banda de 10 px. Lado S: azotea con parapeto al norte. Ahora a ×3.');
+  var fichas = [
+    { id: 'T1', side: 'N', c0: 30, c1: 39, r0: 0, r1: 7, arch: 'bodega', floors: 1, color: 'celeste', name: 'BODEGA DOÑA LUZ', seed: 7302 },
+    { id: 'T2', side: 'N', c0: 30, c1: 39, r0: 0, r1: 9, arch: 'chifa', floors: 2, color: 'rosado', name: 'CHIFA LA SUERTE', seed: 7303 },
+    { id: 'T3', side: 'N', c0: 30, c1: 39, r0: 0, r1: 10, arch: 'ladrillo', floors: 3, color: 'ladrillo', name: 'BOTICA LA CHALACA', seed: 7304 },
+    { id: 'T4', side: 'N', c0: 30, c1: 39, r0: 0, r1: 8, arch: 'almacen', floors: 1, color: 'gris', name: 'ALMACÉN NORTE 3', seed: 7305 },
+    { id: 'T5', side: 'S', c0: 30, c1: 39, r0: 39, r1: 44, arch: 'bodega', floors: 1, color: 'menta', name: 'BODEGA ROSITA', seed: 7306 }
+  ];
+  fichas.forEach(function (f) {
+    var r = px.placeholderLot(f), cv = show(r.canvas, 3);
+    var cap = '<b>' + f.id + '</b> lado ' + f.side + ' · ' + f.arch + ' · ' + f.floors + ' piso(s) · ' + r.canvas.width + '×' + r.canvas.height + ' · luces ' + r.lights.length;
+    d.appendChild(fig(cv, cap));
+  });
+  var d2 = section('s-lots', 'lotes registrados (ACH.sprites.lotArch)', 'Cada arquetipo que los archivos de edificios registren aparece aquí con una ficha de prueba (lado N y lado S). Vacío mientras no haya arquetipos.');
+  var names = Object.keys(S.lotArch || {});
+  if (!names.length) d2.appendChild(el('p', 'note', 'lotArch está vacío (fase A1).'));
+  names.forEach(function (a) {
+    var tests = S.lotTests && S.lotTests[a];                    // cada archivo de edificios puede publicar sus fichas de prueba en ACH.sprites.lotTests[arch]
+    if (!tests || !tests.length) tests = ['N', 'S'].map(function (side) { return { id: a + side, side: side, c0: 30, c1: 39, r0: side === 'N' ? 0 : 39, r1: side === 'N' ? 10 : 44, arch: a, floors: side === 'N' ? 2 : 1, color: 'celeste', name: 'BODEGA DOÑA LUZ', seed: 77 }; });
+    tests.forEach(function (f) {
+      var t0 = performance.now(), r = ACH.sprites.buildLot(f), ms = performance.now() - t0, side = f.side;
+      if (!r) { d2.appendChild(fig(el('div', 'bad', 'buildLot devolvió null'), a + ' ' + side)); return; }
+      var wrap = el('div'), W = r.canvas.width, H = r.canvas.height, comp = px.canvas(W, H), cx = comp.getContext('2d'), al = alexRef();
+      cx.drawImage(r.canvas, 0, 0); if (al && side === 'N') cx.drawImage(al, W - al.width - 4, H - 2 - (al.ay !== undefined ? al.ay : al.height - 2));
+      wrap.appendChild(show(comp, 2));
+      if (r.over) { var o = show(r.over, 2); o.style.marginTop = '4px'; wrap.appendChild(o); }
+      d2.appendChild(fig(wrap, '<b>' + a + '</b> lado ' + side + ' · ' + W + '×' + H + (f.name ? ' · ' + f.name : '') + ' · seed ' + f.seed + ' · daño ' + (f.damage || 1) + (r.over ? ' · over ' + r.over.width + '×' + r.over.height + ' @' + r.overX + ',' + r.overY : '') + ' · luces ' + r.lights.length + ' · ' + ms.toFixed(1) + ' ms'));
+    });
+  });
+})();
+
+/* ================= utilidades ================= */
+(function () {
+  var d = section('s-utils', 'utilidades (rot90, flipH, shadowSE)', 'Prueba con Alexander: original, rot90, flipH y su sombra proyectada al sureste (alfa 0,35).');
+  var a = alexRef(); if (!a) return;
+  var sh = px.shadowSE(a, 0.35);
+  var comp = px.canvas(a.width * 4 + 60, a.height + 26), g = comp.getContext('2d');
+  g.fillStyle = '#625f6d'; g.fillRect(0, 0, comp.width, comp.height);
+  var base = 4;
+  g.drawImage(sh, 4 + sh.ox, base + sh.oy); g.drawImage(a, 4, base);
+  g.drawImage(px.flipH(a), 30, base); g.drawImage(px.rot90(a), 56, base + 0);
+  d.appendChild(fig(show(comp, 4), 'original + sombra SE (' + sh.width + '×' + sh.height + ') · flipH · rot90'));
+})();
+
+if (S.lotArch && !Object.keys(S.lotArch).length) { /* nada que avisar */ }
+})();
+</script>
+<!-- ===== F8s: zombies variados (ACH.sprites.zvar). Bloque independiente: no usa nada de los scripts de arriba. ===== -->
+<script>
+(function () {
+"use strict";
+var S = ACH.sprites, px = ACH.px, Zv = S.zvar, List = S.zvarList;
+if (!Zv || !List) return;
+var out = document.getElementById('out'), nav = document.getElementById('nav');
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function view(c, z) { var v = document.createElement('canvas'); v.width = c.width; v.height = c.height; v.getContext('2d').drawImage(c, 0, 0); v.style.width = (c.width * z) + 'px'; v.style.height = (c.height * z) + 'px'; v.style.imageRendering = 'pixelated'; v.style.display = 'block'; return v; }
+var h = el('h2', '', 'zvar (zombies variados, v0.6b)'); h.id = 's-zvar'; out.appendChild(h);
+var a = el('a', '', 'zvar'); a.href = '#s-zvar'; nav.appendChild(a);
+var locos = []; List.forEach(function (r) { if (locos.indexOf(r.loco) < 0) locos.push(r.loco); });
+var ms = S.zvarBakeMs ? S.zvarBakeMs.toFixed(0) + ' ms' : '?';
+out.appendChild(el('p', 'note', List.length + ' skins horneados en ' + ms + '. Cada fila: Alexander (escala), los cuadros de <code>move</code> a la derecha, un <code>hurt</code>, el <code>dead</code> y, si hay, el vehículo suelto. Todos miran a la derecha. El recuadro naranja es el ancla (ax,ay).'));
+var bar = el('div', 'row'); out.appendChild(bar);
+var state = { z: 3, bg: 'chk', gray: false, anim: true, loco: '' };
+function ctl(label, node) { var l = el('label', '', label + ' '); l.appendChild(node); bar.appendChild(l); return node; }
+var zs = el('select'); [2, 3, 4, 5, 6].forEach(function (z) { var o = el('option', '', '×' + z); o.value = z; if (z === state.z) o.selected = true; zs.appendChild(o); });
+var bs = el('select'); [['chk', 'cuadros'], ['asfalto', 'asfalto oscuro'], ['vereda', 'vereda']].forEach(function (p) { var o = el('option', '', p[1]); o.value = p[0]; bs.appendChild(o); });
+var gs = el('input'); gs.type = 'checkbox';
+var an = el('input'); an.type = 'checkbox'; an.checked = true;
+var ls = el('select'); var o0 = el('option', '', 'todos'); o0.value = ''; ls.appendChild(o0); locos.forEach(function (l) { var o = el('option', '', l); o.value = l; ls.appendChild(o); });
+ctl('zoom', zs); ctl('fondo', bs); ctl('grises', gs); ctl('animar', an); ctl('loco', ls);
+var host = el('div'); out.appendChild(host);
+var anims = [];
+function bgOf(k) { return k === 'asfalto' ? '#44474d' : k === 'vereda' ? '#8f918a' : '#6e6c78'; }
+function build() {
+  host.innerHTML = ''; anims = [];
+  host.style.filter = state.gray ? 'grayscale(1)' : 'none';
+  var alex = S.alex && S.alex.nobird && S.alex.nobird.idle && S.alex.nobird.idle.down, Z = state.z;
+  locos.forEach(function (loco) {
+    if (state.loco && state.loco !== loco) return;
+    var rows = List.filter(function (r) { return r.loco === loco; });
+    var g = el('div'); g.style.cssText = 'margin:10px 0 4px'; g.innerHTML = '<b style="color:#38c8e8">' + loco + '</b> · ' + rows.length + ' skins · ' + rows[0].n + ' cuadros de move' + (rows[0].n ? '' : '');
+    host.appendChild(g);
+    var grid = el('div', 'grid'); host.appendChild(grid);
+    rows.forEach(function (r) {
+      var e = Zv[r.skin], f = el('figure'), wrap = el('div'); wrap.style.cssText = 'display:flex;gap:6px;align-items:flex-end;padding:4px;background:' + bgOf(state.bg);
+      if (state.bg === 'chk') wrap.className = 'chk';
+      function cell(c, label, withAnchor) {
+        var d = el('div'), v = view(c, Z); d.style.position = 'relative'; d.appendChild(v);
+        if (withAnchor && c.ax !== undefined) { var m = el('div'); m.style.cssText = 'position:absolute;width:' + Z + 'px;height:' + Z + 'px;border:1px solid #ff8a2a;box-sizing:border-box;left:' + (c.ax * Z) + 'px;top:' + (c.ay * Z) + 'px;pointer-events:none'; d.appendChild(m); }
+        return d;
+      }
+      // Alexander, alineado por los pies con el primer cuadro
+      var m0 = e.move[0];
+      if (alex) { var da = el('div'); da.style.cssText = 'align-self:flex-end;margin-bottom:' + ((m0.height - 1 - m0.ay) - (alex.height - 1 - alex.ay)) * Z + 'px'; da.appendChild(view(alex, Z)); wrap.appendChild(da); }
+      var animWrap = el('div'); animWrap.style.cssText = 'display:flex;gap:2px;align-items:flex-end';
+      e.move.forEach(function (c, i) { var d = cell(c, '', i === 0); animWrap.appendChild(d); });
+      wrap.appendChild(animWrap);
+      var hb = cell(e.hurt[0]); hb.style.opacity = '1'; wrap.appendChild(hb);
+      wrap.appendChild(cell(e.dead));
+      if (e.extra && e.extra.prop) { wrap.appendChild(cell(e.extra.prop, '', true)); }
+      // cuadro animado ×Z a 8 fps
+      var W = 0, Hh = 0; e.move.forEach(function (c) { W = Math.max(W, c.width); Hh = Math.max(Hh, c.height); });
+      var ac = document.createElement('canvas'); ac.width = W; ac.height = Hh; ac.style.cssText = 'width:' + W * Z + 'px;height:' + Hh * Z + 'px;image-rendering:pixelated;border-left:1px solid #4a4757;padding-left:4px';
+      wrap.appendChild(ac); anims.push({ cv: ac, fr: e.move, i: 0 });
+      f.appendChild(wrap);
+      var cap = '<b>' + r.skin + '</b><br>' + r.height + ' ' + r.hpx + ' px · ' + m0.width + '×' + m0.height + ' · ancla ' + m0.ax + ',' + m0.ay + ' · ' + r.n + ' cuadros' + (e.extra ? ' · extra ' + Object.keys(e.extra).join(',') : '');
+      f.appendChild(el('figcaption', '', cap)); grid.appendChild(f);
+    });
+  });
+  // escolar con resortera junto al escolar normal
+  if (!state.loco && S.zombie && S.zombie.escolarSling && S.zombie.escolar) {
+    var gt = el('div'); gt.innerHTML = '<b style="color:#38c8e8">zombie.escolarSling</b> junto a zombie.escolar'; gt.style.margin = '10px 0 4px'; host.appendChild(gt);
+    var fg = el('figure'), w2 = el('div'); w2.style.cssText = 'display:flex;gap:6px;align-items:flex-end;padding:4px;background:' + bgOf(state.bg);
+    ['escolar', 'escolarSling'].forEach(function (k) { var zz = S.zombie[k]; zz.walk.forEach(function (c) { w2.appendChild(view(c, Z)); }); w2.appendChild(view(zz.hurt[0], Z)); w2.appendChild(view(zz.dead, Z)); });
+    fg.appendChild(w2); fg.appendChild(el('figcaption', '', 'escolar (walk×4, hurt, dead) y escolarSling (walk×' + S.zombie.escolarSling.walk.length + ', hurt, dead)')); host.appendChild(fg);
+  }
+}
+function tick() { if (!state.anim) return; anims.forEach(function (a) { var c = a.fr[a.i % a.fr.length], g = a.cv.getContext('2d'); g.clearRect(0, 0, a.cv.width, a.cv.height); g.drawImage(c, 0, a.cv.height - c.height); a.i++; }); }
+zs.onchange = function () { state.z = +zs.value; build(); }; bs.onchange = function () { state.bg = bs.value; build(); };
+gs.onchange = function () { state.gray = gs.checked; build(); }; an.onchange = function () { state.anim = an.checked; }; ls.onchange = function () { state.loco = ls.value; build(); };
+build(); setInterval(tick, 125);
+})();
+</script>
+<!-- ===== G3 (v0.8): Alexander — guitarra dañada, puñete, skate, patada y empacho. Bloque independiente. ===== -->
+<script>
+(function () {
+"use strict";
+var S = ACH.sprites, A = S.alex;
+if (!A || !A.bird || !A.bird.g1) return;
+var out = document.getElementById('out'), nav = document.getElementById('nav');
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function view(c, z) { var v = document.createElement('canvas'); v.width = c.width; v.height = c.height; v.getContext('2d').drawImage(c, 0, 0); v.style.width = (c.width * z) + 'px'; v.style.height = (c.height * z) + 'px'; v.className = 'chk'; return v; }
+function strip(frames, z, gap) { var r = el('div', 'row'); r.style.gap = (gap === undefined ? 6 : gap) + 'px'; frames.forEach(function (c) { r.appendChild(view(c, z)); }); return r; }
+function fig(node, cap) { var f = el('figure'); f.appendChild(node); f.appendChild(el('figcaption', '', cap)); return f; }
+var h = el('h2', '', 'Alexander v0.8 (guitarra dañada, puñete, skate, patada, empacho)'); h.id = 's-alexg3'; out.appendChild(h);
+var a0 = el('a', '', 'alex v0.8'); a0.href = '#s-alexg3'; nav.appendChild(a0);
+/* ---- control de formas: g1/g2/g3 y los juegos nuevos contra los originales ---- */
+function sig(o) { if (o && o.getContext) return o.width + 'x' + o.height + '@' + o.ax + ',' + o.ay; if (Array.isArray(o)) return '[' + o.map(sig).join('|') + ']'; if (o && typeof o === 'object') return '{' + Object.keys(o).sort().map(function (k) { return k + ':' + sig(o[k]); }).join(',') + '}'; return String(o); }
+var bad = [];
+['bird', 'nobird'].forEach(function (v) {
+  var V = A[v], base = sig({ idle: V.idle, walk: V.walk, attack: V.attack, sling: V.sling, dead: V.dead, punch: V.punch, skateHold: V.skateHold, skateSwing: V.skateSwing, kick: V.kick, sick: V.sick });
+  ['g1', 'g2', 'g3'].forEach(function (g) { var G = V[g], t = sig({ idle: G.idle, walk: G.walk, attack: G.attack, sling: G.sling, dead: G.dead, punch: G.punch, skateHold: G.skateHold, skateSwing: G.skateSwing, kick: G.kick, sick: G.sick }); if (t !== base) bad.push(v + '.' + g); });
+});
+/* anclas y tamaños contra attack (punch, skateSwing, kick) y walk (skateHold, sick) */
+function same(a, b) { return a.width === b.width && a.height === b.height && a.ax === b.ax && a.ay === b.ay; }
+['bird', 'nobird'].forEach(function (v) {
+  [A[v], A[v].g1, A[v].g2, A[v].g3].forEach(function (V, i) {
+    ['right', 'left', 'down', 'up'].forEach(function (d) {
+      var at = A[v].attack[d][0], wk = A[v].walk[d][0];
+      V.punch[d].forEach(function (c) { if (!same(c, at)) bad.push(v + ' punch.' + d); });
+      V.skateSwing[d].forEach(function (c) { if (!same(c, at)) bad.push(v + ' skateSwing.' + d); });
+      V.kick[d].forEach(function (c) { if (!same(c, at)) bad.push(v + ' kick.' + d); });
+      V.skateHold[d].forEach(function (c) { if (!same(c, wk)) bad.push(v + ' skateHold.' + d); });
+      if (V.punch[d].length !== 3 || V.skateSwing[d].length !== 3 || V.kick[d].length !== 2 || V.skateHold[d].length !== 4) bad.push(v + ' frames ' + d);
+    });
+    if (V.sick.length !== 2 || !V.sick.every(function (c) { return same(c, A[v].walk.down[0]); })) bad.push(v + ' sick');
+  });
+});
+out.appendChild(el('p', 'note', 'Cada juego g1 (guitarra rajada), g2 (muy rajada) y g3 (sin guitarra; su <code>attack</code> son los puñetes) tiene las mismas claves, cuadros, tamaños y anclas que el original; punch, skateSwing y kick comparten tamaño y ancla con attack; skateHold y sick con walk. Control automático: ' + (bad.length ? '<span class="bad">¡FALLA! ' + bad.join(', ') + '</span>' : '<b style="color:#5fe04a">OK, sin diferencias</b>') + '.'));
+var d = el('div', 'grid'); out.appendChild(d);
+['bird', 'nobird'].forEach(function (v) {
+  var V = A[v], lv = [['sana', V], ['g1 rajada', V.g1], ['g2 muy rajada', V.g2], ['g3 sin guitarra', V.g3]];
+  function row(label, get, z) { var r = el('div', 'row'); r.style.gap = '10px'; lv.forEach(function (q) { var w = el('div'); w.appendChild(strip([].concat(get(q[1])), z, 2)); w.appendChild(el('div', '', '<small style="color:#9a97a6">' + q[0] + '</small>')); r.appendChild(w); }); return r; }
+  var w = el('div');
+  w.appendChild(row('', function (X) { return [X.walk.down[0], X.walk.up[0], X.walk.right[0], X.walk.left[0]]; }, 4));
+  w.appendChild(row('', function (X) { return X.attack.right.concat([X.attack.down[1]]); }, 3));
+  w.appendChild(row('', function (X) { return [X.attack.up[1], X.sling.down[0], X.sling.right[0], X.dead]; }, 3));
+  d.appendChild(fig(w, '<b>alex.' + v + '.g1 / g2 / g3</b> junto al original: caminar (abajo, arriba, derecha, izquierda), ataque (3 cuadros a la derecha y el golpe hacia abajo), ataque hacia arriba, resortera y caído.'));
+});
+['bird', 'nobird'].forEach(function (v) {
+  var V = A[v];
+  var w = el('div');
+  var big = el('div', 'row'); [V.g1, V.g2].forEach(function (X) { [X.walk.down[0], X.walk.up[0], X.walk.right[0]].forEach(function (c) { big.appendChild(view(c, 10)); }); });
+  w.appendChild(big);
+  d.appendChild(fig(w, '<b>alex.' + v + '.g1 (izq.) y g2 (der.) a ×10</b>: grietas, astilla, cinta, mastil quebrado y cuerdas reventadas.'));
+});
+['bird', 'nobird'].forEach(function (v) {
+  var V = A[v], dirs = ['right', 'down', 'up'];
+  function block(key, n, z, nm) {
+    var w = el('div'), cap = '<b>alex.' + v + '.' + key + '[dir]</b> · ' + nm + ' · ' + V[key].right[0].width + '×' + V[key].right[0].height + ' · ancla ' + V[key].right[0].ax + ',' + V[key].right[0].ay + ' (attack ' + V.attack.right[0].width + '×' + V.attack.right[0].height + ' @' + V.attack.right[0].ax + ',' + V.attack.right[0].ay + ')';
+    dirs.forEach(function (dn) { w.appendChild(strip([V.attack[dn][0]].concat(V[key][dn]), z)); });
+    return fig(w, cap);
+  }
+  d.appendChild(block('punch', 3, 4, '3 cuadros: armar, golpear, recuperar (el primero es el attack de referencia)'));
+  d.appendChild(block('skateSwing', 3, 4, '3 cuadros: armar, golpear, seguir (el primero es el attack de referencia)'));
+  d.appendChild(block('kick', 2, 4, '2 cuadros: alzar la rodilla, patear (el primero es el attack de referencia)'));
+  var wk = el('div'); ['down', 'up', 'right', 'left'].forEach(function (dn) { wk.appendChild(strip([V.walk[dn][0]].concat(V.skateHold[dn]), 4)); });
+  d.appendChild(fig(wk, '<b>alex.' + v + '.skateHold[dir]</b> · 4 cuadros de caminar con la tabla como garrote · ' + V.skateHold.down[0].width + '×' + V.skateHold.down[0].height + ' · ancla ' + V.skateHold.down[0].ax + ',' + V.skateHold.down[0].ay + ' (el primero es el walk de referencia)'));
+  var sk = el('div'); sk.appendChild(strip([V.walk.down[0]].concat(V.sick), 8)); sk.appendChild(strip([V.walk.down[0]].concat(V.sick), 1));
+  d.appendChild(fig(sk, '<b>alex.' + v + '.sick</b> · 2 cuadros, de frente, encorvado, mano en la panza y cara verdosa · ' + V.sick[0].width + '×' + V.sick[0].height + ' · ancla ' + V.sick[0].ax + ',' + V.sick[0].ay));
+  var gs = el('div'); [V.g1, V.g2, V.g3].forEach(function (X) { gs.appendChild(strip([X.skateHold.down[1], X.kick.right[1], X.skateSwing.down[1], X.sick[0]], 3)); });
+  d.appendChild(fig(gs, '<b>alex.' + v + '.g1 / g2 / g3</b> también traen punch, skateHold, skateSwing, kick y sick, con el mismo daño de guitarra a la espalda (g3: sin guitarra ni tirante).'));
+});
+})();
+</script>
+<!-- ===== G4 (v0.8): objetos, carretillas, vehiculos sueltos, moto zombie y marca Cola Inglesa. Bloque independiente. ===== -->
+<script>
+(function () {
+"use strict";
+var S = ACH.sprites, px = ACH.px, I = S.items, F = S.fx, P = S.props, Zv = S.zvar, List = S.zvarList || [];
+var out = document.getElementById('out'), nav = document.getElementById('nav');
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function view(c, z, bg) { var v = document.createElement('canvas'); v.width = c.width; v.height = c.height; v.getContext('2d').drawImage(c, 0, 0); v.style.width = (c.width * z) + 'px'; v.style.height = (c.height * z) + 'px'; v.style.imageRendering = 'pixelated'; if (bg) v.style.background = bg; return v; }
+function strip(list, z, bg, anchorBottom) { var w = el('div'); w.style.cssText = 'display:flex;gap:6px;align-items:flex-end;padding:6px;background:' + bg; list.forEach(function (c) { if (c) w.appendChild(view(c, z)); }); return w; }
+function fig(node, cap) { var f = el('figure'); f.appendChild(node); f.appendChild(el('figcaption', '', cap)); return f; }
+function dim(c) { return c.width + '×' + c.height + (c.ax !== undefined ? ' · ancla ' + c.ax + ',' + c.ay : '') + (c.fw ? ' · huella ' + c.fw + '×' + c.fh : ''); }
+var h = el('h2', '', 'G4 · v0.8: objetos, carretillas de comida, vehículos sueltos, moto, Cola Inglesa'); h.id = 's-g4'; out.appendChild(h);
+var a0 = el('a', '', 'g4'); a0.href = '#s-g4'; nav.appendChild(a0);
+out.appendChild(el('p', 'note', 'Ítems 12×12 y .big 24×24 junto a ítems viejos (gaseosa, anticucho, pan con chicharrón) para comparar estilo. Las carretillas van con Alexander (20×28) y su huella en naranja. Los cuadros del zombie en moto giran a 8 fps.'));
+
+// ---- ítems
+var g1 = el('div', 'grid'); out.appendChild(g1);
+['colaInglesa', 'papaHuevo', 'chocloQueso', 'gaseosa', 'anticucho', 'panChicharron'].forEach(function (id) {
+  var c = I[id]; if (!c) { g1.appendChild(fig(el('div', 'bad', 'FALTA'), id)); return; }
+  var w = el('div'); w.style.cssText = 'display:flex;gap:10px;align-items:flex-end;padding:6px;background:#44474d';
+  w.appendChild(view(c, 8)); w.appendChild(view(c.big, 8));
+  var d = el('div'); d.style.cssText = 'display:flex;gap:6px;align-items:flex-end;background:#cfcfc4;padding:4px'; d.appendChild(view(c, 3)); d.appendChild(view(c.big, 2)); w.appendChild(d);
+  g1.appendChild(fig(w, '<b>items.' + id + '</b> · ' + dim(c) + ' · big ' + dim(c.big)));
+});
+
+// ---- marca
+var mk = el('div', 'row'); out.appendChild(mk);
+function marcaRow() {
+  mk.innerHTML = '';
+  [true, false].forEach(function (real) {
+    var prev = ACH.cfg.marcasReales; ACH.cfg.marcasReales = real;
+    var m = px.marca('cola_inglesa');
+    var ad = document.createElement('canvas'); ad.width = 60; ad.height = 22; var ok = false; try { ok = m.draw(ad.getContext('2d'), 0, 0, 60, 22); } catch (e) { ok = false; }
+    ACH.cfg.marcasReales = prev;
+    ad.style.cssText = 'width:240px;height:88px;image-rendering:pixelated;background:#222';
+    var sw = el('div'); sw.style.cssText = 'display:flex;gap:4px;margin-top:4px'; ['bg', 'fg', 'accent', 'dk', 'lt'].forEach(function (k) { var q = el('div'); q.style.cssText = 'width:34px;height:14px;background:' + m.colors[k]; q.title = k + ' ' + m.colors[k]; sw.appendChild(q); });
+    var f = fig(ad, '<b>cola_inglesa · ' + (real ? 'real' : 'parodia') + '</b> · «' + m.text + '» · aviso ' + (ok ? 'ok' : '<span class="bad">sin dibujar</span>')); f.appendChild(sw); mk.appendChild(f);
+  });
+}
+marcaRow();
+
+// ---- fx
+var g2 = el('div', 'grid'); out.appendChild(g2);
+if (F.guitarIcon) { var gi = el('div'); gi.style.cssText = 'display:flex;gap:10px;align-items:flex-end;padding:8px;background:#1d1b26'; F.guitarIcon.forEach(function (c) { gi.appendChild(view(c, 12)); }); var gs = el('div'); gs.style.cssText = 'display:flex;gap:10px;align-items:flex-end;padding:6px;background:#1d1b26;margin-top:4px'; F.guitarIcon.forEach(function (c) { gs.appendChild(view(c, 1)); gs.appendChild(view(c, 2)); }); var gw = el('div'); gw.appendChild(gi); gw.appendChild(gs); g2.appendChild(fig(gw, '<b>fx.guitarIcon[4]</b> · sana, rajada, muy rajada, rota · ' + dim(F.guitarIcon[0]))); }
+if (F.guitarraRota) g2.appendChild(fig(strip([F.guitarraRota], 8, '#8f918a'), '<b>fx.guitarraRota</b> · ' + dim(F.guitarraRota)));
+if (F.skateMitad) g2.appendChild(fig(strip([F.skateMitad].concat(F.skateMitad.alt.slice(1)), 6, '#8f918a'), '<b>fx.skateMitad</b> (+ .alt rojo, celeste, amarillo) · ' + dim(F.skateMitad)));
+
+// ---- carretillas y vehículos sueltos
+var alex = S.alex && S.alex.nobird && S.alex.nobird.idle && S.alex.nobird.idle.down;
+function withAlex(c, z, bg, over) {
+  var w = el('div'); w.style.cssText = 'display:flex;gap:10px;align-items:flex-end;padding:6px;background:' + bg;
+  var box = el('div'); box.style.cssText = 'position:relative'; box.appendChild(view(c, z));
+  if (over && c.ax !== undefined && c.fw) { var m = el('div'); m.style.cssText = 'position:absolute;border:1px solid #ff8a2a;box-sizing:border-box;pointer-events:none;left:' + ((c.ax - c.fw / 2) * z) + 'px;top:' + ((c.ay - c.fh) * z) + 'px;width:' + (c.fw * z) + 'px;height:' + (c.fh * z) + 'px'; box.appendChild(m); }
+  w.appendChild(box);
+  if (alex) { var da = el('div'); da.style.cssText = 'align-self:flex-end;margin-bottom:' + ((c.height - 1 - c.ay) - (alex.height - 1 - alex.ay)) * z + 'px'; da.appendChild(view(alex, z)); w.appendChild(da); }
+  return w;
+}
+var g3 = el('div', 'grid'); out.appendChild(g3);
+[['anticuchos', P.anticuchos], ['papaHuevo', P.papaHuevo], ['choclo', P.choclo]].forEach(function (p) {
+  var c = p[1]; if (!c) { g3.appendChild(fig(el('div', 'bad', 'FALTA'), 'props.' + p[0])); return; }
+  var f = el('figure'); f.appendChild(withAlex(c, 5, '#8f918a', true)); if (c.broken) f.appendChild(withAlex(c.broken, 5, '#8f918a', true));
+  f.appendChild(el('figcaption', '', '<b>props.' + p[0] + '</b> · ' + dim(c) + (c.broken ? '<br><b>.broken</b> · ' + dim(c.broken) : '') + (c.smoke ? '' : (c.smoke === undefined && p[0] !== 'anticuchos' ? '' : ''))));
+  g3.appendChild(f);
+});
+var g4 = el('div', 'grid'); out.appendChild(g4);
+if (P.carretillaSuelta) {
+  var cs = P.carretillaSuelta, list = [cs].concat(cs.alt.slice(1)).concat([cs.empty, cs.broken]);
+  var f1 = el('figure'); f1.appendChild(withAlex(cs, 5, '#8f918a', true)); f1.appendChild(strip(list.slice(1), 5, '#8f918a'));
+  f1.appendChild(el('figcaption', '', '<b>props.carretillaSuelta</b> (frutas) · ' + dim(cs) + ' · .alt verduras, chatarra, jabas · <b>.empty</b> · <b>.broken</b> ' + dim(cs.broken))); g4.appendChild(f1);
+}
+if (P.motoCaida) {
+  var mc = P.motoCaida, f2 = el('figure'); f2.appendChild(withAlex(mc, 5, '#8f918a', true)); f2.appendChild(strip(mc.alt.slice(1).concat([P.biciCaida]), 5, '#8f918a'));
+  f2.appendChild(el('figcaption', '', '<b>props.motoCaida</b> · ' + dim(mc) + ' · .alt rojo/amarillo, negro/rojo, negro/amarillo (y biciCaida de comparación)')); g4.appendChild(f2);
+}
+
+// ---- moto zombie
+var motos = List.filter(function (r) { return r.loco === 'moto'; }), anims = [];
+var g5 = el('div', 'grid'); out.appendChild(g5);
+motos.forEach(function (r) {
+  var e = Zv[r.skin], w = el('div'); w.style.cssText = 'display:flex;gap:6px;align-items:flex-end;padding:6px;background:#8f918a';
+  var m0 = e.move[0];
+  if (alex) { var da = el('div'); da.style.cssText = 'align-self:flex-end;margin-bottom:' + ((m0.height - 1 - m0.ay) - (alex.height - 1 - alex.ay)) * 5 + 'px'; da.appendChild(view(alex, 5)); w.appendChild(da); }
+  e.move.forEach(function (c) { w.appendChild(view(c, 5)); });
+  w.appendChild(view(e.hurt[0], 5)); w.appendChild(view(e.dead, 5)); if (e.extra && e.extra.prop) w.appendChild(view(e.extra.prop, 5));
+  var ac = document.createElement('canvas'); ac.width = m0.width; ac.height = m0.height; ac.style.cssText = 'width:' + m0.width * 5 + 'px;height:' + m0.height * 5 + 'px;image-rendering:pixelated;background:#44474d'; w.appendChild(ac); anims.push({ cv: ac, fr: e.move, i: 0 });
+  g5.appendChild(fig(w, '<b>' + r.skin + '</b> · ' + r.height + ' · ' + dim(m0) + ' · ' + r.n + ' cuadros · hurt+dead · extra ' + (e.extra ? Object.keys(e.extra).join(',') : '-')));
+});
+setInterval(function () { anims.forEach(function (a) { var c = a.fr[a.i % a.fr.length], g = a.cv.getContext('2d'); g.clearRect(0, 0, a.cv.width, a.cv.height); g.drawImage(c, 0, 0); a.i++; }); }, 125);
+})();
+</script>
+</body>
+</html>

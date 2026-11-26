@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO · Barranco · personajes y objetos (B2c)</title>
+<style>
+  body { background: #17141c; color: #e8e2d6; font: 12px/1.35 system-ui, sans-serif; margin: 12px; }
+  h1 { font-size: 16px; margin: 0 0 4px; } h2 { font-size: 14px; margin: 18px 0 6px; color: #ffd75e; border-bottom: 1px solid #3a3346; padding-bottom: 2px; }
+  h3 { font-size: 12px; margin: 10px 0 4px; color: #b8e8a0; }
+  .fila { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 8px; }
+  .celda { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .celda span { font-size: 10px; color: #a89fb0; max-width: 150px; text-align: center; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; background: #2a2433; display: block; }
+  body.piso canvas { background: #6b6b66; }
+  body.noche canvas { background: #121a30; }
+  body.arena canvas { background: #8a7e6a; }
+  #info { color: #9fd0a0; }
+  button, select { font: inherit; }
+  .barra { position: sticky; top: 0; background: #17141c; padding: 4px 0; z-index: 5; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .nav a { color: #9ac8ff; margin-right: 8px; }
+</style>
+</head>
+<body>
+<h1>Barranco · B2c · ACH.sprites.br.pj</h1>
+<div class="barra">
+  <label>zoom <select id="zoom"><option>2</option><option>3</option><option selected>4</option><option>6</option><option>8</option></select></label>
+  <button id="btnFondo">fondo</button>
+  <button id="btnPausa">pausa</button>
+  <span id="info"></span>
+</div>
+<div class="nav" id="nav"></div>
+<div id="out"></div>
+<script>window.ACH = window.ACH || {}; ACH.cfg = ACH.cfg || {};</script>
+<script src="js/engine/lienzo.js"></script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script src="js/miraflores/arte-personajes.js"></script>
+<script src="js/costaverde/arte-personajes.js"></script>
+<script>document.write('<script src="js/barranco/arte-personajes.js?v=' + Date.now() + '"><\/script>');</script>
+<script>
+(function () {
+  'use strict';
+  var qs = new URLSearchParams(location.search), Z = +qs.get('z') || 4, only = qs.get('solo');
+  var out = document.getElementById('out'), nav = document.getElementById('nav');
+  var BR = ACH.sprites && ACH.sprites.br, PJ = BR && BR.pj;
+  if (!PJ) { out.textContent = 'no hay ACH.sprites.br.pj (error de carga: mira la consola)'; return; }
+  var zsel = document.getElementById('zoom'); zsel.value = String(Z);
+  zsel.onchange = function () { var u = new URL(location.href); u.searchParams.set('z', zsel.value); location.href = u.href; };
+  document.getElementById('info').textContent = 'horneado inicial ' + (BR.arteMs || 0).toFixed(1) + ' ms';
+  var anims = [], paused = false, T = 0;
+  document.getElementById('btnPausa').onclick = function () { paused = !paused; };
+  var FONDOS = ['', 'piso', 'noche', 'arena'], fi = 0;
+  document.getElementById('btnFondo').onclick = function () { fi = (fi + 1) % FONDOS.length; document.body.className = FONDOS[fi]; };
+
+  function isCv(o) { return o && o.getContext && o.width !== undefined; }
+  function fmt(c) { return c.width + 'x' + c.height + (c.ax !== undefined ? ' @' + c.ax + ',' + c.ay : ''); }
+  function celda(row, label, frames, k, ms) {
+    if (!Array.isArray(frames)) frames = [frames];
+    frames = frames.filter(isCv);
+    if (!frames.length) return;
+    if (qs.get('strip') && frames.length > 1) { frames.forEach(function (f, i) { celda(row, label + '#' + i, [f], k); }); return; }
+    k = k || Z;
+    var L = 0, R = 0, U = 0, D = 0;
+    frames.forEach(function (f) { var ax = f.ax === undefined ? f.width >> 1 : f.ax, ay = f.ay === undefined ? f.height - 1 : f.ay; L = Math.max(L, ax); R = Math.max(R, f.width - ax); U = Math.max(U, ay); D = Math.max(D, f.height - ay); });
+    var c = document.createElement('canvas'); c.width = L + R; c.height = U + D; c.style.width = (c.width * k) + 'px'; c.style.height = (c.height * k) + 'px';
+    var d = document.createElement('div'); d.className = 'celda'; d.appendChild(c);
+    var s = document.createElement('span'); s.textContent = label + (frames.length > 1 ? ' [' + frames.length + ']' : '') + ' ' + fmt(frames[0]); d.appendChild(s); row.appendChild(d);
+    var ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    var a = { ctx: ctx, f: frames, L: L, U: U, c: c, ms: ms || 150, last: -1 };
+    anims.push(a); draw(a, 0);
+  }
+  function draw(a, i) {
+    var f = a.f[i], ax = f.ax === undefined ? f.width >> 1 : f.ax, ay = f.ay === undefined ? f.height - 1 : f.ay;
+    a.ctx.clearRect(0, 0, a.c.width, a.c.height); a.ctx.drawImage(f, a.L - ax, a.U - ay); a.last = i;
+  }
+  function tick(t) {
+    if (!paused) T = t;
+    anims.forEach(function (a) { if (a.f.length > 1) { var i = Math.floor(T / a.ms) % a.f.length; if (i !== a.last) draw(a, i); } });
+    requestAnimationFrame(tick);
+  }
+  function seccion(id, titulo) {
+    var h = document.createElement('h2'); h.id = id; h.textContent = titulo; out.appendChild(h);
+    var a = document.createElement('a'); a.href = '#' + id; a.textContent = id; nav.appendChild(a);
+    return h;
+  }
+  function fila(label) { if (label) { var h = document.createElement('h3'); h.textContent = label; out.appendChild(h); } var r = document.createElement('div'); r.className = 'fila'; out.appendChild(r); return r; }
+  function walk(row, pre, o, k, ms) {
+    if (!o) return;
+    if (isCv(o)) { celda(row, pre, o, k, ms); if (o.big) celda(row, pre + '.big', o.big, k, ms); return; }
+    if (Array.isArray(o)) { if (o.every(isCv)) { celda(row, pre, o, k, ms); return; } o.forEach(function (e, i) { walk(row, pre + '[' + i + ']', e, k, ms); }); return; }
+    Object.keys(o).forEach(function (kk) { if (kk === 'big' || kk === 'hand') return; walk(row, pre + '.' + kk, o[kk], k, ms); });
+  }
+  function refAlex(row, k) {
+    var A = ACH.sprites.alex; if (!A) return;
+    celda(row, 'Alexander (28 px)', A.nobird.walk.right, k, 160);
+  }
+  function crop(c) {
+    var x = c.getContext('2d'), d = x.getImageData(0, 0, c.width, c.height).data, x0 = c.width, y0 = c.height, x1 = -1, y1 = -1, i, j;
+    for (j = 0; j < c.height; j++) for (i = 0; i < c.width; i++) if (d[(j * c.width + i) * 4 + 3]) { if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j; }
+    if (x1 < 0) return c;
+    var n = document.createElement('canvas'); n.width = x1 - x0 + 1; n.height = y1 - y0 + 1; n.getContext('2d').drawImage(c, -x0, -y0);
+    n.ax = (c.ax === undefined ? 0 : c.ax) - x0; n.ay = (c.ay === undefined ? 0 : c.ay) - y0; return n;
+  }
+  function path(o, p) { return p.split('.').reduce(function (a, k) { return a && a[k]; }, o); }
+  var want = function (id) { return !only || only === id; };
+  var filt = qs.get('id');
+  function generic(id, titulo, keys, k, noAlex, ms) {
+    if (!want(id)) return;
+    seccion(id, titulo);
+    keys.forEach(function (key) {
+      if (filt && key.indexOf(filt) < 0) return;
+      var o = path(PJ, key); if (!o) return;
+      var r = fila(key); if (!noAlex) refAlex(r, k || Z); walk(r, key, o, k || Z, ms);
+    });
+  }
+  /* ---- zombies ---- */
+  if (want('zombis')) {
+    seccion('zombis', 'Zombies nuevos (formato zvar: move[6] hurt[6] dead + extras)');
+    (BR.zvarKeys || []).forEach(function (key) {
+      if (filt && key.indexOf(filt) < 0) return; var s = PJ[key]; if (!s) return;
+      var r = fila(key); refAlex(r, Z);
+      celda(r, 'move', s.move, Z, 120); celda(r, 'hurt', s.hurt, Z, 120); celda(r, 'dead', s.dead, Z);
+      ['declama', 'lanza', 'toca', 'mano'].forEach(function (a) { if (s[a]) celda(r, a, s[a], Z, 160); });
+      if (s.despechado) { celda(r, 'despe.move', s.despechado.move, Z, 90); celda(r, 'despe.hurt', s.despechado.hurt, Z, 90); celda(r, 'despe.dead', s.despechado.dead, Z); }
+    });
+  }
+  if (want('hoja') ) {
+    seccion('hoja', 'Hoja de contacto: zombies nuevos (cuadro 0 y 3, recortados)');
+    var rr = fila('referencia: Alexander'); refAlex(rr, Z);
+    var rowc = fila('br_*');
+    (BR.zvarKeys || []).forEach(function (key) { var sk = PJ[key]; if (!sk) return; celda(rowc, key.replace('br_', '') + ' 0', crop(sk.move[0]), Z); celda(rowc, '3', crop(sk.move[3]), Z); celda(rowc, 'dead', crop(sk.dead), Math.max(2, Z - 1)); if (sk.despechado) celda(rowc, 'desp', crop(sk.despechado.move[2]), Z); });
+  }
+  /* ---- jefe y banda ---- */
+  generic('jefe', 'Don Jaranon (2.3x), banda y ataques', ['jaranon', 'nota', 'onda', 'conoSostenida', 'guitarristaZ', 'cajoneroZ'], qs.get('id') ? Z : Math.min(Z, 3), false, 220);
+  generic('props', 'Props: caballete, brochazo, mancha, letras', ['caballete', 'brochazo', 'mancha', 'letra', 'notitas', 'charco', 'vidrios', 'botellaVuelo', 'botellaDoradaVuelo', 'cajonSuelo'], Z, true, 180);
+  generic('vivos', 'Sobrevivientes (vivos): idle[4] y habla[2]', ['npc.tomas', 'npc.rosa', 'npc.lucia', 'npc.lucho', 'npc.celedonio'], Z, false, 230);
+  if (want('objetos')) {
+    seccion('objetos', 'Iconos (12x12 y .big 24x24)');
+    var ids = ['cajon', 'botella', 'botellaDorada', 'packBotellas', 'anticucho', 'picarones', 'pescadoFrito', 'emoliente', 'chichaMorada', 'cuaderno'];
+    var rI = fila('iconos 12x12 a zoom ' + Z), rB = fila('.big 24x24 a zoom ' + Math.max(2, Z - 2)), rS = fila('tamano real (1x, 2x, 3x) sobre fondo');
+    ids.forEach(function (id) { var o = PJ[id]; if (!o) return; celda(rI, id, o, Z); if (o.big) celda(rB, id + '.big', o.big, Math.max(2, Z - 2)); celda(rS, '', o, 1); celda(rS, '', o, 2); celda(rS, '', o, 3); });
+  }
+  if (want('alex')) {
+    seccion('alex', 'Alexander con el cajon: carga (4 dirs) y golpe');
+    var AC = PJ.alex && PJ.alex.cajon;
+    ['bird', 'nobird'].forEach(function (k) {
+      var o = AC && AC[k]; if (!o) return;
+      var r = fila('alex.cajon.' + k + '  (carga: walk 20x28 @10,26; golpe: lado 32x34 @13,30 (izq @18,30), frente 32x48 @16,38)');
+      ['right', 'left', 'down', 'up'].forEach(function (d) { celda(r, 'carga.' + d, o.carga[d], Math.min(Z, 4), 160); });
+      ['right', 'left', 'down', 'up'].forEach(function (d) { celda(r, 'golpe.' + d, o.golpe[d], Math.min(Z, 4), 260); });
+    });
+  }
+  BR.__show = { fila: fila, seccion: seccion, celda: celda, walk: walk, refAlex: refAlex, want: want, Z: Z, PJ: PJ, qs: qs };
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

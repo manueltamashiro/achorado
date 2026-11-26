@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO · Costa Verde · personajes y objetos (C2c)</title>
+<style>
+  body { background: #17141c; color: #e8e2d6; font: 12px/1.35 system-ui, sans-serif; margin: 12px; }
+  h1 { font-size: 16px; margin: 0 0 4px; } h2 { font-size: 14px; margin: 18px 0 6px; color: #ffd75e; border-bottom: 1px solid #3a3346; padding-bottom: 2px; }
+  h3 { font-size: 12px; margin: 10px 0 4px; color: #b8e8a0; }
+  .fila { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 8px; }
+  .celda { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .celda span { font-size: 10px; color: #a89fb0; max-width: 150px; text-align: center; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; background: #2a2433; display: block; }
+  body.piso canvas { background: #6b6b66; }
+  body.pasto canvas { background: #5f8a4a; }
+  #info { color: #9fd0a0; }
+  button, select { font: inherit; }
+  .barra { position: sticky; top: 0; background: #17141c; padding: 4px 0; z-index: 5; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .nav a { color: #9ac8ff; margin-right: 8px; }
+</style>
+</head>
+<body>
+<h1>Costa Verde · C2c · ACH.sprites.cv.pj</h1>
+<div class="barra">
+  <label>zoom <select id="zoom"><option>2</option><option>3</option><option selected>4</option><option>6</option><option>8</option></select></label>
+  <button id="btnMarca">marca real / parodia</button>
+  <button id="btnFondo">fondo</button>
+  <button id="btnPausa">pausa</button>
+  <span id="info"></span>
+</div>
+<div class="nav" id="nav"></div>
+<div id="out"></div>
+<script>window.ACH = window.ACH || {}; ACH.cfg = ACH.cfg || {}; if (/parodia=1/.test(location.search)) ACH.cfg.marcasReales = false;</script>
+<script src="js/engine/lienzo.js"></script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script src="js/miraflores/arte-personajes.js"></script>
+<script>document.write('<script src="js/costaverde/arte-personajes.js?v=' + Date.now() + '"><\/script>');</script>
+<script>
+(function () {
+  'use strict';
+  var qs = new URLSearchParams(location.search), Z = +qs.get('z') || 4, only = qs.get('solo');
+  var out = document.getElementById('out'), nav = document.getElementById('nav');
+  var CV = ACH.sprites && ACH.sprites.cv, PJ = CV && CV.pj;
+  if (!PJ) { out.textContent = 'no hay ACH.sprites.cv.pj (error de carga: mira la consola)'; return; }
+  var zsel = document.getElementById('zoom'); zsel.value = String(Z);
+  zsel.onchange = function () { var u = new URL(location.href); u.searchParams.set('z', zsel.value); location.href = u.href; };
+  document.getElementById('info').textContent = 'horneado inicial ' + (CV.arteMs || 0).toFixed(1) + ' ms';
+  var anims = [], paused = false, T = 0;
+  document.getElementById('btnPausa').onclick = function () { paused = !paused; };
+  document.getElementById('btnFondo').onclick = function () { var b = document.body; b.className = b.className === '' ? 'piso' : (b.className === 'piso' ? 'pasto' : ''); };
+  document.getElementById('btnMarca').onclick = function () { if (ACH.px.setMarcas) ACH.px.setMarcas(); };
+
+  function isCv(o) { return o && o.getContext && o.width !== undefined; }
+  function fmt(c) { return c.width + 'x' + c.height + (c.ax !== undefined ? ' @' + c.ax + ',' + c.ay : ''); }
+  /* celda animada: los cuadros se alinean por su ancla */
+  function celda(row, label, frames, k, ms) {
+    if (!Array.isArray(frames)) frames = [frames];
+    frames = frames.filter(isCv);
+    if (!frames.length) return;
+    if (qs.get('strip') && frames.length > 1) { frames.forEach(function (f, i) { celda(row, label + '#' + i, [f], k); }); return; }
+    k = k || Z;
+    var L = 0, R = 0, U = 0, D = 0;
+    frames.forEach(function (f) { var ax = f.ax === undefined ? f.width >> 1 : f.ax, ay = f.ay === undefined ? f.height - 1 : f.ay; L = Math.max(L, ax); R = Math.max(R, f.width - ax); U = Math.max(U, ay); D = Math.max(D, f.height - ay); });
+    var c = document.createElement('canvas'); c.width = L + R; c.height = U + D; c.style.width = (c.width * k) + 'px'; c.style.height = (c.height * k) + 'px';
+    var d = document.createElement('div'); d.className = 'celda'; d.appendChild(c);
+    var s = document.createElement('span'); s.textContent = label + (frames.length > 1 ? ' [' + frames.length + ']' : '') + ' ' + fmt(frames[0]); d.appendChild(s); row.appendChild(d);
+    var ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = false;
+    var a = { ctx: ctx, f: frames, L: L, U: U, c: c, ms: ms || 150, last: -1 };
+    anims.push(a); draw(a, 0);
+  }
+  function draw(a, i) {
+    var f = a.f[i], ax = f.ax === undefined ? f.width >> 1 : f.ax, ay = f.ay === undefined ? f.height - 1 : f.ay;
+    a.ctx.clearRect(0, 0, a.c.width, a.c.height); a.ctx.drawImage(f, a.L - ax, a.U - ay); a.last = i;
+  }
+  function tick(t) {
+    if (!paused) T = t;
+    anims.forEach(function (a) { if (a.f.length > 1) { var i = Math.floor(T / a.ms) % a.f.length; if (i !== a.last) draw(a, i); } });
+    requestAnimationFrame(tick);
+  }
+  function seccion(id, titulo) {
+    var h = document.createElement('h2'); h.id = id; h.textContent = titulo; out.appendChild(h);
+    var a = document.createElement('a'); a.href = '#' + id; a.textContent = id; nav.appendChild(a);
+    return h;
+  }
+  function fila(label) { if (label) { var h = document.createElement('h3'); h.textContent = label; out.appendChild(h); } var r = document.createElement('div'); r.className = 'fila'; out.appendChild(r); return r; }
+  /* recorre listas / objetos: un cuadro suelto = celda, lista de cuadros = animacion, objeto con claves de direccion = una celda por direccion */
+  function walk(row, pre, o, k) {
+    if (!o) return;
+    if (isCv(o)) { celda(row, pre, o, k); if (o.big) celda(row, pre + '.big', o.big, k); return; }
+    if (Array.isArray(o)) { if (o.every(isCv)) { celda(row, pre, o, k); return; } o.forEach(function (e, i) { walk(row, pre + '[' + i + ']', e, k); }); return; }
+    Object.keys(o).forEach(function (kk) { if (kk === 'big') return; walk(row, pre + '.' + kk, o[kk], k); });
+  }
+  function refAlex(row, k) {
+    var A = ACH.sprites.alex; if (!A) return;
+    celda(row, 'Alexander (28 px)', A.nobird.walk.right, k, 160);
+  }
+  var want = function (id) { return !only || only === id; };
+
+  var NEONK_ = ['verde', 'rosado', 'amarillo', 'celeste'];
+  function crop(c) {
+    var x = c.getContext('2d'), d = x.getImageData(0, 0, c.width, c.height).data, x0 = c.width, y0 = c.height, x1 = -1, y1 = -1, i, j;
+    for (j = 0; j < c.height; j++) for (i = 0; i < c.width; i++) if (d[(j * c.width + i) * 4 + 3]) { if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j; }
+    if (x1 < 0) return c;
+    var n = document.createElement('canvas'); n.width = x1 - x0 + 1; n.height = y1 - y0 + 1; n.getContext('2d').drawImage(c, -x0, -y0);
+    n.ax = (c.ax === undefined ? 0 : c.ax) - x0; n.ay = (c.ay === undefined ? 0 : c.ay) - y0; return n;
+  }
+  function path(o, p) { return p.split('.').reduce(function (a, k) { return a && a[k]; }, o); }
+  if (want('zombis') && qs.get('sheet')) {
+    seccion('zombis', 'Zombies: hoja de contacto (cuadro 0 y 3 de move, dead; recortados)');
+    var rr = fila('referencia: Alexander y zombies de Miraflores'); refAlex(rr, Z);
+    ['trab_bembos', 'trab_starbucks', 'trab_wong'].forEach(function (kk) { var zz = ACH.sprites.zvar && ACH.sprites.zvar[kk]; if (zz) celda(rr, kk, crop(zz.move[0]), Z); });
+    var rowc = fila('cv_*'); 
+    CV.zvarKeys.forEach(function (key) { var sk = PJ[key]; if (!sk) return; celda(rowc, key.replace('cv_', '') + ' 0', crop(sk.move[0]), Z); celda(rowc, '3', crop(sk.move[3]), Z); celda(rowc, 'dead', crop(sk.dead), Math.max(2, Z - 1)); });
+  } else if (want('zombis')) {
+    seccion('zombis', 'Zombies (formato zvar: move[6] hurt[6] dead; mirando a la derecha, ancla = pies)');
+    CV.zvarKeys.forEach(function (key) {
+      if (qs.get('id') && key.indexOf(qs.get('id')) < 0) return; var s = PJ[key]; if (!s) return;
+      var r = fila(key); refAlex(r, Z);
+      celda(r, 'move', s.move, Z, 120); celda(r, 'hurt', s.hurt, Z, 120); celda(r, 'dead', s.dead, Z);
+    });
+  }
+  function generic(id, titulo, keys, k, noAlex) {
+    if (!want(id)) return;
+    seccion(id, titulo);
+    keys.forEach(function (key) {
+      if (qs.get('id') && key.indexOf(qs.get('id')) < 0) return;
+      var o = path(PJ, key); if (!o) return;
+      var r = fila(key); if (!noAlex) refAlex(r, k || Z); walk(r, key, o, k || Z);
+    });
+  }
+  generic('chef', 'Chef (2.4x) y ataques', ['chef', 'palito', 'dumpling', 'baozi', 'sombra', 'sombraGrande'], qs.get('id') ? Z : Math.min(Z, 4));
+  if (want('perros') && qs.get('sheet')) {
+    seccion('perros', 'Perros: hoja de contacto (recortada)');
+    (CV.dogBreeds || []).forEach(function (b) {
+      var D = PJ.perro[b], r = fila(b);
+      [['walk.right', D.walk.right[0]], ['walk.right', D.walk.right[2]], ['run.right', D.run.right[0]], ['run.right', D.run.right[2]], ['walk.down', D.walk.down[0]], ['walk.up', D.walk.up[0]], ['bite0', D.bite[0]], ['bite1', D.bite[1]], ['sit', D.sit]].forEach(function (p) { celda(r, p[0], crop(p[1]), Z); });
+    });
+  } else generic('perros', 'Perros (walk / run en 4 direcciones, bite, sit)', ['perro.chusco', 'perro.salchicha', 'perro.golden', 'perro.pug', 'perro.singpelo', 'perro.husky'], Z);
+  generic('heladero', 'Heladero (triciclo amarillo, de perfil)', ['heladero'], Z);
+  generic('vendedores', 'Vendedores (vivos)', ['npc.fosfo', 'npc.kioscoLarco', 'npc.deportes', 'npc.fuente'], Z);
+  generic('pareja', 'Pareja zombie (sprite doble)', ['pareja'], Z);
+  if (want('objetos')) {
+    seccion('objetos', 'Iconos (12x12 y .big 24x24) y objetos del mundo');
+    var ids = ['pelota', 'pelotaCuero', 'barraFosfo_verde', 'barraFosfo_rosado', 'barraFosfo_amarillo', 'barraFosfo_celeste', 'packFosfo', 'helado', 'paleta', 'chaufa', 'wantan', 'chicha', 'canilleras'];
+    var rI = fila('iconos 12x12 a zoom ' + Z), rB = fila('.big 24x24 a zoom ' + Math.max(2, Z - 2)), rS = fila('tamano real (1x, 2x, 3x) sobre fondo');
+    ids.forEach(function (id) { var o = PJ[id]; if (!o) return; celda(rI, id, o, Z); if (o.big) celda(rB, id + '.big', o.big, Math.max(2, Z - 2)); celda(rS, '', o, 1); celda(rS, '', o, 2); celda(rS, '', o, 3); });
+    var rM = fila('mundo');
+    walk(rM, 'pelotaSuelta', PJ.pelotaSuelta, Z); NEONK_.forEach(function (k) { var b = PJ.barraSuelta && PJ.barraSuelta[k]; if (b) celda(rM, 'barraSuelta.' + k, [b, b.alt], Z, 400); });
+    if (PJ.heladoVuelo) celda(rM, 'heladoVuelo', PJ.heladoVuelo.frames, Z, 120);
+    walk(rM, 'charcoHelado', PJ.charcoHelado, Z);
+    var rH = fila('barraHalo (a 1x)'); NEONK_.forEach(function (k) { var h = PJ.barraHalo && PJ.barraHalo[k]; if (h) celda(rH, 'halo.' + k, h, 1); });
+  }
+  if (want('alex')) {
+    seccion('alex', 'Alexander con el objeto en la mano (alexHeld) y la patadita (alexKick)');
+    ['barraFosfo_verde', 'barraFosfo_rosado', 'barraFosfo_amarillo', 'barraFosfo_celeste', 'helado'].forEach(function (id) {
+      if (qs.get('id') && id.indexOf(qs.get('id')) < 0) return;
+      ['bird', 'nobird'].forEach(function (k) {
+        var o = PJ.alexHeld && PJ.alexHeld[id] && PJ.alexHeld[id][k]; if (!o) return;
+        var r = fila(id + ' / ' + k);
+        ['right', 'left', 'down', 'up'].forEach(function (d) { celda(r, 'walk.' + d, o.walk[d], Math.min(Z, 3), 160); });
+        ['right', 'left', 'down', 'up'].forEach(function (d) { celda(r, 'swing.' + d, o.swing[d], Math.min(Z, 3), 220); });
+      });
+    });
+    ['bird', 'nobird'].forEach(function (k) {
+      var o = PJ.alexKick && PJ.alexKick[k]; if (!o) return;
+      var r = fila('alexKick / ' + k);
+      ['right', 'left', 'down', 'up'].forEach(function (d) { celda(r, d, o[d], Math.min(Z, 3), 300); });
+    });
+  }
+  CV.__show = { fila: fila, seccion: seccion, celda: celda, walk: walk, refAlex: refAlex, want: want, Z: Z, PJ: PJ, qs: qs };
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

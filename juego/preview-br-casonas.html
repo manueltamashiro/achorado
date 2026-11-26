@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO · Barranco · casonas, fachadas y peña (B2b)</title>
+<style>
+  body { background: #17141c; color: #e8e2d6; font: 12px/1.35 system-ui, sans-serif; margin: 12px; }
+  h1 { font-size: 16px; margin: 0 0 4px; } h2 { font-size: 14px; margin: 16px 0 6px; color: #ffd75e; }
+  .barra { position: sticky; top: 0; background: #17141cee; padding: 6px 0; z-index: 5; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  button { font: inherit; background: #3a2e4a; color: #ffe9a0; border: 1px solid #6a5a8a; border-radius: 4px; padding: 3px 9px; cursor: pointer; }
+  button.on { background: #7a4a1a; border-color: #ffb84d; }
+  .fila { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 8px; }
+  .celda { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .celda span { font-size: 10px; color: #a89fb0; max-width: 260px; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; background: #6b6b66; display: block; }
+  canvas.sky { background: #8fa8b0; } canvas.noche { background: #1a1d3a; }
+  #info { color: #9fd0a0; }
+</style>
+</head>
+<body>
+<h1>Barranco · js/barranco/arte-casonas.js</h1>
+<div class="barra">
+  <button id="bMarcas">MARCAS: REALES</button><button id="bNoche">HORA: DÍA</button>
+  <button id="bAmbos">VER DÍA Y NOCHE JUNTOS: NO</button>
+  <span id="info"></span>
+</div>
+<div id="out"></div>
+<script>window.ACH = window.ACH || {}; ACH.cfg = ACH.cfg || {}; ACH.cfg.marcasReales = !/parodia=1/.test(location.search);</script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script>document.write('<script src="js/barranco/arte-casonas.js?v=' + Date.now() + '"><\/script>');</script>
+<script>
+(function () {
+  'use strict';
+  var qs = new URLSearchParams(location.search), Z = +qs.get('z') || 3, only = qs.get('solo'), bsel = qs.get('b') ? qs.get('b').split(',') : null;
+  var out = document.getElementById('out'), C = ACH.sprites.br && ACH.sprites.br.casona;
+  if (!C) { document.getElementById('info').textContent = 'FALTA ACH.sprites.br.casona'; return; }
+  var noche = qs.get('noche') === '1', ambos = qs.get('ambos') === '1';
+  function lienzo(src, k, cls) {
+    var c = document.createElement('canvas'); c.width = src.width; c.height = src.height; c.getContext('2d').drawImage(src, 0, 0);
+    c.style.width = (src.width * k) + 'px'; c.style.height = (src.height * k) + 'px'; if (cls) c.className = cls; return c;
+  }
+  function celda(row, label, src, k, cls) {
+    var d = document.createElement('div'); d.className = 'celda';
+    d.appendChild(lienzo(src, k || Z, cls)); var s = document.createElement('span'); s.textContent = label + ' ' + src.width + 'x' + src.height + (src.ax !== undefined ? ' @' + src.ax + ',' + src.ay : ''); d.appendChild(s); row.appendChild(d);
+  }
+  function seccion(t) { var h = document.createElement('h2'); h.textContent = t; out.appendChild(h); var r = document.createElement('div'); r.className = 'fila'; out.appendChild(r); return r; }
+  function modos(row, label, dia, nocheC, k, cls) {
+    if (ambos) { celda(row, label + ' (dia)', dia, k, cls); celda(row, label + ' (noche)', nocheC || dia, k, 'noche'); }
+    else if (noche) celda(row, label, nocheC || dia, k, 'noche'); else celda(row, label, dia, k, cls);
+  }
+  function mosaico(tiles, cols, rows) {
+    var c = document.createElement('canvas'); c.width = cols * 16; c.height = rows * 16; var g = c.getContext('2d');
+    for (var j = 0; j < rows; j++) for (var i = 0; i < cols; i++) g.drawImage(tiles[(i * 3 + j * 5 + (i ^ j)) % tiles.length], i * 16, j * 16);
+    return c;
+  }
+  var DEF = { ultimaJarana: 11 };
+  function render() {
+    out.innerHTML = '';
+    var t0 = performance.now();
+    if (!only || only === 'fachadas') {
+      var row = seccion('Fachadas · ' + (ACH.cfg.marcasReales ? 'MODO REAL' : 'MODO PARODIA') + ' · ' + (ambos ? 'día y noche' : (noche ? 'noche' : 'día')));
+      C.brands.forEach(function (b) { if (bsel && bsel.indexOf(b) < 0) return; var f = C.fachada(b, DEF[b] || C.defaultTiles[b] || 6); modos(row, b + ' · ' + C.brandName(b) + ' · luces ' + f.lights.length, f.cv, f.noche, Z); });
+    }
+    if (!only || only === 'lotes') {
+      var rl = seccion('Lotes br_casona1..6 (lado N = cara al sur; lado S = azotea)');
+      for (var n = 1; n <= 6; n++) {
+        [[7, 8], [6, 8], [5, 8]].slice(0, 1).forEach(function (sz) {
+          var f = { arch: 'br_casona' + n, side: 'N', c0: 0, c1: sz[0] - 1, r0: 0, r1: sz[1] - 1, seed: 40 + n, face: 6 };
+          var r = ACH.sprites.buildLot(f); if (!r) { celda(rl, 'br_casona' + n + ' SIN LOTE', document.createElement('canvas'), 1); return; }
+          modos(rl, 'br_casona' + n + ' ' + sz[0] + 'x' + sz[1] + ' luces:' + r.lights.length, r.canvas, r.canvas.noche, Math.max(1, Z - 1));
+        });
+        var fs = { arch: 'br_casona' + n, side: 'S', c0: 0, c1: 6, r0: 0, r1: 4, seed: 60 + n };
+        var rs = ACH.sprites.buildLot(fs); if (rs) celda(rl, 'br_casona' + n + ' S', rs.canvas, Math.max(1, Z - 1));
+      }
+      var r2 = seccion('Lotes con otra altura de cara (face 5 y 7) y ancho distinto');
+      [[1, 5, 5], [2, 7, 7], [3, 4, 6], [5, 8, 6], [6, 6, 5]].forEach(function (a) {
+        var f = { arch: 'br_casona' + a[0], side: 'N', c0: 0, c1: a[2] - 1, r0: 0, r1: 8, seed: 80 + a[0], face: a[1] };
+        var r = ACH.sprites.buildLot(f); if (r) modos(r2, 'br_casona' + a[0] + ' face ' + a[1] + ' ancho ' + a[2], r.canvas, r.canvas.noche, Math.max(1, Z - 1));
+      });
+    }
+    if (!only || only === 'tiles') {
+      var rt = seccion('Tiles de la peña (16x16)');
+      ['pisoPena', 'pistaBaile', 'pistaBaileOn', 'tabladillo'].forEach(function (nm) { C.tiles[nm].forEach(function (t, i) { celda(rt, nm + '[' + i + ']', t, 5); }); });
+      rt = seccion('Repetición: piso, pista y escenario');
+      celda(rt, 'pisoPena 8x4', mosaico(C.tiles.pisoPena, 8, 4), 3); celda(rt, 'pistaBaile 8x4', mosaico(C.tiles.pistaBaile, 8, 4), 3); celda(rt, 'pistaBaileOn 8x4', mosaico(C.tiles.pistaBaileOn, 8, 4), 3);
+    }
+    if (!only || only === 'props') {
+      var rp = seccion('Props');
+      Object.keys(C.props).forEach(function (nm) {
+        var p = C.props[nm];
+        if (Array.isArray(p)) { p.forEach(function (q, i) { celda(rp, nm + '[' + i + '] fw' + q.fw + ' fh' + q.fh, q, Z, 'sky'); }); return; }
+        celda(rp, nm + ' fw' + p.fw + ' fh' + p.fh + (p.lamp ? ' lamp' : '') + (p.tall ? ' tall' : ''), p, nm === 'barraPena' || nm === 'cortinaEscenario' ? 2 : Z, 'sky');
+        if (p.broken) celda(rp, nm + '.broken', p.broken, Z, 'sky');
+      });
+    }
+    if (!only || only === 'arena') {
+      var ra = seccion('La peña por dentro (arena del jefe): escenario, cortina, mesas, pista, barra, columnas');
+      var sc = document.createElement('canvas'); sc.width = 480; sc.height = 270; var g = sc.getContext('2d'); g.imageSmoothingEnabled = false;
+      var x, y, T = C.tiles, P = C.props;
+      for (y = 0; y < 17; y++) for (x = 0; x < 30; x++) g.drawImage(T.pisoPena[(x * 3 + y * 5) % 4], x * 16, y * 16);
+      for (y = 4; y < 12; y++) for (x = 9; x < 21; x++) g.drawImage(((x + y) % 2 ? T.pistaBaile : T.pistaBaile)[(x + y * 3) % 4], x * 16, y * 16);
+      var onPat = [[10, 5], [13, 6], [16, 5], [11, 8], [15, 9], [18, 7], [12, 10], [19, 10]];
+      onPat.forEach(function (p) { g.drawImage(T.pistaBaileOn[(p[0] + p[1]) % 4], p[0] * 16, p[1] * 16); });
+      for (x = 5; x < 25; x++) { g.drawImage(T.tabladillo[x === 5 ? 2 : (x === 24 ? 3 : 0)], x * 16, 2 * 16); g.drawImage(T.tabladillo[x === 5 ? 2 : (x === 24 ? 3 : 0)], x * 16, 3 * 16); g.drawImage(T.tabladillo[1], x * 16, 4 * 16 - 16 + 16 * 0); }
+      for (x = 5; x < 25; x++) g.drawImage(T.tabladillo[0], x * 16, 16 * 3);
+      for (x = 5; x < 25; x++) g.drawImage(T.tabladillo[1], x * 16, 16 * 3 + 16 * 0);
+      g.drawImage(P.cortinaEscenario, 240 - P.cortinaEscenario.ax, 62 - P.cortinaEscenario.ay + 0);
+      g.drawImage(P.cuadroCriollo[0], 24, 12); g.drawImage(P.cuadroCriollo[1], 54, 12); g.drawImage(P.cuadroCriollo[2], 392, 12); g.drawImage(P.cuadroCriollo[0], 424, 12);
+      g.drawImage(P.barraPena, 400 - P.barraPena.ax, 200 - 0, 128, 76);
+      [[70, 150], [100, 190], [60, 215], [150, 235], [330, 230], [300, 160]].forEach(function (m, i) { g.drawImage(i === 5 ? P.mesaPena.broken : P.mesaPena, m[0] - P.mesaPena.ax, m[1] - P.mesaPena.ay); g.drawImage(P.sillaPena, m[0] - 26 - P.sillaPena.ax, m[1] - P.sillaPena.ay + 2); g.drawImage(P.sillaPena, m[0] + 24 - P.sillaPena.ax, m[1] - P.sillaPena.ay + 2); });
+      g.drawImage(P.columnaPena, 120 - P.columnaPena.ax, 120 - P.columnaPena.ay + 40); g.drawImage(P.columnaPena, 360 - P.columnaPena.ax, 120 - P.columnaPena.ay + 40);
+      g.drawImage(P.focoPena, 190 - P.focoPena.ax, 120 - P.focoPena.ay + 40); g.drawImage(P.focoPena, 290 - P.focoPena.ax, 120 - P.focoPena.ay + 40);
+      for (x = 0; x < 3; x++) g.drawImage(P.guirnalda, 40 + x * 48, 54);
+      g.drawImage(P.sillaPena.broken, 232, 250 - P.sillaPena.broken.ay);
+      celda(ra, 'escena 480x270', sc, 2);
+    }
+    document.getElementById('info').textContent = 'render ' + (performance.now() - t0).toFixed(0) + ' ms · tiles+props: ' + C.bakeMs + ' ms · zoom ' + Z + ' (?z=N, ?solo=fachadas|lotes|tiles|props|arena, ?b=ids, ?noche=1, ?ambos=1, ?parodia=1)';
+  }
+  function bt() {
+    document.getElementById('bMarcas').textContent = 'MARCAS: ' + (ACH.cfg.marcasReales ? 'REALES' : 'PARODIA');
+    document.getElementById('bNoche').textContent = 'HORA: ' + (noche ? 'NOCHE' : 'DÍA'); document.getElementById('bNoche').className = noche ? 'on' : '';
+    document.getElementById('bAmbos').textContent = 'DÍA Y NOCHE JUNTOS: ' + (ambos ? 'SÍ' : 'NO'); document.getElementById('bAmbos').className = ambos ? 'on' : '';
+  }
+  document.getElementById('bMarcas').onclick = function () { ACH.px.setMarcas(); bt(); render(); };
+  document.getElementById('bNoche').onclick = function () { noche = !noche; bt(); render(); };
+  document.getElementById('bAmbos').onclick = function () { ambos = !ambos; bt(); render(); };
+  bt(); render();
+  window.__render = render;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+/* ACHORADO v0.11 — habilidades.css: HUD de XP / SABOR / melodías y la pantalla del árbol (afiche chicha). Todo en múltiplos de --u (1 px lógico). */
+.hudbox .hide, #habTree .hide { display: none !important; }
+
+/* ---- HUD: chapa NV + barra fina de XP ---- */
+.habxp { display: flex; align-items: center; gap: calc(var(--u) * 2); }
+.habxp .habnv { font-family: var(--pixel); font-weight: 400; font-size: calc(var(--u) * 5); line-height: 1; color: var(--ink); background: var(--yellow); padding: calc(var(--u) * 1) calc(var(--u) * 1.5); flex: none; }
+.habxp.pts .habnv { animation: habblink .5s steps(2) infinite; }
+.habxpbar { flex: 1; height: calc(var(--u) * 2); background: #2a2630; border: var(--u) solid #000; position: relative; }
+.habxpbar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--yellow); transition: width .2s linear; }
+.habxp .habpts { font-family: var(--pixel); font-style: normal; font-size: calc(var(--u) * 5); line-height: 1; color: var(--green); flex: none; animation: habblink .5s steps(2) infinite; }
+@keyframes habblink { 50% { opacity: .25; } }
+
+/* ---- HUD: barra de SABOR (rosado → amarillo con brillo cuando está llena) ---- */
+.bar.habsab { height: calc(var(--u) * 3); }
+.bar.habsab i { background: linear-gradient(90deg, #ff2e88, #ff6fb0); }
+.bar.habsab.full i { background: var(--yellow); animation: habglow .6s steps(2) infinite; }
+.bar.habsab.full { box-shadow: 0 0 calc(var(--u) * 2) rgba(255, 229, 0, .8); }
+@keyframes habglow { 50% { background: #fff6b0; } }
+
+/* ---- HUD: fila de melodías aprendidas ---- */
+.habmels { display: flex; gap: calc(var(--u) * 2); }
+.habic { --c: #1fe07a; --cd: 0deg; position: relative; width: calc(var(--u) * 11); height: calc(var(--u) * 11); border: var(--u) solid var(--c); background: #1d1a22; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center; font-family: var(--pixel); font-size: calc(var(--u) * 6); line-height: 1; color: var(--c); }
+.habic span { position: relative; z-index: 1; }
+.habic.cd::after { content: ""; position: absolute; inset: 0; background: conic-gradient(rgba(10, 8, 12, .78) var(--cd), transparent 0); }
+.habic.low { border-color: #5a5662; color: #8a8692; }
+.habic.sel { box-shadow: 0 calc(var(--u) * 1.5) 0 0 var(--c); }
+.habic.ready { border-color: var(--yellow); color: var(--yellow); animation: habpulse .45s ease-in-out infinite alternate; }
+@keyframes habpulse { from { transform: scale(1); } to { transform: scale(1.18); box-shadow: 0 0 calc(var(--u) * 3) var(--yellow); } }
+
+/* ---- Pantalla del árbol ---- */
+#habTree { z-index: 4; background: rgba(8, 7, 10, .78); }
+body.hab-on #qbar { visibility: hidden; }   /* QA B2: los casilleros 1-4 (z-index 6 en táctil) tapaban el encabezado */
+.habposter { position: relative; background: #0b0a0d; border: var(--u) solid #2a2630; width: calc(var(--u) * 440); max-width: 100%; max-height: 100%; box-sizing: border-box;
+  padding: calc(var(--u) * 6) calc(var(--u) * 10) calc(var(--u) * 5); transform: rotate(-.4deg); display: flex; flex-direction: column; gap: calc(var(--u) * 3);
+  box-shadow: 0 calc(var(--u) * 6) calc(var(--u) * 12) rgba(0, 0, 0, .6); }
+.habposter::before, .habposter::after { content: ""; position: absolute; top: calc(var(--u) * -5); width: calc(var(--u) * 44); height: calc(var(--u) * 10); background: var(--tape); }
+.habposter::before { left: calc(var(--u) * 14); transform: rotate(-5deg); }
+.habposter::after { right: calc(var(--u) * 14); transform: rotate(4deg); }
+.habhead { display: flex; align-items: center; gap: calc(var(--u) * 8); flex-wrap: wrap; }
+.habhead .kicker { margin: 0; font-family: var(--display); font-size: calc(var(--u) * 7); letter-spacing: .12em; color: var(--green); }
+.habnvbig { margin: 0; font-family: var(--display); font-weight: 400; font-size: calc(var(--u) * 16); line-height: 1; color: var(--pink); text-shadow: calc(var(--u) * 1.5) calc(var(--u) * 1.5) 0 var(--yellow); }
+.habxpbig { display: flex; align-items: center; gap: calc(var(--u) * 3); flex: 1; min-width: calc(var(--u) * 90); }
+.habxpbig .bar { height: calc(var(--u) * 4); }
+.habxpbig .bar i { background: var(--yellow); }
+.habxpbig .xpt { font-family: var(--pixel); font-size: calc(var(--u) * 5.5); color: #f2f2f2; white-space: nowrap; }
+.habptsbig { margin: 0; font-family: var(--display); font-size: calc(var(--u) * 6.5); color: #8a8692; }
+.habptsbig.has { color: var(--green); animation: habblink .7s steps(2) infinite; }
+
+.habgrid { position: relative; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto auto auto; gap: calc(var(--u) * 9) calc(var(--u) * 10); }   /* QA OBS-7: aire entre filas para que se vean las cuerdas */
+.habstr { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.habstr line { stroke: #5a5462; stroke-width: 1.5; }
+.habstr line.mid { stroke: #6a6472; }
+.habstr line.on { stroke: var(--yellow); }
+.habstr line.on.mid { stroke: #fff6b0; }
+
+.habnode { --c: #1fe07a; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: calc(var(--u) * 1); text-align: center;
+  background: rgba(11, 10, 13, .92); border: var(--u) solid #2a2630; padding: calc(var(--u) * 1.5) calc(var(--u) * 2); margin: 0; color: #f2f2f2; cursor: pointer; outline: none; font-family: var(--hand); }
+.habnode.root { cursor: default; border-color: transparent; background: transparent; padding-bottom: 0; }
+.habnode .disc { width: calc(var(--u) * 14); height: calc(var(--u) * 14); border-radius: 50%; border: var(--u) solid var(--c); background: #131015; color: var(--c); font-style: normal;
+  font-family: var(--display); font-size: calc(var(--u) * 7); line-height: calc(var(--u) * 12); box-shadow: calc(var(--u) * 1) calc(var(--u) * 1) 0 var(--yellow); }
+.habnode.root .disc { --c: var(--yellow); color: var(--yellow); }
+.habnode b { font-family: var(--display); font-weight: 400; font-size: calc(var(--u) * 6); line-height: 1.05; color: var(--c); letter-spacing: .02em; }
+.habnode.root b { color: var(--yellow); }
+.habnode small { font-family: var(--hand); font-size: calc(var(--u) * 6.5); line-height: 1.05; color: #d6d2dc; }
+.habnode small.cost { font-family: var(--pixel); font-size: calc(var(--u) * 4.5); color: #9a96a2; letter-spacing: .04em; }
+.habnode .dots { display: flex; gap: calc(var(--u) * 2); }
+.habnode .dots u { width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: 50%; border: var(--u) solid var(--c); text-decoration: none; }
+.habnode .dots u.on { background: var(--c); }
+.habnode.can { border-color: var(--c); }
+.habnode.can:hover, .habnode.can:focus-visible { background: rgba(255, 46, 136, .18); transform: translate(calc(var(--u) * -1), calc(var(--u) * -1)); box-shadow: calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--yellow); }
+.habnode.learned .disc { background: var(--c); color: var(--ink); }
+.habnode.locked { --c: #6a6672; color: #8a8692; cursor: not-allowed; }
+.habnode.locked .disc { box-shadow: none; }
+.habnode.locked small { color: #8a8692; }
+.habnode.max { border-color: var(--yellow); }
+
+.habfoot { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--u) * 6); }
+.habfoot button { font-family: var(--display); font-size: calc(var(--u) * 6); padding: calc(var(--u) * 2) calc(var(--u) * 5); background: #131015; color: var(--yellow); border: var(--u) solid var(--pink);
+  box-shadow: calc(var(--u) * 1.5) calc(var(--u) * 1.5) 0 var(--yellow); cursor: pointer; outline: none; }
+.habfoot button.habback { color: var(--green); border-color: var(--green); }
+.habfoot button:active { transform: translate(var(--u), var(--u)); box-shadow: none; }
+.habmsg { flex: 1; text-align: center; font-family: var(--display); font-size: calc(var(--u) * 6); color: var(--pink); }
+.habmsg.go { animation: slam .3s cubic-bezier(.2, 1.6, .4, 1); }
+
+/* ---- Táctil: botones MELODÍA y ÁRBOL, y el abanico ---- */
+#tcMel { right: calc(env(safe-area-inset-right) + 60px); bottom: calc(env(safe-area-inset-bottom) + 202px); width: 60px; height: 60px; font-size: 10px; border-color: rgba(255, 229, 0, .9); color: var(--yellow); }
+#tcMel small { color: var(--pink); }
+#tcMel.low { border-color: rgba(120, 116, 130, .8); color: #9a96a2; }
+#tcMel.ready { animation: habpulse .45s ease-in-out infinite alternate; }
+#tc .tctop #tcArbol { font-size: 11px; padding: 0 9px; color: var(--green); }
+#tcMelFan { position: absolute; right: calc(env(safe-area-inset-right) + 128px); bottom: calc(env(safe-area-inset-bottom) + 206px); display: flex; gap: 8px; pointer-events: auto; }
+#tcMelFan button { width: 52px; height: 52px; border-radius: 50%; border: 3px solid var(--c, #1fe07a); color: var(--c, #1fe07a); background: rgba(19, 16, 21, .85); font-size: 9px; line-height: 1.05; box-shadow: 2px 2px 0 rgba(255, 229, 0, .6); }
+#tcMelFan button b { display: block; font-size: 15px; }
+#tcMelFan button.sel { background: rgba(255, 229, 0, .25); }
+body.touch .habposter { width: 100%; }
+
+/* ---------- v0.12 táctil: pie del árbol y nodos con blanco ≥ 44 px, letra ≥ 12 px ---------- */
+body.touch .habfoot { gap: 8px; }
+body.touch .habfoot button { min-height: 44px; min-width: 44px; font-size: max(12px, calc(var(--u) * 6)); padding: 0 14px; }
+body.touch .habmsg { font-size: max(11px, calc(var(--u) * 6)); }
+body.touch .habkb { display: none; }   /* v0.13: en táctil el botón dice solo VOLVER */
+body.touch .habnode { min-height: 44px; }
+body.touch .habnode b { font-size: max(12px, calc(var(--u) * 6)); }
+body.touch .habnode small { font-size: max(11px, calc(var(--u) * 6.5)); }
+body.touch .habnode small.cost { font-size: max(10px, calc(var(--u) * 4.5)); }
+
+/* ---------- v0.13 T2 (P · G3): rama pasiva «Cuerpo de combi» en la 4.ª columna ---------- */
+.habposter { width: calc(var(--u) * 476); }
+.habgrid { grid-template-columns: 1fr 1fr 1fr 1fr; gap: calc(var(--u) * 9) calc(var(--u) * 7); }
+.habnode.pas { border-style: dashed; }
+.habnode.pas.can, .habnode.pas.max { border-style: solid; }
+.habnode.pas .disc { font-family: var(--pixel); font-size: calc(var(--u) * 5); }
+.habpashead { position: absolute; left: 0; right: 0; top: calc(var(--u) * -7); font-style: normal; font-family: var(--display); font-size: calc(var(--u) * 5);
+  letter-spacing: .1em; color: var(--yellow); text-align: center; pointer-events: none; }
+body.touch .habpashead { font-size: max(10px, calc(var(--u) * 5)); }
+.habgrid { margin-top: calc(var(--u) * 4); }   /* v0.13 fix: «N PUNTOS PARA GASTAR» ya no roza «CUERPO DE COMBI» */
+body.touch .habgrid { margin-top: 8px; }
+/* mochila de 16/20 casillas (taller del cuarto): 4 columnas como siempre, las casillas un poco más bajas para que quepa */
+.invgrid.big5 .islot { height: calc(var(--u) * 24); }
+.invgrid.big5 .islot canvas { width: calc(var(--u) * 20); height: calc(var(--u) * 20); }
+body.touch .invgrid.big5 .islot { height: max(44px, calc(var(--u) * 24)); }

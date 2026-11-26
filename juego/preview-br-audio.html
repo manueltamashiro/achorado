@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Barranco · prueba de audio (B3)</title>
+<style>
+  :root { --ink: #131015; --pink: #ff2e88; --yellow: #ffe500; --green: #39ff14; --panel: #1d1722; --line: #3a2f44; --txt: #f4eefc; --dim: #a79db8; --gold: #ffb12e; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #000; color: var(--txt); font: 14px/1.4 "Courier New", monospace; padding: 16px; max-width: 1100px; margin-inline: auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; color: var(--yellow); letter-spacing: .04em; }
+  h2 { font-size: 14px; margin: 22px 0 8px; color: var(--green); text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  p.hint { margin: 2px 0 10px; color: var(--dim); }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
+  button { font: inherit; background: var(--panel); color: var(--txt); border: 2px solid var(--line); padding: 5px 10px; cursor: pointer; }
+  button:hover { border-color: var(--pink); }
+  button.on { background: var(--pink); color: var(--ink); border-color: var(--pink); font-weight: bold; }
+  button.big { background: var(--yellow); color: var(--ink); border-color: var(--yellow); font-weight: bold; padding: 8px 16px; }
+  button.theme { border-color: var(--green); }
+  button.zone { border-color: var(--gold); }
+  label { color: var(--dim); display: inline-flex; gap: 6px; align-items: center; }
+  input[type=range] { accent-color: var(--pink); width: 140px; }
+  output { color: var(--yellow); min-width: 3ch; display: inline-block; }
+  .grid { display: flex; flex-wrap: wrap; gap: 5px; }
+  pre { background: #0c0a10; border: 1px solid var(--line); padding: 8px; overflow: auto; max-height: 260px; margin: 6px 0; color: #cfe; white-space: pre-wrap; }
+  pre.err { color: #ff9ab8; border-color: var(--pink); }
+  .ok { color: var(--green); } .bad { color: #ff5d8f; }
+  /* reloj de compás */
+  #clock { display: flex; gap: 8px; align-items: stretch; margin: 8px 0; }
+  .pulse { width: 54px; height: 54px; border: 2px solid var(--line); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--dim); font-weight: bold; }
+  .pulse.cur { border-color: var(--gold); color: var(--ink); background: var(--gold); }
+  .pulse.cur.one { background: var(--pink); border-color: var(--pink); }
+  #phase { height: 10px; background: #1a1420; border: 1px solid var(--line); margin: 4px 0; }
+  #phase i { display: block; height: 100%; width: 0; background: var(--green); }
+  #beatTxt { white-space: pre; color: #cfe; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>BARRANCO · PRUEBA DE AUDIO (B3)</h1>
+<p class="hint">Todo sale de js/barranco/criolla.js, sfx-br.js y voces-br.js (Web Audio, sin samples). Primero pulsa <b>ACTIVAR AUDIO</b> (el navegador exige un clic). Si no oyes nada: ¿volumen del sistema? ¿M = silencio?</p>
+<div class="row">
+  <button class="big" id="unlock">ACTIVAR AUDIO</button>
+  <button id="mute">SILENCIO (M)</button>
+  <button id="stopall">PARAR TODO</button>
+  <label>maestro <input type="range" min="0" max="100" value="80" data-bus="master"><output></output></label>
+  <label>música <input type="range" min="0" max="100" value="50" data-bus="music"><output></output></label>
+  <label>efectos <input type="range" min="0" max="100" value="90" data-bus="sfx"><output></output></label>
+  <label>ambiente <input type="range" min="0" max="100" value="85" data-bus="amb"><output></output></label>
+  <label>voces <input type="range" min="0" max="100" value="90" data-bus="voces"><output></output></label>
+</div>
+
+<h2>Reloj de compás · ACH.audio.br.beat()</h2>
+<p class="hint">Lectura en vivo (cada cuadro). El círculo dorado es el pulso actual (rosa = el 1 del compás); la barra es la fase dentro del pulso. Con <b>tic de prueba</b> suena un click de madera programado en el próximo pulso según toNext: si el reloj es exacto, el tic cae justo sobre la cajita/cajón del tema (en jefe1, jefe2, jefe3, que llevan la cajita marcando cada pulso, se oye como un solo golpe; si se oye «doble», hay desfase).</p>
+<div id="clock"></div>
+<div id="phase"><i></i></div>
+<div id="beatTxt">(sin música)</div>
+<div class="row">
+  <label><input type="checkbox" id="tick"> tic de prueba en cada pulso</label>
+  <label>calibración (ms) <input type="range" min="-120" max="120" value="0" id="calib"><output id="calibO">0</output></label>
+  <span class="hint" id="onTimeS"></span>
+</div>
+
+<h2>Música · ánimos del juego</h2>
+<p class="hint">game.js llama setMood + setIntensity. Los cambios caen en el siguiente pulso (≤ ~0,9 s) con anacrusa de cajón. «explore» cambia con la zona de abajo (en el juego: ACH.world.zona).</p>
+<div class="row" id="moods"></div>
+<div class="row">
+  <label>intensidad <input type="range" min="0" max="100" value="0" id="inten"><output id="intenO">0.00</output></label>
+  <label><input type="checkbox" id="boss"> setBoss(true) (con horde o chase toca jefe1)</label>
+  <label><input type="checkbox" id="night"> noche</label>
+</div>
+
+<h2>Música · zonas de exploración</h2>
+<p class="hint">Solo se oyen con el ánimo <b>explore</b>. playa = vals suave con olas · bajada/puente/ermita = vals con contracanto y cajón en hemiola · parque = vals alegre · bohemia/pena = peña lejana de noche. «cercanía» abre la peña lejana.</p>
+<div class="row" id="zones"></div>
+<div class="row">
+  <label>cercanía a la peña <input type="range" min="0" max="100" value="30" id="near"><output id="nearO">0.30</output></label>
+  <label><input type="checkbox" id="auto"> autodetección (ACH.world.zona)</label>
+</div>
+
+<h2>Música · temas por nombre (ACH.audio.br.play)</h2>
+<div class="row" id="themes"></div>
+<div class="row">
+  <label>tempo (setTempoMul) <input type="range" min="60" max="140" value="100" id="tempo"><output id="tempoO">1.00</output></label>
+  <label><input type="checkbox" id="muteCajon"> silenciar cajón (cajonero caído)</label>
+  <label><input type="checkbox" id="silence"> silencio (jefe sentado)</label>
+</div>
+<p class="hint">Se pisan sobre cualquier ánimo hasta <b>br.stop()</b>. jefe2 admite tempo 0.6 a 1.4; el cajonero acelera hasta +20 %. «deseo» suena encima de la música sin cortarla.</p>
+
+<h2>Música · stingers</h2>
+<div class="row" id="stingers"></div>
+
+<h2>Sonidos (ACH.audio.emit)</h2>
+<div class="grid" id="sfx"></div>
+<div class="row" style="margin-top:10px">
+  <b>Bucles:</b>
+  <button data-loop="br.olas">olas (canto rodado)</button>
+  <button data-loop="br.grillos">grillos</button>
+  <label>intensidad <input type="range" min="0" max="100" value="70" id="loopK"><output id="loopO">0.70</output></label>
+  <label>x <input type="range" min="-300" max="300" value="0" id="loopX"><output id="loopXO">0</output></label>
+</div>
+<div class="row"><b>Ambiente automático:</b>
+  <button id="ambOn">director de ambiente: nivel = barranco</button>
+  <span class="hint" id="ambS"></span></div>
+
+<h2>Frases (ACH.audio.say)</h2>
+<p class="hint">La voz es la de speechSynthesis de tu sistema. Cada botón la dice ya (sin sorteo ni espera).</p>
+<div class="grid" id="phr"></div>
+
+<h2>Estado</h2>
+<pre id="state">…</pre>
+
+<h2>Pruebas estructurales</h2>
+<p class="hint">Renderizan con OfflineAudioContext cada tema y cada ánimo (sin oír): miden pico, RMS, NaN, recortes y el cambio de tema; comprueban que el reloj de compás coincide con el sonido (onsets de la cajita contra los pulsos de beat(), tolerancia 8 ms) y es monótono; y emiten todos los sonidos en vivo comprobando que no haya excepciones ni avisos en la consola.</p>
+<div class="row"><button id="runTests" class="big">CORRER PRUEBAS</button><span id="testStatus" class="hint"></span></div>
+<pre id="tests">sin correr</pre>
+<h2>Consola (errores y avisos)</h2>
+<pre id="cons" class="err">(vacía)</pre>
+
+<script>
+  /* captura de errores y avisos de la consola, antes que cualquier script */
+  window.__cons = [];
+  (function () {
+    var ow = console.warn, oe = console.error;
+    console.warn = function () { window.__cons.push('WARN: ' + [].slice.call(arguments).join(' ')); ow.apply(console, arguments); };
+    console.error = function () { window.__cons.push('ERROR: ' + [].slice.call(arguments).join(' ')); oe.apply(console, arguments); };
+    window.addEventListener('error', function (e) { window.__cons.push('EXC: ' + e.message + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno); });
+    window.addEventListener('unhandledrejection', function (e) { window.__cons.push('REJECT: ' + (e.reason && e.reason.message || e.reason)); });
+  })();
+</script>
+<script src="js/audio/sfx.js"></script>
+<script src="js/barranco/criolla.js"></script>
+<script src="js/audio/voces.js"></script>
+<script src="js/audio/motor.js"></script>
+<script src="js/miraflores/sfx-mira.js"></script>
+<script src="js/miraflores/voces-mira.js"></script>
+<script src="js/costaverde/sfx-cv.js"></script>
+<script src="js/costaverde/voces-cv.js"></script>
+<script src="js/barranco/sfx-br.js"></script>
+<script src="js/barranco/voces-br.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = ACH.audio, ME = A.musicEngine, BR = A.br, $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, txt, parent) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; if (parent) parent.appendChild(e); return e; }
+  function on(btns, cur) { btns.forEach(function (b) { b.classList.toggle('on', b.dataset.k === cur); }); }
+
+  /* ---- volumen ---- */
+  [].forEach.call(document.querySelectorAll('input[data-bus]'), function (inp) {
+    var o = inp.nextElementSibling, b = inp.dataset.bus;
+    inp.value = Math.round(A.getVolume(b) * 100); o.textContent = inp.value;
+    inp.addEventListener('input', function () { A.setVolume(b, inp.value / 100); o.textContent = inp.value; });
+  });
+  $('unlock').addEventListener('click', function () { A.unlock(); this.textContent = 'AUDIO ACTIVO'; });
+  $('mute').addEventListener('click', function () { A.mute(!A.muted()); this.classList.toggle('on', A.muted()); });
+  var moodBtns = [], zoneBtns = [], themeBtns = [];
+  $('stopall').addEventListener('click', function () { BR.stop(); BR.setTempoMul(1); BR.silence(false, 0.2); A.stopLoops(); A.music.setMood('explore'); A.music.setIntensity(0); ME.setBoss(false); moodBtns.concat(themeBtns).forEach(function (b) { b.classList.remove('on'); }); });
+
+  /* ---- ánimos ---- */
+  var MOODS = ['title', 'explore', 'chase', 'horde', 'dead', 'won', 'paused'];
+  MOODS.forEach(function (m) {
+    var b = el('button', '', m, $('moods')); b.dataset.k = m; moodBtns.push(b);
+    b.addEventListener('click', function () { A.unlock(); A.music.setMood(m); on(moodBtns, m); });
+  });
+  $('inten').addEventListener('input', function () { var v = this.value / 100; $('intenO').textContent = v.toFixed(2); A.music.setIntensity(v); });
+  $('boss').addEventListener('change', function () { A.unlock(); ME.setBoss(this.checked); });
+  $('night').addEventListener('change', function () { A.unlock(); A.music.setNight(this.checked, 3); });
+
+  /* ---- zonas ---- */
+  BR.zones.forEach(function (z) {
+    var b = el('button', 'zone', z, $('zones')); b.dataset.k = z; zoneBtns.push(b);
+    b.addEventListener('click', function () { A.unlock(); A.music.setMood('explore'); on(moodBtns, 'explore'); BR.stop(); BR.setZone(z); on(zoneBtns, z); $('near').value = 0; $('near').dispatchEvent(new Event('input')); BR.setNear(null); });
+  });
+  $('near').addEventListener('input', function () { var v = this.value / 100; $('nearO').textContent = v.toFixed(2); if (this.value > 0) BR.setNear(v); });
+  $('auto').addEventListener('change', function () { BR.auto(this.checked); });
+
+  /* ---- temas por nombre ---- */
+  ['jefe1', 'jefe2', 'jefe3', 'final', 'chase', 'horde'].forEach(function (id) {
+    var b = el('button', 'theme', 'br.play(' + id + ')', $('themes')); b.dataset.k = id; themeBtns.push(b);
+    b.addEventListener('click', function () { A.unlock(); BR.play(id); on(themeBtns, id); $('tempo').value = 100; $('tempoO').textContent = '1.00'; });
+  });
+  var wb = el('button', 'theme', 'br.play(deseo)', $('themes')); wb.addEventListener('click', function () { A.unlock(); BR.play('deseo'); });
+  var sb = el('button', '', 'br.stop()', $('themes')); sb.addEventListener('click', function () { BR.stop(); on(themeBtns, ''); $('tempo').value = 100; $('tempoO').textContent = '1.00'; });
+  $('tempo').addEventListener('input', function () { var v = this.value / 100; $('tempoO').textContent = v.toFixed(2); BR.setTempoMul(v); });
+  $('muteCajon').addEventListener('change', function () { BR.setLayerMute('cajon', this.checked); });
+  $('silence').addEventListener('change', function () { BR.silence(this.checked, 1.5); });
+
+  /* ---- stingers ---- */
+  ['kill', 'hurt', 'horde', 'death', 'win', 'cobrador', 'boss.intro', 'boss.down', 'gong', 'br.atiempo', 'br.contrapunto', 'br.pregon', 'br.respuesta', 'br.deseo'].forEach(function (s) {
+    var b = el('button', '', s, $('stingers')); b.addEventListener('click', function () { A.unlock(); A.music.stinger(s); });
+  });
+
+  /* ---- sonidos ---- */
+  var SFX = BR.sfx.filter(function (n) { return ['br.olas', 'br.grillos'].indexOf(n) < 0; });
+  SFX.forEach(function (n) {
+    var b = el('button', '', n, $('sfx'));
+    b.addEventListener('click', function () { A.unlock(); A.emit(n, { x: 240 + Number($('loopX').value), y: 135, n: 4, i: Math.floor(Math.random() * 3), accent: Math.random() < 0.3, size: 1, dur: 2.6, tiempo: Math.random() < 0.4, gold: Math.random() < 0.4 }); });
+  });
+  var loops = {};
+  [].forEach.call(document.querySelectorAll('button[data-loop]'), function (b) {
+    var n = b.dataset.loop;
+    b.addEventListener('click', function () {
+      A.unlock();
+      if (loops[n]) { loops[n].stop(); loops[n] = null; b.classList.remove('on'); return; }
+      var k = $('loopK').value / 100, d = { intensity: k, x: 240 + Number($('loopX').value), y: 135, ttl: 0 };
+      loops[n] = A.loop(n, d); b.classList.add('on');
+    });
+  });
+  function loopPatch() {
+    var k = $('loopK').value / 100; $('loopO').textContent = k.toFixed(2); $('loopXO').textContent = $('loopX').value;
+    Object.keys(loops).forEach(function (n) { if (loops[n]) { loops[n].set({ intensity: k }); loops[n].move(240 + Number($('loopX').value), 135); } });
+  }
+  $('loopK').addEventListener('input', loopPatch); $('loopX').addEventListener('input', loopPatch);
+  $('ambOn').addEventListener('click', function () { A.unlock(); ACH.nivel = { id: 'barranco' }; ACH.G = ACH.G || { state: 'playing', cam: { x: 0, y: 0 }, player: { x: 240, y: 135 } }; this.classList.add('on'); });
+
+  /* ---- frases ---- */
+  BR.phraseIds.forEach(function (id) {
+    var b = el('button', '', id, $('phr'));
+    b.addEventListener('click', function () { A.unlock(); var r = A.say(id, { always: true, force: true, x: 240, y: 135 }); b.title = r ? 'dicha' : 'no se dijo'; });
+  });
+
+  /* ---- reloj de compás: lectura en vivo ---- */
+  var pulses = [], nbShown = 0;
+  function drawPulses(n) { var c = $('clock'); c.innerHTML = ''; pulses = []; for (var i = 0; i < n; i++) pulses.push(el('div', 'pulse', String(i + 1), c)); nbShown = n; }
+  drawPulses(3);
+  $('calib').addEventListener('input', function () { BR.offset = this.value / 1000; $('calibO').textContent = this.value; });
+  var lastBeat = -1, tickOn = false;
+  $('tick').addEventListener('change', function () { tickOn = this.checked; A.unlock(); });
+  function frame() {
+    var b = BR.beat();
+    if (b) {
+      if (b.meter !== nbShown) drawPulses(b.meter);
+      pulses.forEach(function (p, i) { p.classList.toggle('cur', i === b.beatInBar); p.classList.toggle('one', i === b.beatInBar && i === 0); });
+      $('phase').firstChild.style.width = (b.phase * 100).toFixed(1) + '%';
+      $('beatTxt').textContent = 'tema ' + b.key + ' (' + b.piece + ')   bpm ' + b.bpm + '   meter ' + b.meter + '   beat ' + b.beat + '   bar ' + b.bar + '   beatInBar ' + b.beatInBar +
+        '\nphase ' + b.phase.toFixed(3) + '   toNext ' + b.toNext.toFixed(3) + ' s   pulso ' + b.pulse.toFixed(3) + ' s   latencia ' + (b.latency * 1000).toFixed(0) + ' ms   boss ' + b.boss + '   src ' + b.src;
+      $('onTimeS').textContent = 'onTime(0.12): ' + BR.onTime(0.12);
+      if (tickOn && A.ctx && A.ctx.state === 'running' && b.beat !== lastBeat) {
+        lastBeat = b.beat;
+        /* el próximo pulso cae en ctx.currentTime + toNext (beat() ya descuenta la latencia de salida; el tic se programa en tiempo de contexto) */
+        A.emit('br.metronomo', { accent: b.beatInBar === b.meter - 1, delay: Math.max(0, b.toNext - 0.004) });
+      }
+    } else { $('beatTxt').textContent = '(sin música: pulsa ACTIVAR AUDIO y un ánimo)'; $('onTimeS').textContent = ''; }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ---- estado ---- */
+  function refresh() {
+    var st = ME.state();
+    $('state').textContent = JSON.stringify({ audio: A.info(), music: st && { key: st.key, piece: st.piece, bpm: st.bpm, tempoMul: st.tempoMul, bar: st.bar, mood: st.mood, intensity: st.intensity, zone: st.zone, near: st.near, ov: st.ov, boss: st.boss, night: st.night,
+      queued: st.queued, live: st.live, late: st.late, dropped: st.dropped, resyncs: st.resyncs, maxGap: st.maxGap }, br: BR.playing(), amb: BR.amb && BR.amb.state() }, null, 1);
+    $('cons').textContent = window.__cons.length ? window.__cons.join('\n') : '(vacía)';
+    $('ambS').textContent = JSON.stringify(BR.amb.state());
+  }
+  setInterval(refresh, 400);
+
+  /* ================= PRUEBAS ================= */
+  var SR = 44100;
+  function stats(buf) {
+    var ch = buf.numberOfChannels, n = buf.length, peak = 0, sum = 0, nan = 0, clip = 0, c, i, x;
+    for (c = 0; c < ch; c++) { var d = buf.getChannelData(c); for (i = 0; i < n; i++) { x = d[i]; if (x !== x || !isFinite(x)) { nan++; continue; } var ax = Math.abs(x); if (ax > peak) peak = ax; if (ax >= 0.999) clip++; sum += x * x; } }
+    return { peak: peak, rms: Math.sqrt(sum / (n * ch)), nan: nan, clip: clip };
+  }
+  function db(v) { return v > 0 ? (20 * Math.log10(v)).toFixed(1) : '-inf'; }
+  function renderPiece(label, script, dur, keepBuf) {
+    return new Promise(function (resolve) {
+      var t0 = performance.now(), res = { label: label };
+      try {
+        var oc = new OfflineAudioContext(2, SR * dur, SR), r = ME._offlineBegin(oc, oc.destination, null, script);
+        r.advance(dur);
+        var info = r.end();
+        res.build = Math.round(performance.now() - t0); res.info = info;
+        oc.startRendering().then(function (buf) {
+          var s = stats(buf); res.peak = db(s.peak); res.rms = db(s.rms); res.nan = s.nan; res.clip = s.clip; res.late = info.late; res.dropped = info.dropped; res.resyncs = info.resyncs; res.sw = info.sw; res.log = info.log;
+          if (keepBuf) res.buf = buf;
+          res.ms = Math.round(performance.now() - t0); resolve(res);
+        }, function (e) { res.err = String(e); resolve(res); });
+      } catch (e) { res.err = (e && e.stack || String(e)).split('\n').slice(0, 3).join(' | '); resolve(res); }
+    });
+  }
+  function lines(rs) {
+    return rs.map(function (r) {
+      if (r.err) return 'FALLA  ' + r.label + '  ' + r.err;
+      var ok = r.nan === 0 && r.clip === 0 && r.late === 0 && r.dropped === 0 && r.resyncs === 0 && parseFloat(r.peak) < -2.9;
+      var extra = '';
+      if (r.sw && r.sw.length) extra = '  cambios: ' + r.sw.map(function (s) { return (s.at - s.asked).toFixed(2) + 's'; }).join(',');
+      return (ok ? 'ok     ' : 'OJO    ') + r.label + '  pico ' + r.peak + ' dBFS  rms ' + r.rms + '  NaN ' + r.nan + '  recortes ' + r.clip + '  tardíos ' + r.late + '  descartados ' + r.dropped + '  (' + r.ms + ' ms)' + extra;
+    }).join('\n');
+  }
+  // sincronía: la cajita (capa 'perc', sola) suena exactamente en cada pulso; se detectan sus ataques en la mezcla y se comparan con los pulsos de beat()
+  var MUTES = { cajon: true, quij: true, checo: true, palmas: true, contra: true, coro: true, fill: true };
+  function syncTest(theme, dur) {
+    return renderPiece('sync ' + theme, [{ t: 0, mood: 'explore', play: theme, solo: ['perc'], mute: MUTES }], dur, true).then(function (r) {
+      if (r.err) return 'FALLA  sync ' + theme + '  ' + r.err;
+      var d0 = r.buf.getChannelData(0), d1 = r.buf.getChannelData(1), n = r.buf.length, env = new Float32Array(n), i, peaks = [], thr = 0, gap = Math.floor(0.12 * SR), last = -gap, k;
+      for (i = 0; i < n; i++) { env[i] = Math.max(Math.abs(d0[i]), Math.abs(d1[i])); if (env[i] > thr) thr = env[i]; }
+      thr *= 0.35;
+      for (i = 1; i < n; i++) if (env[i] >= thr && env[i - 1] < thr && i - last >= gap) { peaks.push(i / SR); last = i; }
+      var bars = r.info.bars, pulseT = [];
+      var lat = ME.chainLatency();
+      bars.forEach(function (b) { for (k = 0; k < b.nb; k++) { var pt = b.t + k * b.u + lat; if (pt > 1.5 && pt < dur - 0.5) pulseT.push(pt); } });
+      peaks = peaks.filter(function (p) { return p > 1.5 && p < dur - 0.5; });
+      var maxd = 0, sum = 0, cnt = 0, miss = 0;
+      peaks.forEach(function (p) {
+        var best = 9; pulseT.forEach(function (q) { var dd = p - q; if (Math.abs(dd) < Math.abs(best)) best = dd; });
+        if (Math.abs(best) > 0.05) { miss++; return; }
+        maxd = Math.max(maxd, Math.abs(best)); sum += best; cnt++;
+      });
+      // monotonía de beat(): se muestrea a 10 ms; el nº de pulso nunca baja ni salta más de 1
+      var back = 0, jump = 0, prev = null, tt, samples = 0;
+      for (tt = bars[0].t + 0.01; tt < dur - 0.2; tt += 0.01) {
+        var bb = r.info.beatAt(tt); if (!bb) continue; samples++;
+        if (prev !== null) { if (bb.beat < prev) back++; if (bb.beat - prev > 1) jump++; }
+        prev = bb.beat;
+      }
+      // ¿beat() dice «1» donde el compás empieza? (beatInBar = 0 justo después de cada comienzo)
+      var okBar = bars.every(function (b) { var q = r.info.beatAt(b.t + 0.001); return q && q.beatInBar === 0; });
+      var good = peaks.length >= pulseT.length - 2 && maxd <= 0.008 && miss === 0 && back === 0 && jump === 0 && okBar;
+      return (good ? 'ok     ' : 'OJO    ') + 'sync ' + theme + ': ' + peaks.length + ' ataques / ' + pulseT.length + ' pulsos · desfase máx (tras restar la latencia de la mezcla, ' + (lat * 1000).toFixed(1) + ' ms) ' + (maxd * 1000).toFixed(2) + ' ms (medio ' + (cnt ? (sum / cnt * 1000).toFixed(2) : '–') + ') · sin pareja ' + miss + ' · beat() retrocede ' + back + ', salta ' + jump + ' (' + samples + ' muestras) · «1» en cada comienzo: ' + okBar;
+    });
+  }
+  // continuidad del reloj al cambiar de tema y de tempo: beat() nunca retrocede
+  function chainSync(label, script, dur) {
+    return renderPiece(label, script, dur).then(function (r) {
+      if (r.err) return 'FALLA  ' + label + '  ' + r.err;
+      var back = 0, jump = 0, prev = null, tt, meters = {}, nul = 0;
+      for (tt = 0.2; tt < dur - 0.2; tt += 0.01) { var bb = r.info.beatAt(tt); if (!bb) { nul++; continue; } meters[bb.key + '/' + bb.meter] = 1; if (prev !== null) { if (bb.beat < prev) back++; if (bb.beat - prev > 1) jump++; } prev = bb.beat; }
+      var ok = back === 0 && jump === 0 && r.late === 0 && r.dropped === 0 && r.resyncs === 0;
+      return (ok ? 'ok     ' : 'OJO    ') + label + ': beat() retrocede ' + back + ', salta ' + jump + ', huecos ' + nul + ' · tardíos ' + r.late + ' descartados ' + r.dropped + ' · temas vistos: ' + Object.keys(meters).join(', ') + '  cambios: ' + r.sw.map(function (s) { return s.key + '@' + (s.at - s.asked).toFixed(2); }).join(' ');
+    });
+  }
+  function tests() {
+    var out = [], cases = [
+      ['explore playa I=0', [{ t: 0, mood: 'explore', zone: 'playa', intensity: 0 }], 30],
+      ['explore playa I=1', [{ t: 0, mood: 'explore', zone: 'playa', intensity: 1 }], 30],
+      ['title', [{ t: 0, mood: 'title' }], 12],
+      ['bajada I=1', [{ t: 0, mood: 'explore', zone: 'bajada', intensity: 1 }], 36],
+      ['parque I=1', [{ t: 0, mood: 'explore', zone: 'parque', intensity: 1 }], 36],
+      ['bohemia (noche, cerca 0)', [{ t: 0, mood: 'explore', zone: 'bohemia', intensity: 1, night: true }], 30],
+      ['bohemia (pena, cerca 1)', [{ t: 0, mood: 'explore', zone: 'pena', intensity: 1, night: true }, { t: 0.1, near: 1 }], 30],
+      ['chase I=1', [{ t: 0, mood: 'chase', intensity: 1 }], 20],
+      ['horde I=1', [{ t: 0, mood: 'horde', intensity: 1 }], 28],
+      ['jefe1 vals', [{ t: 0, mood: 'explore', play: 'jefe1' }], 24],
+      ['jefe2 festejo', [{ t: 0, mood: 'explore', play: 'jefe2' }], 20],
+      ['jefe2 festejo +20 %', [{ t: 0, mood: 'explore', play: 'jefe2', tempo: 1.2 }], 20],
+      ['jefe3 landó', [{ t: 0, mood: 'explore', play: 'jefe3' }], 28],
+      ['final', [{ t: 0, mood: 'explore', play: 'final' }], 36],
+      ['setBoss horde', [{ t: 0, mood: 'horde', intensity: 1, boss: true }], 16],
+      ['dead', [{ t: 0, mood: 'dead' }], 10]
+    ];
+    var seq = Promise.resolve();
+    cases.forEach(function (c) { seq = seq.then(function () { $('testStatus').textContent = 'render: ' + c[0]; return renderPiece(c[0], c[1], c[2]).then(function (r) { out.push(r); }); }); });
+    // cambios de ánimo en cadena + stingers + zona/play/stop/tempo en vuelo
+    var chain = [{ t: 0, mood: 'explore', zone: 'playa', intensity: 0.3 }, { t: 6.3, mood: 'chase', intensity: 0.8 }, { t: 10.1, mood: 'horde' }, { t: 13.7, play: 'jefe1' }, { t: 17.2, play: 'jefe2' }, { t: 20.5, tempo: 1.1 }, { t: 24, play: 'jefe3' }, { t: 30, stop: true },
+      { t: 31.3, mood: 'explore' }, { t: 34.4, zone: 'bajada' }, { t: 41, zone: 'parque' }, { t: 47, zone: 'bohemia', night: true }, { t: 52, play: 'final' }, { t: 60, stinger: 'win' }, { t: 62, stop: true }, { t: 63, stinger: 'boss.intro' },
+      { t: 64, stinger: 'boss.down' }, { t: 65, stinger: 'gong' }, { t: 66, stinger: 'kill' }, { t: 67, stinger: 'hurt' }, { t: 68, stinger: 'horde' }, { t: 70, stinger: 'death' }, { t: 73, stinger: 'br.deseo' }, { t: 74, stinger: 'br.contrapunto' }, { t: 75, stinger: 'br.atiempo' }, { t: 75.5, stinger: 'br.pregon' }, { t: 76, stinger: 'br.respuesta' }, { t: 76.5, stinger: 'cobrador' },
+      { t: 78, band: { x: 10, y: 10, on: true } }, { t: 82, band: { x: 10, y: 10, on: false } }];
+    seq = seq.then(function () { $('testStatus').textContent = 'render: cadena de cambios'; return renderPiece('cadena (ánimos, zonas, temas, tempo, stingers, combo)', chain, 86).then(function (r) { out.push(r); }); });
+    return seq.then(function () { return out; });
+  }
+  function syncTests() {
+    var out = [], seq = Promise.resolve();
+    [['jefe1', 20], ['jefe2', 16], ['jefe3', 24]].forEach(function (c) { seq = seq.then(function () { $('testStatus').textContent = 'sincronía: ' + c[0]; return syncTest(c[0], c[1]).then(function (s) { out.push(s); }); }); });
+    seq = seq.then(function () { $('testStatus').textContent = 'reloj en cadena'; return chainSync('reloj en cadena (jefe1 → jefe2 → tempo → jefe3 → final)', [{ t: 0, mood: 'explore', play: 'jefe1' }, { t: 7.3, play: 'jefe2' }, { t: 11.9, tempo: 1.2 }, { t: 15.5, tempo: 1 }, { t: 18.2, play: 'jefe3' }, { t: 25.4, play: 'final' }, { t: 33, stop: true }, { t: 36, mood: 'explore', zone: 'parque' }], 44).then(function (s) { out.push(s); }); });
+    return seq.then(function () { return out; });
+  }
+  // cada receta en OfflineAudioContext: sin excepciones, sin NaN, ni muda ni más fuerte que -0,4 dBFS
+  function sfxOfflineTest() {
+    var names = BR.sfx.slice(), rep = [], bad = 0, seq = Promise.resolve();
+    names.forEach(function (n) {
+      seq = seq.then(function () {
+        var oc = new OfflineAudioContext(2, SR * 3, SR), out = oc.createGain(), exc = null;
+        out.connect(oc.destination);
+        try { A.recipes[n](oc, out, { x: 240, y: 135, n: 3, i: 1, kind: 'zampona', accent: true, size: 1, dur: 1.5, tiempo: true, gold: true, intensity: 0.7 }, A.lib); } catch (e) { exc = e.message; }
+        if (exc) { bad++; rep.push(n + ' EXC ' + exc); return; }
+        return oc.startRendering().then(function (buf) {
+          var d = buf.getChannelData(0), pk = 0, nan = 0, i, v;
+          for (i = 0; i < d.length; i++) { v = d[i]; if (v !== v) { nan++; continue; } if (Math.abs(v) > pk) pk = Math.abs(v); }
+          var flag = nan ? ' NaN' : pk < 0.003 ? ' MUDO' : pk > 0.96 ? ' FUERTE' : '';
+          if (flag) bad++;
+          rep.push(n + ' ' + db(pk) + flag);
+        });
+      });
+    });
+    return seq.then(function () { return { n: names.length, bad: bad, text: rep.join('  ·  ') }; });
+  }
+  function sfxTest() {
+    var ctx = A.ctx, res = [], names = BR.sfx.slice(), i = 0;
+    if (!ctx || ctx.state !== 'running') return Promise.resolve('Primero pulsa ACTIVAR AUDIO (sin contexto en marcha no se puede probar en vivo).');
+    var errs0 = window.__cons.length;
+    return new Promise(function (resolve) {
+      var loopsOpen = [];
+      (function step() {
+        if (i >= names.length) {
+          setTimeout(function () { loopsOpen.forEach(function (h) { h.stop(); }); resolve({ n: names.length, newCons: window.__cons.slice(errs0), counts: names.map(function (n) { return n + '=' + (A.counts[n] || 0); }).join(' ') }); }, 600);
+          return;
+        }
+        var n = names[i++];
+        try { if (/^br\.(olas|grillos)$/.test(n)) { var h = A.loop(n, { intensity: 0.7, ttl: 0 }); if (h) loopsOpen.push(h); } else A.emit(n, { x: 240, y: 135, n: i % 5, i: i % 3, accent: i % 2 === 0, size: 1, dur: 1.5, tiempo: i % 2 === 0, gold: i % 2 === 1, kind: ['zampona', 'guitarra', 'cajon'][i % 3] }); } catch (e) { res.push(n + ' EXC ' + e); }
+        setTimeout(step, 120);
+      })();
+    }).then(function (o) { o.exc = res; return o; });
+  }
+  $('runTests').addEventListener('click', function () {
+    $('tests').textContent = 'corriendo…'; var t0 = performance.now();
+    tests().then(function (rs) {
+      var txt = lines(rs);
+      return syncTests().then(function (ss) {
+        txt += '\n\nRELOJ DE COMPÁS\n' + ss.join('\n');
+        $('testStatus').textContent = 'renders listos (' + Math.round((performance.now() - t0) / 1000) + ' s)';
+        return sfxOfflineTest().then(function (so) {
+          txt += '\n\nRECETAS (render offline de cada sonido): ' + so.n + ' sonidos, ' + so.bad + ' con problema\n' + so.text;
+          return sfxTest();
+        }).then(function (s) {
+          txt += '\n\nSONIDOS EN VIVO: ' + (typeof s === 'string' ? s : (s.n + ' eventos; excepciones: ' + (s.exc.length ? s.exc.join('; ') : 'ninguna') + '; consola nueva: ' + (s.newCons.length ? s.newCons.join(' | ') : 'ninguna') + '\n' + s.counts));
+          $('tests').textContent = txt; $('testStatus').textContent = 'listo';
+          window.__testResult = { renders: rs, sync: ss, sfx: s, text: txt };
+        });
+      });
+    }, function (e) { $('tests').textContent = 'FALLA ' + e; });
+  });
+  window.__brTest = { tests: tests, lines: lines, syncTests: syncTests, sfxTest: sfxTest, sfxOfflineTest: sfxOfflineTest, renderPiece: renderPiece };
+})();
+</script>
+</body>
+</html>

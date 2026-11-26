@@ -1,0 +1,39 @@
+# Costa Verde — C1c: pelota, barra fosforescente, helados y heladero, perritos, vendedores, comidas
+
+Archivo: `juego/js/costaverde/juguetes.js` (único). Página de prueba propia: `juego/preview-cv-juguetes.html` (copia de `miraflores.html` + `js/costaverde/arte-personajes.js` + `ACH.cv = ACH.mira` + `juguetes.js`). Se probó así porque al terminar aún no existían `costaverde.html`, `build-costaverde.sh` ni `mundo.js` de C1a.
+
+## Qué hace
+- **Sistema** `ACH.cv.register({name:'juguetes', reset, onRespawn, update, speedMul, onSwing, drawables, drawTop})`. Si `ACH.cv` no existe, lo crea (`systems`, `register`). Usa `ACH.cv.sfx`/`toast` si los hay.
+- **E y F**: envuelve `ACH.armas.update` (igual que inflables/vendedores) y tapa `In.pressed('KeyE'|'KeyF')` solo cuando actúa.
+  - E: heladero (≤ 24 px) > perro (≤ 18) > pelota quieta (≤ 16, a la mochila).
+  - F: pelota delante (≤ 20 px, **prioridad** sobre lo de la mano) → mantener carga 0,6 s, soltar patea; barra en la mano → la tira; helado en la mano → mantener carga 0,8 s, soltar lo tira.
+  - `ACH.armas.context` (táctil) devuelve COMPRAR / PATADITA / PATEAR / AGARRAR.
+- **Pelota** (entidad propia, no un suelto de armas.js): 3 en `places.losa`. Se conduce caminando contra ella. Toque 240 px/s daño 1; carga máxima 380 px/s daño 2 (cuero ×1,5). Rebota en zombies (máx. 3, empuje 120), paredes y props (≥150 px/s daña el prop con `ACH.inter.damageProp`). En cada subpaso peligroso: `ACH.nivel.onProjectile(G, {x,y,z,r:6,dmg,kind:'ball',bees,vx,vy})`; si devuelve true, rebota. Gol: cajas alrededor de los props `arcoFulbito*` (o ±6 tiles de `places.losa`), «¡GOOOL!» + 2 sencillos al piso, una vez por arco. Desde la barra rápida, `pelota`/`pelotaCuero` la sueltan a los pies.
+- **Barra fosforescente**: objeto `barraFosfo` → al usarlo, color al azar y `ACH.armas.define('barraFosfo_<color>')` en la mano (hold.kind `'barraFosfo'`, golpe llega a `onSwing` como `'held:barraFosfo'`; daño 0,8, cd 0,18, alcance 26, arco 120°, 30 golpes ×durMul, bees 0,8). F la tira girando (`throw:barraFosfo`, daño 0,5) y queda brillando 20 s en el piso como señuelo (r 70). De noche: `ACH.render.addLight` 44 px de su color (mano y piso) + halo horneado una vez por color en `drawHooks.screen`. `packFosfo` = +3 barras.
+- **Helado**: `helado` (pila 6). Usarlo lo pone en la mano (`ACH.armas.define('helado')`, golpe sin alcance). **ESPACIO = comérselo** (se resuelve en `onSwing` con `'held:helado'`): +8 vida y «¡CEREBRO CONGELADO!». F: arco 50–140 px (hacia el mouse si se movió en 2 s). Pega: 0,5 + congelado ×0,4 por 3 s (`z.cvFreezeT`). En vuelo y al caer llama `onProjectile({kind:'throw:helado', dmg:0.5, slow:0.4, slowT:3})`. En el piso: charco; los zombies tranquilos a 80 px van a lamerlo 3 s (`z.cvLickT`). Tras tirar o comer, el siguiente helado de la mochila pasa solo a la mano.
+- **Heladero**: triciclo por `ACH.world.heladeroPath` (acepta polilínea o lista de polilíneas, puntos `{x,y}`, `[x,y]` o `{c,r}`), 24 px/s, 1 a la vez, otro a los 40–70 s; corneta `cv.corneta` cada 4–7 s cerca. E → `ACH.tienda.open('heladero',{x,y})` y se detiene; sin `ACH.tienda`, compra directa de 1 helado por 1 sencillo. Letrero D'ONOFRIO / D'ONOFRÍO según `ACH.cfg.marcasReales`.
+- **Perritos**: 6 (chusco, salchicha, golden, pug, singpelo, husky) en `ACH.world.dogZones` (`{x0,y0,x1,y1}`, `{c0,r0,c1,r1}` o punto+r). E = patadita (pose `kick` vía `p.kickT`): «¡GUAU!», busca en cono 60°/140 px delante; muerde 3 s (0,5 cada 1 s, zombie aturdido); luego huye fuera de cámara y vuelve a su zona a los 30 s. Sin blanco: corre ladrando 2 s (ruido 110). Enfriamiento 20 s. Si otro zombie está al lado mientras muerde, 40 %/s de que chille y huya. **Acariciar**: E cuando el perro está en enfriamiento o no hay zombies a 220 px (contador `ACH.cv.juguetes.pets()`).
+  - **Chef**: si `ACH.cv.chef.targets()` devuelve `[{x,y,kind|boss,dead}]`, los perros los eligen como blanco y muerden con `ACH.cv.chef.hitBy(t, {dmg, kind:'dog', x, y})` (0,3 al chef si `t.kind==='chef'` o `t.boss`; 0,75 a dumplings). Si no hay `hitBy`, `onProjectile({kind:'dog', dmg:0.3, r:10})`.
+- **Vendedores fijos** (`fosfo`, `kioscoLarco`, `deportes`, `fuente`): se agregan en tiempo de ejecución a `ACH.vendedores.SPOTS` (nivel `'costaverde'`) y a `ACH.VENDEDORES_DATA`; los coloca y atiende `vendedores.js` (E, burbuja, tienda). Lugar: fosfo = `places.amor` + (3, 2) tiles; kiosco/deportes/fuente = terrazas `terr` A/B/C (o `places.larcoA/B/C`); sin mapa, en fila junto al inicio. Sprites: `ACH.sprites.cv.pj.npc[id]` copiados a `ACH.sprites.v011.npc[id]`, o provisorio horneado. Línea de presentación la primera vez (se envuelve `ACH.tienda.open`). «No alcanza»: un MutationObserver cambia «No te alcanza, causa.» por **«Aquí es precio Larcomar, joven.»** en las tiendas de Costa Verde (tienda.js no tiene gancho para eso).
+- **Comidas/objetos** en `ACH.inv.defs` (marcados `_cv`): `pelota`, `pelotaCuero`, `barraFosfo`, `packFosfo`, `helado`, `paleta` (+5 vida, +10 aliento), `chaufa` (+40), `wantan` (+15 y ×1,2 velocidad 20 s vía `speedMul`), `chicha` (+20 aliento), `canilleras` (−25 % de daño 90 s). Íconos de `ACH.sprites.cv.pj[id]` (barra: `barraFosfo_verde`) o provisorios.
+
+## API
+```
+ACH.cv.stats = {perros, helados, goles}      // perros = azuzados, helados = lanzados (mismo objeto que crea nivel.js)
+ACH.cv.juguetes = { fosfoCount(), balls(), dogs(), heladero(), pets(), goals(), shots(), VDATA, ITEMS }
+  fosfoCount() = barraFosfo en la mochila + 3 × packFosfo + 1 si hay una barra en la mano
+ACH.debug.cv.juguetes = { ball(cuero?), kick(c), dog(), nudge(), heladero(), give(id?, n), giveHelados(n), giveBarras(n), equip(id),
+  throwHelado(c), throwBarra(), eat(), vendor(id), vendorsHere(), stats(), night(on) }
+```
+Sonidos que emite (para C3): `cv.corneta`, `cv.pelota.patada|rebote|bote|golpe`, `cv.gol`, `cv.barra.crack|swing|hit|tiro|cae|off`, `cv.helado.tiro|splat|lamer`, `cv.ladrido` (`data.size`: chico/medio/grande/pug, `data.breed`), `cv.perro.mordida|gemido|contento`, `cv.patadita`. Más los de siempre (`grab`, `item.eat`, `shop.*`, `kill`).
+Sprites que lee (C2c, todos opcionales): `pelotaSuelta[4]`, `barraSuelta[color]`, `heladoVuelo`, `charcoHelado[2]`, `perro[raza]`, `heladero{ride[4],stop}` (mirando a la derecha; se voltea), `npc.*`, íconos, `alexHeld[id]` → poses `cvh_<id>_walk|swing`.
+
+## Probado (preview-cv-juguetes.html servida en 8713, navegador del panel)
+Patada cargada mató a un zombie y rebotó; perro azuzado mordió 3 veces (1,5 de daño), huyó y contó en `stats.perros`; helado desde la barra rápida (tecla 1), tiro con F mantenido, golpe que congela (×0,39 de velocidad medido), charco, comer con ESPACIO (+8); barra: golpe 0,8, durabilidad 60, tiro con F, señuelo en el piso y brillo de noche (captura); heladero con E real abre su tienda; compré todo el stock de los 5 vendedores; E real en Deportes Malecón abre la tienda; frase de Larcomar; pelota a la mochila con E; caricia; wantán (speedMul 1,2) y canilleras (20 → 15); gol (+2 sencillos, `stats.goles`). Consola sin errores.
+
+## Pendiente / avisos
+- **No probado en `costaverde.html`** (no existía): falta ver `places.losa`, `heladeroPath`, `dogZones`, `terr` reales y los arcos `arcoFulbito` de C1a/C2a.
+- Chef: falta que C1b exponga `ACH.cv.chef.targets()` / `hitBy()` (o que acepte `kind:'dog'` en onProjectile) y que reciba `'ball'`, `'throw:helado'` (con `slow`/`slowT`), `'throw:barraFosfo'` y `'held:barraFosfo'`.
+- Canilleras: el motor no tiene gancho de daño al jugador; se devuelve el 25 % del golpe en el paso siguiente (no salva de un golpe mortal).
+- Congelado y lamido: se recorta el paso de los zombies después de su update (como los globos de interaccion.js).
+- El navegador del panel lo comparten otros agentes: navegaban mis pestañas y pausaban el juego (pérdida de foco).

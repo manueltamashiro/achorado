@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO · v0.11 arte de objetos</title>
+<style>
+  body { background: #17141c; color: #e8e2d6; font: 12px/1.35 system-ui, sans-serif; margin: 12px; }
+  h1 { font-size: 16px; margin: 0 0 4px; } h2 { font-size: 14px; margin: 16px 0 6px; color: #ffd75e; }
+  .fila { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 8px; }
+  .celda { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .celda span { font-size: 10px; color: #a89fb0; max-width: 140px; text-align: center; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; background: #2a2433; display: block; }
+  canvas.piso { background: #6b6b66; }
+  #info { color: #9fd0a0; }
+  button { font: inherit; }
+</style>
+</head>
+<body>
+<h1>v0.11 · items-v011.js</h1>
+<div id="info"></div>
+<div><button id="btnMarca">alternar marca real / parodia (UHU / UJÚ)</button> <button id="btnFondo">fondo</button></div>
+<div id="out"></div>
+<script>window.ACH = window.ACH || {}; ACH.cfg = ACH.cfg || {}; if (/parodia=1/.test(location.search)) ACH.cfg.marcasReales = false;</script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script>if (!/noitems=1/.test(location.search)) document.write('<script src="js/sprites/items-v011.js?v=' + Date.now() + '"><\/script>');</script>
+<script src="js/miraflores/arte-parque.js"></script>
+<script src="js/miraflores/arte-negocios.js"></script>
+<script src="js/miraflores/arte-personajes.js"></script>
+<script>
+(function () {
+  'use strict';
+  var qs = new URLSearchParams(location.search), Z = +qs.get('z') || 4, only = qs.get('solo');
+  var out = document.getElementById('out'), V = ACH.sprites.v011;
+  document.getElementById('info').textContent = 'horneado: ' + (V && V.arteMs ? V.arteMs.toFixed(1) : '?') + ' ms · zoom ' + Z + ' (?z=N, ?solo=loose|npc|puesto|items|inflables)';
+  function lienzo(src, k, piso) {
+    var c = document.createElement('canvas'); c.width = src.width; c.height = src.height; c.getContext('2d').drawImage(src, 0, 0);
+    c.style.width = (src.width * k) + 'px'; c.style.height = (src.height * k) + 'px'; if (piso) c.className = 'piso'; return c;
+  }
+  function celda(row, label, src, k) {
+    var d = document.createElement('div'); d.className = 'celda';
+    d.appendChild(lienzo(src, k || Z)); var s = document.createElement('span'); s.textContent = label + ' ' + src.width + 'x' + src.height + (src.ax !== undefined ? ' @' + src.ax + ',' + src.ay : ''); d.appendChild(s); row.appendChild(d);
+  }
+  function seccion(titulo) { var h = document.createElement('h2'); h.textContent = titulo; out.appendChild(h); var r = document.createElement('div'); r.className = 'fila'; out.appendChild(r); return r; }
+  function walk(row, pre, o, k) {
+    if (!o) return;
+    if (o.width !== undefined && o.getContext) { celda(row, pre, o, k); if (o.big) celda(row, pre + '.big', o.big, k); return; }
+    if (Array.isArray(o)) { o.forEach(function (e, i) { walk(row, pre + '[' + i + ']', e, k); }); return; }
+    Object.keys(o).forEach(function (kk) { if (kk === 'big' || kk === 'talk') return; walk(row, pre + '.' + kk, o[kk], k); });
+  }
+  if (!only || only === 'items') {
+    var r = seccion('Íconos de mochila (1×=12x12, 8×; y .big 24x24 a 4×; abajo a tamaño real 1× / 2×)');
+    (qs.get('ids') ? qs.get('ids').split(',') : ['uhu', 'tablas', 'chatarra', 'jebe', 'guanteInflable', 'globosAgua']).forEach(function (id) {
+      var ic = ACH.sprites.items[id]; if (!ic) { var d = document.createElement('div'); d.textContent = id + ' (falta)'; r.appendChild(d); return; }
+      celda(r, id, ic, 8); if (ic.big) celda(r, id + '.big', ic.big, 4);
+    });
+    var r2 = seccion('a tamaño real (1×, 2×, 3×) junto a íconos existentes');
+    ['uhu', 'tablas', 'chatarra', 'jebe', 'guanteInflable', 'globosAgua', 'gaseosa', 'cuerdas', 'molotov', 'martilloInflable', 'picarones'].forEach(function (id) {
+      var ic = ACH.sprites.items[id]; if (!ic) return;
+      celda(r2, id, ic, 1); celda(r2, '', ic, 2); celda(r2, '', ic, 3);
+    });
+    var r3 = seccion('uhuSuelo');
+    if (V.uhuSuelo) { celda(r3, 'uhuSuelo', V.uhuSuelo, 6); celda(r3, '1x', V.uhuSuelo, 1); }
+  }
+  ['loose', 'npc', 'puesto', 'inflables'].forEach(function (grp) {
+    if (only && only !== grp) return;
+    var G = V[grp]; if (!G) return;
+    Object.keys(G).forEach(function (id) {
+      if (qs.get('id') && qs.get('id') !== id) return;
+      var row = seccion(grp + '.' + id); row.dataset.id = id;
+      walk(row, id, G[id], grp === 'puesto' ? Math.max(2, Z - 2) : Z);
+    });
+  });
+
+  if (!only || only === 'comp') {
+    var rc = seccion('composición: bodeguita (fondo + Meche + frente), cachina con Lucho, caballetes con el pintor, Rosa y Don Tito de Miraflores (escala)');
+    var K = Math.max(2, Z - 1), cvs = document.createElement('canvas'); cvs.width = 330; cvs.height = 120; cvs.style.width = (330 * K) + 'px'; cvs.style.height = (120 * K) + 'px'; cvs.className = 'piso';
+    var cx = cvs.getContext('2d'); cx.imageSmoothingEnabled = false;
+    function put(c, x, y) { if (c) cx.drawImage(c, Math.round(x - c.ax), Math.round(y - c.ay)); }
+    var B = V.puesto.bodeguita, N = V.npc;
+    if (B) { put(B.fondo, 40, 100); if (N.meche && N.meche.busto) put(N.meche.busto.idle[0], 40 + B.mecheBusto.dx, 100 + B.mecheBusto.dy); put(B.frente, 40, 100); }
+    if (V.puesto.cachina) { put(N.cachinero && N.cachinero.idle[0], 130, 98 - 24); put(V.puesto.cachina, 130, 106); }
+    if (V.puesto.caballetes) { put(V.puesto.caballetes, 220, 104); put(N.pintor && N.pintor.hablando, 262, 104); }
+    put(N.rosa && N.rosa.idle[0], 300, 100);
+    var tito = ACH.sprites.mira && ACH.sprites.mira.vendedor && ACH.sprites.mira.vendedor.tito.idle[0]; if (tito) put(tito, 322, 100);
+    rc.appendChild(cvs);
+  }
+  document.getElementById('btnMarca').onclick = function () { var u = new URLSearchParams(location.search); if (u.get('parodia') === '1') u.delete('parodia'); else u.set('parodia', '1'); u.set('t', Date.now()); location.search = u.toString(); };
+  document.getElementById('btnFondo').onclick = function () { document.querySelectorAll('canvas').forEach(function (c) { c.classList.toggle('piso'); }); };
+})();
+</script>
+</body>
+</html>

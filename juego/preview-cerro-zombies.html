@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO - H5b señoras, pasajeros, aves</title>
+<style>
+  :root { --bg:#2a2833; --panel:#34323f; --ink:#e9e4d4; --dim:#9a97a6; --line:#4a4757; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px 20px 60px; background:var(--bg); color:var(--ink); font:13px/1.35 ui-monospace, Menlo, Consolas, monospace; }
+  h1 { margin:0 0 4px; font-size:20px; }
+  h2 { margin:22px 0 8px; padding-top:10px; border-top:1px solid var(--line); font-size:15px; color:#f2e63c; }
+  p.note { margin:0 0 8px; color:var(--dim); max-width:900px; }
+  nav a { color:#38c8e8; margin-right:12px; text-decoration:none; }
+  .grid { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
+  figure { margin:0; padding:6px; background:var(--panel); border:1px solid var(--line); border-radius:3px; }
+  figcaption { margin-top:4px; font-size:11px; color:var(--dim); overflow-wrap:anywhere; }
+  figcaption b { color:var(--ink); font-weight:600; }
+  canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; }
+  .row { display:flex; gap:6px; align-items:flex-end; flex-wrap:nowrap; }
+  .bad { color:#ff8a2a; }
+</style>
+</head>
+<body>
+<h1>ACHORADO - H5b: señoras zombie, pasajeros, fx del baldazo, gallinazo hostil y gallinas</h1>
+<p class="note">Todo a ×4 sobre arena <code>#D2C2A8</code>, animado; en cada fila Alexander (idle down con Titina) como regla de escala. Los cuadros están alineados por su ancla (pies o centro del cuerpo según la clave).</p>
+<nav id="nav"></nav>
+<div id="out"></div>
+
+<script>["js/sprites/base.js","js/sprites/marcas.js","js/sprites.js","js/sprites/aves.js","js/sprites/zombies.js"].forEach(function (f) { document.write('<script src="' + f + '?v=' + Date.now() + '"><\/script>'); });</script>
+<script>
+(function () {
+"use strict";
+var S = ACH.sprites, SAND = '#D2C2A8', QS = new URLSearchParams(location.search), Z = +(QS.get('z') || 4), ONLY = QS.get('only');
+var out = document.getElementById('out'), nav = document.getElementById('nav');
+var anims = [];
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function section(id, title, note) {
+  if (ONLY && id.replace('s-', '') !== ONLY) { return document.createElement('div'); }
+  var h = el('h2', '', title); h.id = id; out.appendChild(h);
+  var a = el('a', '', title.split(' (')[0]); a.href = '#' + id; nav.appendChild(a);
+  if (note) out.appendChild(el('p', 'note', note));
+  var d = el('div', 'grid'); out.appendChild(d); return d;
+}
+function mk(w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function alexRef() { return S.alex && S.alex.bird && S.alex.bird.idle && S.alex.bird.idle.down; }
+/* Una fila: Alexander + cada grupo de cuadros alineados por ancla. groups = [{ frames:[canvas], label }], cw/ch = celda en px de sprite, gy = fila del suelo
+   (ancla 'feet': ay en gy; 'center': ay en el centro vertical de la celda). */
+function row(groups, cw, ch, opts) {
+  opts = opts || {};
+  var gy = opts.gy !== undefined ? opts.gy : ch - 5, al = opts.noAlex ? null : alexRef();
+  var cells = []; if (al) cells.push({ frames: [al], alex: true });
+  groups.forEach(function (g) { g.frames.forEach(function (f) { cells.push({ frames: [f] }); }); });
+  var total = cells.length;
+  var c = mk(total * cw, ch), x = c.getContext('2d'); x.fillStyle = SAND; x.fillRect(0, 0, c.width, c.height);
+  cells.forEach(function (cell, i) {
+    var f = cell.frames[0], ax = f.ax !== undefined ? f.ax : f.width >> 1, ay = f.ay !== undefined ? f.ay : f.height - 1;
+    var ox = i * cw + (cw >> 1) - ax, oy = gy - ay;
+    if (opts.groundLine && !cell.alex) { x.fillStyle = 'rgba(0,0,0,.10)'; x.fillRect(i * cw, gy + 1, cw, 1); }
+    x.drawImage(f, ox, oy);
+    if (i > 0) { x.fillStyle = 'rgba(0,0,0,.12)'; x.fillRect(i * cw, 0, 1, ch); }
+  });
+  c.style.width = (c.width * Z) + 'px'; c.style.height = (c.height * Z) + 'px';
+  return c;
+}
+/* animacion: cicla los cuadros de una lista, alineados por ancla, con Alexander al lado */
+function anim(frames, cw, ch, fps, opts) {
+  opts = opts || {};
+  var gy = opts.gy !== undefined ? opts.gy : ch - 5, al = opts.noAlex ? null : alexRef(), bx = al ? cw : 0;
+  var c = mk(al ? cw * 2 : cw, ch), x = c.getContext('2d'), i = 0;
+  c.style.width = (c.width * Z) + 'px'; c.style.height = (c.height * Z) + 'px';
+  function draw() {
+    x.fillStyle = SAND; x.fillRect(0, 0, c.width, c.height);
+    if (al) x.drawImage(al, (cw >> 1) - al.ax, gy - al.ay);
+    var f = frames[i % frames.length], ax = f.ax !== undefined ? f.ax : f.width >> 1, ay = f.ay !== undefined ? f.ay : f.height - 1;
+    if (opts.shadow) x.drawImage(opts.shadow, bx + (cw >> 1) - opts.shadow.ax, gy - opts.shadow.ay);
+    x.drawImage(f, bx + (cw >> 1) - ax, (opts.lift !== undefined ? gy - opts.lift : gy) - ay);
+  }
+  anims.push({ c: c, fps: fps, step: function () { i++; draw(); } });
+  draw();
+  return c;
+}
+function fig(el_, caption) { var f = el('figure'); f.appendChild(el_); f.appendChild(el('figcaption', '', caption)); return f; }
+function dims(cs) { return cs.map(function (c) { return c.width + '×' + c.height + (c.ax !== undefined ? '@' + c.ax + ',' + c.ay : ''); }).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(' ; '); }
+function haveFrames() { return Array.prototype.slice.call(arguments).filter(Boolean); }
+
+/* ================= Señoras ================= */
+var Zv = S.zvar || {};
+var skins = Object.keys(Zv).filter(function (k) { return /^senora(Balde|Olla)_/.test(k); });
+var sd = section('s-senoras', 'Señoras (' + skins.length + ' skins)', 'Fila 1: Alexander | move[4] y su animación (7 fps). Fila 2: windup[2] | attack[2] | hurt[0] | dead y la animación windup→attack (3 fps).');
+skins.forEach(function (k) {
+  var e = Zv[k], w = document.createElement('div');
+  var r1 = document.createElement('div'); r1.className = 'row';
+  r1.appendChild(row([{ frames: e.move }], 36, 44));
+  r1.appendChild(anim(e.move, 36, 44, 7));
+  var r2 = document.createElement('div'); r2.className = 'row'; r2.style.marginTop = '4px';
+  r2.appendChild(row([{ frames: [].concat(e.windup || [], e.attack || [], [e.hurt && e.hurt[0]]) }], 36, 44, { noAlex: true }));
+  r2.appendChild(row([{ frames: [e.dead] }], 46, 44, { noAlex: true, gy: 30 }));
+  r2.appendChild(anim((e.windup || []).concat(e.attack || []), 36, 44, 3, { noAlex: true }));
+  w.appendChild(r1); w.appendChild(r2);
+  sd.appendChild(fig(w, '<b>' + k + '</b> · move ' + dims(e.move) + ' · windup ' + dims(e.windup || []) + ' · attack ' + dims(e.attack || []) + ' · hurt ' + dims(e.hurt || []) + ' · dead ' + dims([e.dead])));
+});
+
+/* ================= Pasajeros ================= */
+var P = S.zombie && S.zombie.pasajero;
+var pd = section('s-pasajero', 'zombie.pasajero (señor, señora, escolar)', 'Sentado en props.carretillaSuelta (alt[0..3] y .empty), en el punto seat del pasajero. A la izquierda el pasajero solo.');
+if (P) ['senor', 'senora', 'escolar'].forEach(function (name, vi) {
+  var fr = P[name]; if (!fr) return;
+  var cart = S.props.carretillaSuelta.alt ? S.props.carretillaSuelta.alt[vi % 4] : S.props.carretillaSuelta;
+  var seat = P.seat || { x: 4, y: -7 };
+  var comp = [fr[0], fr[1]].map(function (f, i) {
+    var c = mk(60, 56), x = c.getContext('2d'), gx = 26, gy = 46;
+    x.drawImage(cart, gx - cart.ax, gy - cart.ay);
+    x.drawImage(f, gx + seat.x - f.ax, gy + seat.y - f.ay);
+    x.drawImage(cart.shadowIn ? cart : cart, 0, 0, 0, 0);
+    c.ax = 26; c.ay = 46; return c;
+  });
+  var w = document.createElement('div'); w.className = 'row';
+  w.appendChild(row([{ frames: fr.concat(P.hurt ? [P.hurt[name][0]] : []) }], 36, 44, { noAlex: false }));
+  w.appendChild(row([{ frames: comp }], 62, 56, { noAlex: true, gy: 46 }));
+  w.appendChild(anim(comp, 62, 56, 4, { gy: 46 }));
+  pd.appendChild(fig(w, '<b>pasajero.' + name + '</b> ' + dims(fr) + ' · seat ' + JSON.stringify(seat)));
+});
+
+/* ================= fx.chorro ================= */
+var cd = section('s-chorro', 'fx.chorro (baldazo, cono 60° × 75 px)', 'Mira a la derecha; ancla = boca del balde. Señora a escala a la izquierda del origen.');
+if (S.fx && S.fx.chorro) {
+  var ch = S.fx.chorro;
+  var comp2 = ch.map(function (f, i) {
+    var sen = Zv['senoraBalde_normal_manta'] && Zv['senoraBalde_normal_manta'].attack && Zv['senoraBalde_normal_manta'].attack[1];
+    var c = mk(f.width + 30, f.height), x = c.getContext('2d'), ox = 26, oy = f.ay;
+    x.fillStyle = SAND; x.fillRect(0, 0, c.width, c.height);
+    if (sen) x.drawImage(sen, ox - 12 - sen.ax + 10, oy + 8 - sen.ay);
+    x.drawImage(f, ox - f.ax + 8, oy - f.ay);
+    c.style.width = (c.width * 3) + 'px'; c.style.height = (c.height * 3) + 'px';
+    return c;
+  });
+  var w3 = document.createElement('div'); w3.className = 'row';
+  comp2.forEach(function (c) { w3.appendChild(c); });
+  cd.appendChild(fig(w3, '<b>fx.chorro</b> ×3 ' + dims(ch)));
+}
+
+/* ================= Gallinazo hostil ================= */
+var G = S.npc && S.npc.gallinazoHostil;
+var gd = section('s-gallinazo', 'npc.gallinazoHostil', 'glide[4] · dive[2] · peck[3] · hurt[2] · fall[3] · eat[2]. En vuelo el ancla es el centro del cuerpo; se dibuja a z px sobre su sombra.');
+if (G) {
+  var sh = S.fx.sombraAve;
+  [['glide', 28, 40], ['dive', 28, 40], ['peck', 28, 30], ['hurt', 28, 40], ['hurtGlide', 28, 40], ['fall', 28, 40], ['eat', 28, 30]].forEach(function (p) {
+    var fr = G[p[0]]; if (!fr) return;
+    var w = document.createElement('div'); w.className = 'row';
+    var ground = p[0] === 'peck' || p[0] === 'eat';
+    w.appendChild(row([{ frames: fr }], p[1], p[2], { gy: ground ? 24 : 20, noAlex: false }));
+    var shadow = !ground ? sh[1] : null;
+    w.appendChild(anim(fr, p[1], p[2], p[0] === 'glide' ? 8 : 4, { gy: ground ? 24 : 30, shadow: shadow, lift: ground ? 0 : 10 }));
+    gd.appendChild(fig(w, '<b>' + p[0] + '</b> ' + dims(fr)));
+  });
+}
+var fd = section('s-fx', 'fx.sombraAve[3] · fx.plumas[3]', 'Sombras sobre arena (alpha ya horneado); plumas sueltas.');
+if (S.fx && S.fx.sombraAve) fd.appendChild(fig(row([{ frames: S.fx.sombraAve }], 32, 18, { noAlex: true, gy: 9 }), '<b>sombraAve</b> ' + dims(S.fx.sombraAve)));
+if (S.fx && S.fx.plumas) fd.appendChild(fig(row([{ frames: S.fx.plumas }], 14, 12, { noAlex: true, gy: 6 }), '<b>plumas</b> ' + dims(S.fx.plumas)));
+
+/* ================= Gallinas ================= */
+var hd = section('s-gallina', 'npc.gallina / gallinaVar[3]', 'idle[2] · peck[2] · run.right[4] · run.left[4] (con Alexander al lado para escala).');
+(S.npc && S.npc.gallinaVar || []).forEach(function (h, i) {
+  var w = document.createElement('div'); w.className = 'row';
+  w.appendChild(row([{ frames: [].concat(h.idle, h.peck, h.run.right, h.run.left) }], 20, 28, { gy: 24 }));
+  w.appendChild(anim(h.run.right, 20, 28, 10, { gy: 24 }));
+  w.appendChild(anim(h.peck, 20, 28, 3, { gy: 24 }));
+  w.appendChild(anim(h.idle, 20, 28, 2, { gy: 24 }));
+  hd.appendChild(fig(w, '<b>gallinaVar[' + i + ']</b> ' + dims(h.idle)));
+});
+
+/* ================= Escala: todo junto ================= */
+var sc = section('s-escala', 'Escala conjunta', 'Alexander, una señora de cada tipo, un gallinazo en el suelo, una gallina.');
+(function () {
+  var items = haveFrames(alexRef(), Zv['senoraBalde_normal_manta'] && Zv['senoraBalde_normal_manta'].move[0], Zv['senoraOlla_normal_olla'] && Zv['senoraOlla_normal_olla'].move[0], Zv['senoraBalde_baja_bata'] && Zv['senoraBalde_baja_bata'].move[0], Zv['camina_normal_chaleco'] && Zv['camina_normal_chaleco'].move[0], G && G.peck[0], S.npc && S.npc.gallina && S.npc.gallina.idle[0]);
+  sc.appendChild(fig(row([{ frames: items }], 40, 44, { noAlex: true }), 'Alex · balde manta · olla · baja bata · zombie normal (chaleco) · gallinazo · gallina'));
+})();
+
+var last = 0;
+function loop(t) {
+  anims.forEach(function (a) { if (t - (a.t0 || 0) >= 1000 / a.fps) { a.t0 = t; a.step(); } });
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

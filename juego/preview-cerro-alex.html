@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO - H5a poses y objetos del Cerro</title>
+<style>
+  :root { --bg:#2a2833; --panel:#34323f; --ink:#e9e4d4; --dim:#9a97a6; --line:#4a4757; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px 20px 60px; background:var(--bg); color:var(--ink); font:13px/1.35 ui-monospace, Menlo, Consolas, monospace; }
+  h1 { margin:0 0 4px; font-size:20px; }
+  h2 { margin:28px 0 8px; padding-top:10px; border-top:1px solid var(--line); font-size:15px; color:#f2e63c; }
+  p.note { margin:0 0 8px; color:var(--dim); max-width:900px; }
+  nav a { color:#38c8e8; margin-right:12px; text-decoration:none; }
+  .grid { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
+  figure { margin:0; padding:6px; background:var(--panel); border:1px solid var(--line); border-radius:3px; }
+  figcaption { margin-top:4px; max-width:100%; font-size:11px; color:var(--dim); overflow-wrap:anywhere; }
+  figcaption b { color:var(--ink); font-weight:600; }
+  canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; }
+  .chk { background-color:#6e6c78; background-image:linear-gradient(45deg,#625f6d 25%,transparent 25%,transparent 75%,#625f6d 75%),linear-gradient(45deg,#625f6d 25%,transparent 25%,transparent 75%,#625f6d 75%); background-size:16px 16px; background-position:0 0,8px 8px; }
+  .gnd { background:#8a7658; }
+  .row { display:flex; gap:6px; align-items:flex-end; flex-wrap:wrap; }
+  .bad { color:#ff8a2a; } .ok { color:#8fd18a; }
+</style>
+</head>
+<body>
+<h1>ACHORADO - H5a: poses de Alexander y objetos del Cerro</h1>
+<p class="note">Todo a ×4. Cada fila: cuadros estáticos y, a la derecha, la animación (el recuadro rojo marca el ancla). Query: <code>?z=3&amp;only=jump</code> filtra secciones.</p>
+<nav id="nav"></nav>
+<div id="chk"></div>
+<div id="out"></div>
+
+<script>window.__t0 = performance.now();</script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script>window.__t1 = performance.now();</script>
+<script src="js/sprites.js"></script>
+<script>window.__t2 = performance.now();</script>
+<script src="js/sprites/objetos.js"></script>
+<script>window.__t3 = performance.now();</script>
+<script>
+(function () {
+"use strict";
+var S = ACH.sprites, px = ACH.px;
+var q = new URLSearchParams(location.search), Z = +(q.get('z') || 4), ONLY = q.get('only');
+var out = document.getElementById('out'), nav = document.getElementById('nav');
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function show(c, z, cls, anchor) {
+  var v = document.createElement('canvas'); v.width = c.width; v.height = c.height;
+  v.getContext('2d').drawImage(c, 0, 0);
+  v.style.width = (c.width * z) + 'px'; v.style.height = (c.height * z) + 'px';
+  v.className = cls || 'chk';
+  if (anchor && c.ax !== undefined) { var m = el('div'); m.style.cssText = 'position:relative'; var d = el('div'); d.style.cssText = 'position:absolute;left:' + (c.ax * z) + 'px;top:' + (c.ay * z) + 'px;width:' + z + 'px;height:' + z + 'px;border:1px solid #f33;box-sizing:border-box;pointer-events:none'; m.appendChild(v); m.appendChild(d); return m; }
+  return v;
+}
+function fig(node, cap) { var f = el('figure'); f.appendChild(node); f.appendChild(el('figcaption', '', cap)); return f; }
+function section(id, title, note) {
+  if (ONLY && id !== ONLY) { var dummy = el('div'); return dummy; }
+  var h = el('h2', '', title); h.id = id; out.appendChild(h);
+  var a = el('a', '', id); a.href = '?z=' + Z + '&only=' + id; nav.appendChild(a);
+  if (note) out.appendChild(el('p', 'note', note));
+  var d = el('div', 'grid'); out.appendChild(d); return d;
+}
+function nav_all() { var a = el('a', '', 'todo'); a.href = '?z=' + Z; nav.insertBefore(a, nav.firstChild); }
+/* tira de cuadros + animacion */
+function strip(frames, z, anchor) {
+  var w = el('div', 'row');
+  frames.forEach(function (c) { w.appendChild(show(c, z, 'chk', anchor)); });
+  return w;
+}
+function anim(frames, z, fps, order) {
+  var c0 = frames[0], W = 0, H = 0, ax = 0, ay = 0;
+  frames.forEach(function (c) { W = Math.max(W, c.width); H = Math.max(H, c.height); });
+  var v = document.createElement('canvas'); v.width = W; v.height = H; v.className = 'chk';
+  v.style.width = (W * z) + 'px'; v.style.height = (H * z) + 'px';
+  var g = v.getContext('2d'), i = 0, seq = order || frames.map(function (_, k) { return k; });
+  function draw() { g.clearRect(0, 0, W, H); var c = frames[seq[i % seq.length]]; g.drawImage(c, c0.ax !== undefined ? c0.ax - c.ax : 0, 0); i++; }
+  draw(); setInterval(draw, 1000 / (fps || 6));
+  return v;
+}
+function info(c) { return c.width + '×' + c.height + (c.ax !== undefined ? ' @' + c.ax + ',' + c.ay : ''); }
+window.PV = { S: S, show: show, strip: strip, anim: anim, fig: fig, section: section, el: el, info: info, Z: Z };
+nav_all();
+})();
+</script>
+<script>
+(function () {
+"use strict";
+var PV = window.PV, S = PV.S, Z = PV.Z, el = PV.el;
+var Q = new URLSearchParams(location.search), DIRS = Q.get('dir') ? Q.get('dir').split(',') : ['down', 'up', 'right', 'left'], VS = Q.get('v') ? Q.get('v').split(',') : ['bird', 'nobird', 'g3'];
+function alexKey(key, id, note, fps, nfOrder) {
+  var d = PV.section(id, key, note);
+  VS.forEach(function (v) {
+    var A = /^g\d$/.test(v) ? S.alex.bird[v] : S.alex[v];
+    if (!A[key]) { d.appendChild(PV.fig(el('div', 'bad', 'falta'), v + '.' + key)); return; }
+    DIRS.forEach(function (dir) {
+      var fr = A[key][dir]; if (!fr) return; if (Q.get('fr')) fr = Q.get('fr').split(',').map(function (i) { return fr[+i]; });
+      var w = el('div', 'row'); w.appendChild(PV.strip(fr, Z, true)); w.appendChild(PV.anim(fr, Z, fps || 6));
+      d.appendChild(PV.fig(w, '<b>' + (/^g\d$/.test(v) ? 'bird.' + v : v) + '.' + key + '.' + dir + '</b> ' + fr.length + '× ' + PV.info(fr[0])));
+    });
+  });
+}
+alexKey('jump', 'jump', 'agacharse · aire · caer', 3);
+alexKey('escobaHold', 'hold', 'caminar con la escoba', 6);
+alexKey('carry', 'carry', 'tele sobre la cabeza', 6);
+alexKey('carryThrow', 'carrythrow', 'impulso · lanzar', 3);
+alexKey('throwMolotov', 'molotov', 'prender · estirar · soltar', 3);
+})();
+(function () {
+var PV = window.PV, S = PV.S, Z = PV.Z, el = PV.el, Q = new URLSearchParams(location.search), VS = Q.get('v') ? Q.get('v').split(',') : ['bird', 'nobird', 'g3'];
+var d = PV.section('spin', 'escobaSpin', '8 cuadros sin dirección, 58×58 ancla (29,32); círculo = radio 26 px alrededor de los pies');
+VS.forEach(function (v) {
+  var A = /^g\d$/.test(v) ? S.alex.bird[v] : S.alex[v]; var fr = A.escobaSpin; if (!fr) return; if (Q.get('fr')) fr = Q.get('fr').split(',').map(function (i) { return fr[+i]; });
+  var w = el('div', 'row'); w.style.maxWidth = '1100px';
+  fr.forEach(function (c) { var h = PV.show(c, Z, 'chk', true); w.appendChild(h); });
+  w.appendChild(PV.anim(fr, Z, 14));
+  d.appendChild(PV.fig(w, '<b>' + v + '.escobaSpin</b> ' + fr.length + '× ' + PV.info(fr[0])));
+});
+})();
+(function () {
+var alexKey2 = null;
+})();
+(function () {
+var PV = window.PV, S = PV.S, Z = PV.Z, el = PV.el;
+var d = PV.section('items', 'items nuevos', '12×12 a ×10, .big 24×24 a ×5, y a 1×/2× sobre claro y oscuro');
+['taper', 'agua', 'botella', 'trapo', 'gasolina', 'molotov', 'escoba', 'resortera', 'piedras', 'gaseosa'].forEach(function (id) {
+  var c = S.items[id]; if (!c) { d.appendChild(PV.fig(el('div', 'bad', 'falta'), id)); return; }
+  var w = el('div', 'row'); w.appendChild(PV.show(c, 10, 'chk', true)); w.appendChild(PV.show(c.big, 5, 'chk', true));
+  var sm = el('div'); sm.style.cssText = 'display:flex;gap:4px;align-items:flex-end;padding:4px;background:#d8d4c4'; var a = PV.show(c, 1, ''), b = PV.show(c.big, 1, ''); sm.appendChild(a); sm.appendChild(b);
+  var dk = el('div'); dk.style.cssText = 'display:flex;gap:4px;align-items:flex-end;padding:4px;background:#24222c'; dk.appendChild(PV.show(c, 2, ''));
+  w.appendChild(sm); w.appendChild(dk);
+  d.appendChild(PV.fig(w, '<b>items.' + id + '</b> ' + PV.info(c) + ' · big ' + PV.info(c.big)));
+});
+var f = PV.section('fx', 'fx del Cerro', 'molotov, fuego (3 tamaños), quemadura, humo, teleVuelo, escobaRota, restosTele, rangedIcon');
+function row(label, frames, z, fps) { var w = el('div', 'row'); frames.forEach(function (c) { w.appendChild(PV.show(c, z, 'chk', true)); }); if (fps) w.appendChild(PV.anim(frames, z, fps)); f.appendChild(PV.fig(w, '<b>' + label + '</b> ' + frames.length + '× ' + PV.info(frames[0]))); }
+var X = S.fx;
+row('fx.molotov', X.molotov, 8, 6);
+['s', 'm', 'l'].forEach(function (k, i) { row('fx.fuego[' + i + '] (' + k + ')', X.fuego[i], i === 2 ? 4 : 5, 8); });
+row('fx.quemadura', X.quemadura, 6, 8);
+row('fx.humo', X.humo, 6);
+row('fx.teleVuelo', X.teleVuelo, 8, 6);
+row('fx.escobaRota', [X.escobaRota], 8);
+row('fx.restosTele', [X.restosTele], 8);
+row('fx.rangedIcon', [X.rangedIcon.resortera, X.rangedIcon.molotov, X.rangedIcon.resortera.big, X.rangedIcon.molotov.big], 8);
+/* zona de fuego de radio 34 con varias llamas, sobre tierra */
+var zc = document.createElement('canvas'); zc.width = 120; zc.height = 100; zc.className = 'gnd'; zc.style.cssText = 'width:480px;height:400px;image-rendering:pixelated';
+var zg = zc.getContext('2d'); zg.imageSmoothingEnabled = false;
+function zone(t) {
+  zg.fillStyle = '#8a7658'; zg.fillRect(0, 0, 120, 100);
+  zg.strokeStyle = 'rgba(255,140,0,.5)'; zg.beginPath(); zg.ellipse(60, 58, 34, 34, 0, 0, 6.3); zg.stroke();
+  var items = [];
+  [[0,0],[14,0.3],[14,2.4],[14,4.5],[24,1.0],[24,2.4],[24,3.8],[24,5.2],[32,0.2],[32,1.6],[32,3.0],[32,4.4],[32,5.6]].forEach(function (q, i) { var rr = q[0], a = q[1]; items.push({ x: 60 + Math.cos(a) * rr, y: 58 + Math.sin(a) * rr * 0.9, sz: rr < 15 ? 2 : (rr < 28 ? 1 : 0), ph: i }); });
+  items.sort(function (a, b) { return a.y - b.y; });
+  items.forEach(function (o) { var c = X.fuego[o.sz][(Math.floor(t / 110) + o.ph * 3) % 4]; zg.drawImage(c, Math.round(o.x - c.ax), Math.round(o.y - c.ay)); });
+}
+var tt = 0; setInterval(function () { tt += 100; zone(tt); }, 100); zone(0);
+f.appendChild(PV.fig(zc, 'zona de fuego radio 34 px armada con 13 llamas (grandes al centro, chicas en el borde) (ancla en la base), animada'));
+/* Alexander + wet + escoba rota */
+var w2 = PV.section('wet', 'wet (overlay)', 'sobre walk, jump y attack; 20×28 ancla (10,26)');
+['bird', 'nobird'].forEach(function (v) {
+  var A = S.alex[v], row2 = el('div', 'row');
+  [A.walk.down[0], A.walk.right[1], A.jump.down[1], A.walk.up[0]].forEach(function (base) {
+    [0, 1].forEach(function (k) {
+      var c = document.createElement('canvas'); c.width = 20; c.height = 28; var g = c.getContext('2d'); g.drawImage(base, 0, 0); g.drawImage(A.wet[k], base.ax - A.wet[k].ax, base.ay - A.wet[k].ay);
+      row2.appendChild(PV.show(c, 6, 'chk'));
+    });
+  });
+  w2.appendChild(PV.fig(row2, '<b>' + v + '.wet</b> ' + A.wet.length + '× ' + PV.info(A.wet[0])));
+});
+})();
+(function () {
+/* ---- verificacion: mismo tamaño, ancla y numero de cuadros en bird, nobird, g1, g2, g3 (de ambos) ---- */
+var S = ACH.sprites, out = document.getElementById('chk'), bad = [], n = 0;
+var DIRS = ['down', 'up', 'left', 'right'], KEYS = { jump: 3, escobaHold: 4, carry: 4, carryThrow: 2, throwMolotov: 3 };
+function sig(c) { return c.width + 'x' + c.height + '@' + c.ax + ',' + c.ay; }
+['bird', 'nobird'].forEach(function (v) {
+  var base = S.alex[v];
+  ['g1', 'g2', 'g3'].forEach(function (g) {
+    Object.keys(KEYS).forEach(function (k) {
+      DIRS.forEach(function (d) {
+        var A = base[k][d], B = base[g][k][d]; n++;
+        if (!A || !B || A.length !== KEYS[k] || B.length !== A.length) { bad.push(v + '.' + g + '.' + k + '.' + d + ' cuadros'); return; }
+        A.forEach(function (c, i) { if (sig(c) !== sig(B[i]) || sig(c) !== sig(A[0])) bad.push(v + '.' + g + '.' + k + '.' + d + '[' + i + '] ' + sig(B[i]) + ' vs ' + sig(A[0])); });
+      });
+    });
+    var a = base.escobaSpin, b = base[g].escobaSpin; n++;
+    if (a.length !== 8 || b.length !== 8 || a.concat(b).some(function (c) { return sig(c) !== sig(a[0]); })) bad.push(v + '.' + g + '.escobaSpin');
+    if (base[g].wet.length !== 2 || sig(base[g].wet[0]) !== sig(base.wet[0])) bad.push(v + '.' + g + '.wet');
+  });
+  // frente al otro (bird vs nobird)
+  var o = S.alex[v === 'bird' ? 'nobird' : 'bird'];
+  Object.keys(KEYS).forEach(function (k) { DIRS.forEach(function (d) { if (sig(base[k][d][0]) !== sig(o[k][d][0])) bad.push(v + ' vs otro ' + k + '.' + d); }); });
+  // contra equivalentes existentes
+  DIRS.forEach(function (d) {
+    var w = base.walk[d][0], j = base.jump[d][0], h = base.escobaHold[d][0], at = base.attack[d][0], sl = base.sling[d][0], tm = base.throwMolotov[d][0];
+    if (sig(w) !== sig(j) || sig(w) !== sig(h)) bad.push(v + ' jump/escobaHold vs walk ' + d + ' ' + sig(w) + ' ' + sig(j) + ' ' + sig(h));
+    if (sig(sl) !== sig(tm)) bad.push(v + ' throwMolotov vs sling ' + d + ' ' + sig(sl) + ' ' + sig(tm));
+    n++;
+  });
+  if (sig(base.wet[0]) !== sig(base.walk.down[0])) bad.push(v + ' wet vs walk');
+});
+var sizes = {}; ['jump', 'escobaHold', 'carry', 'carryThrow', 'throwMolotov'].forEach(function (k) { sizes[k] = DIRS.map(function (d) { return d + ':' + sig(S.alex.bird[k][d][0]); }).join('  '); });
+sizes.escobaSpin = sig(S.alex.bird.escobaSpin[0]); sizes.wet = sig(S.alex.bird.wet[0]);
+out.innerHTML = '<p class="' + (bad.length ? 'bad' : 'ok') + '"><b>verificación de lienzos/anclas:</b> ' + n + ' comprobaciones, ' + (bad.length ? bad.length + ' FALLAS<br>' + bad.join('<br>') : 'todas iguales entre bird, nobird, g1, g2, g3 y contra walk/sling') + '</p><pre style="color:#9a97a6">' + Object.keys(sizes).map(function (k) { return k + '  ' + sizes[k]; }).join('\n') + '</pre>';
+window.__verify = { bad: bad, n: n, sizes: sizes };
+})();
+
+</script>
+</body>
+</html>

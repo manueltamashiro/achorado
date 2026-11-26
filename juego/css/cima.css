@@ -1,0 +1,172 @@
+/* ACHORADO — cima.css: la cima del cerro (cinemática + mapa de distritos) y su página de vista previa.
+   Todo lo que va dentro de .cm-stage se mide en píxeles LÓGICOS (el lienzo es de 960×540); el escenario entero se escala con
+   transform: scale(var(--cs)), así la capa HTML crece junto con el lienzo. La portada de la vista previa usa --u como game.css. */
+:root {
+  --u: 2px;
+  --ink: #131015;
+  --pink: #ff2e88;
+  --yellow: #ffe500;
+  --green: #1fe07a;
+  --tape: rgba(226, 214, 170, .78);
+  --display: "Bungee", "Arial Black", Impact, sans-serif;
+  --hand: "Patrick Hand", "Comic Sans MS", cursive;
+  --pixel: "Silkscreen", "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #16141a; overflow: hidden; overscroll-behavior: none; }
+body { color: #f2f2f2; font-family: var(--hand); user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+
+/* ---------- Capa de la cima ---------- */
+.cm-root { position: fixed; inset: 0; z-index: 9000; background: #000; overflow: hidden; touch-action: none; --cs: 1; font-family: var(--hand); color: #f2f2f2; }
+.cm-stage { position: absolute; left: 0; top: 0; width: 960px; height: 540px; transform-origin: 0 0; transform: scale(var(--cs)); overflow: hidden; background: #000; }
+.cm-cv { position: absolute; left: 0; top: 0; width: 960px; height: 540px; display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.cm-cv, .cm-stage * { -webkit-font-smoothing: antialiased; }
+.cm-layer { position: absolute; inset: 0; pointer-events: none; }
+
+/* bandas de cine */
+.cm-bar { position: absolute; left: 0; right: 0; height: 0; background: #000; }
+.cm-bar.t { top: 0; }
+.cm-bar.b { bottom: 0; }
+
+/* etiquetas de distrito (siguen la cámara del paneo) */
+.cm-lab { position: absolute; left: 0; top: 0; will-change: transform; }
+.cm-labtag {
+  position: absolute; left: 0; top: 0; white-space: nowrap; transform: translate(-50%, -100%) rotate(var(--r, -2deg)) scale(.2); opacity: 0;
+  font-family: var(--display); font-size: 15px; line-height: 1; color: var(--yellow); background: var(--ink); padding: 5px 10px 4px;
+  border: 2px solid var(--pink); box-shadow: 3px 3px 0 var(--green);
+  transition: transform .38s cubic-bezier(.2, 1.9, .4, 1), opacity .18s linear; transform-origin: 50% 100%;
+}
+.cm-labtag::before { content: ""; position: absolute; left: 50%; top: -7px; width: 26px; height: 9px; margin-left: -13px; background: var(--tape); transform: rotate(3deg); }
+.cm-lab.on .cm-labtag { opacity: 1; transform: translate(-50%, -100%) rotate(var(--r, -2deg)) scale(1); }
+.cm-lab.hot .cm-labtag { background: var(--yellow); color: var(--ink); border-color: var(--ink); box-shadow: 3px 3px 0 var(--pink); font-size: 17px; }
+.cm-lab::after { content: ""; position: absolute; left: -2px; top: 2px; width: 4px; height: 12px; background: var(--pink); opacity: 0; }
+
+/* pensamientos */
+.cm-think {
+  position: absolute; left: 20px; bottom: 66px; width: 318px; padding: 12px 22px 14px; opacity: 0; visibility: hidden;
+  background: rgba(19, 16, 21, .72); border: 3px solid rgba(255, 255, 255, .9); border-radius: 46px / 38px;
+  font-family: var(--hand); font-size: 29px; line-height: 1.1; color: #fff; text-shadow: 2px 2px 0 var(--pink), 0 0 6px rgba(0, 0, 0, .6);
+}
+.cm-think::before, .cm-think::after { content: ""; position: absolute; border-radius: 50%; background: rgba(19, 16, 21, .72); border: 3px solid rgba(255, 255, 255, .9); }
+.cm-think::before { width: 16px; height: 16px; right: 40px; top: -22px; }
+.cm-think::after { width: 9px; height: 9px; right: 26px; top: -38px; }
+.cm-think i { font-style: normal; visibility: hidden; }
+.cm-think.big { width: auto; max-width: 520px; padding: 4px 8px 8px 12px; left: 16px; font-family: var(--display); font-size: 45px; line-height: 1; color: var(--yellow); background: transparent; border-color: transparent; text-shadow: 3px 3px 0 var(--pink), 6px 6px 0 var(--ink); }
+.cm-think.big::before, .cm-think.big::after { display: none; }
+
+/* ¡Grrú! de Titina */
+.cm-grru { position: absolute; left: 0; top: 0; opacity: 0; font-family: var(--display); font-size: 24px; color: var(--green); text-shadow: 2px 2px 0 var(--ink), 3px 3px 0 var(--pink); white-space: nowrap; }
+
+/* fundido y destello */
+.cm-fade, .cm-flash { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
+.cm-fade { background: #000; }
+.cm-flash { background: #fff; }
+
+/* aviso de saltar */
+.cm-skip { position: absolute; right: 22px; bottom: 17px; opacity: 0; font-family: var(--pixel); font-size: 15px; color: #f2f2f2; letter-spacing: .06em; padding: 3px 10px; background: rgba(19, 16, 21, .8); border: 2px solid var(--green); transition: opacity .3s; }
+.cm-skip.on { opacity: 1; animation: cmblink 1.3s steps(2) infinite; }
+.cm-skip b { font-weight: 400; color: var(--ink); background: var(--yellow); padding: 0 6px; }
+@keyframes cmblink { 50% { opacity: .55; } }
+
+/* ---------- Título y mapa ---------- */
+.cm-title {
+  position: absolute; left: 50%; top: 270px; white-space: nowrap; font-family: var(--display); font-weight: 400; margin: 0; line-height: 1; color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--pink), 6px 6px 0 var(--ink); opacity: 0; font-size: 84px;
+  transform: translate(-50%, -50%) rotate(-2deg) scale(1.9); pointer-events: none;
+}
+.cm-title.big { opacity: 1; transform: translate(-50%, -50%) rotate(-2deg) scale(1); transition: transform .35s cubic-bezier(.2, 1.6, .4, 1), opacity .12s; }
+.cm-title.top { opacity: 1; top: 40px; font-size: 46px; transform: translate(-50%, -50%) rotate(-1.5deg); transition: top .35s ease-in-out, font-size .35s ease-in-out, transform .35s ease-in-out, opacity .2s; text-shadow: 3px 3px 0 var(--pink), 5px 5px 0 var(--ink); }
+.cm-mapui { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .5s; }
+.cm-root.mapon .cm-mapui { opacity: 1; }
+.cm-dn { position: absolute; left: 0; top: 0; will-change: transform; }
+.cm-dname {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%) rotate(var(--r, 0deg)); white-space: nowrap; font-family: var(--display); font-size: 13px; line-height: 1; color: #b9b4c2;
+  text-shadow: 1px 1px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink), 0 2px 0 var(--ink); padding: 2px 4px; letter-spacing: .01em;
+}
+.cm-dn[data-s="locked"] .cm-dname { color: #8d8898; }
+.cm-dn[data-s="open"] .cm-dname { color: var(--ink); background: var(--yellow); border: 2px solid var(--pink); box-shadow: 2px 2px 0 var(--ink); padding: 3px 6px; font-size: 14px; }
+.cm-dn[data-s="visited"] .cm-dname { color: var(--green); }
+.cm-dn.home .cm-dname { color: #fff; font-size: 12px; }
+.cm-dn.sel .cm-dname { color: var(--ink); background: #fff; border: 2px solid var(--pink); box-shadow: 3px 3px 0 var(--yellow); font-size: 15px; padding: 3px 7px; }
+.cm-dn[data-s="locked"].sel .cm-dname { background: #cfcad6; box-shadow: 3px 3px 0 var(--pink); }
+.cm-dn.shake .cm-dname { animation: cmshake .42s linear; }
+@keyframes cmshake { 0%, 100% { margin-left: 0; } 10% { margin-left: -6px; } 25% { margin-left: 6px; } 40% { margin-left: -5px; } 55% { margin-left: 5px; } 70% { margin-left: -3px; } 85% { margin-left: 2px; } }
+
+.cm-warn {
+  position: absolute; left: 36%; bottom: 52px; transform: translate(-50%, 0) rotate(-1.5deg); opacity: 0; white-space: nowrap; pointer-events: none;
+  font-family: var(--display); font-size: 22px; color: var(--yellow); background: var(--ink); border: 3px solid var(--pink); box-shadow: 4px 4px 0 var(--green); padding: 8px 20px 7px;
+}
+.cm-warn.go { animation: cmwarn 2.1s ease-out forwards; }
+@keyframes cmwarn { 0% { opacity: 0; transform: translate(-50%, 14px) rotate(-1.5deg) scale(.9); } 8% { opacity: 1; transform: translate(-50%, 0) rotate(-1.5deg) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -12px) rotate(-1.5deg); } }
+.cm-mhint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); white-space: nowrap; font-family: var(--pixel); font-size: 13px; color: #cfcad6; letter-spacing: .05em; background: rgba(19, 16, 21, .78); padding: 3px 12px; }
+.cm-mhint b { font-weight: 400; color: var(--ink); background: var(--yellow); padding: 0 5px; }
+
+/* tarjeta chicha del distrito */
+.cm-dim { position: absolute; inset: 0; background: rgba(8, 7, 10, .62); display: none; align-items: center; justify-content: center; pointer-events: auto; }
+.cm-dim.on { display: flex; }
+.cm-card {
+  position: relative; width: 440px; background: var(--ink); color: var(--yellow); text-align: center; padding: 34px 34px 28px; transform: rotate(-1deg);
+  border: 2px solid #2a2630; box-shadow: 0 14px 30px rgba(0, 0, 0, .55), 6px 6px 0 var(--pink); animation: cmcard .22s cubic-bezier(.2, 1.5, .4, 1);
+}
+@keyframes cmcard { 0% { transform: rotate(-1deg) scale(.8); opacity: 0; } 100% { transform: rotate(-1deg) scale(1); opacity: 1; } }
+.cm-card::before, .cm-card::after { content: ""; position: absolute; top: -13px; width: 100px; height: 26px; background: var(--tape); }
+.cm-card::before { left: 30px; transform: rotate(-5deg); }
+.cm-card::after { right: 30px; transform: rotate(4deg); }
+.cm-card h2 { font-family: var(--display); font-weight: 400; margin: 0; font-size: 50px; line-height: 1; color: var(--pink); text-shadow: 4px 4px 0 var(--yellow), 8px 8px 0 var(--green); letter-spacing: .01em; }
+.cm-card p { margin: 22px 0 0; font-family: var(--hand); font-size: 27px; line-height: 1.15; color: #f2f2f2; }
+.cm-card .kick { font-family: var(--pixel); font-size: 13px; color: var(--green); letter-spacing: .14em; margin: 0 0 12px; }
+.cm-btns { display: flex; justify-content: center; gap: 22px; margin-top: 26px; }
+.cm-btn {
+  white-space: nowrap;
+  font-family: var(--display); font-size: 24px; line-height: 1; padding: 12px 20px 11px; cursor: pointer; border: 3px solid var(--ink);
+  background: var(--green); color: var(--ink); box-shadow: 5px 5px 0 var(--pink); outline: none; transition: transform .08s;
+}
+.cm-btn.alt { background: transparent; color: #cfcad6; border-color: #4a4452; box-shadow: none; font-size: 20px; }
+.cm-btn.f { background: var(--yellow); transform: translate(-1px, -2px) scale(1.06); outline: 3px dashed #fff; outline-offset: 3px; }
+.cm-btn.alt.f { background: transparent; color: #fff; border-color: var(--pink); }
+.cm-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--pink); }
+
+.cm-rotate { position: absolute; inset: 0; z-index: 5; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; background: var(--ink); color: var(--yellow); font-family: var(--display); font-size: 6vw; line-height: 1.2; }
+.cm-root.portrait .cm-rotate { display: flex; }
+
+/* ---------- Página de vista previa (cima.html): portada y pantalla «próximamente» ---------- (todo bajo .pv: index.html también carga esta hoja) */
+.pv { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: calc(var(--u) * 12); background: var(--ink); z-index: 9500; }
+.pv.on { display: flex; }
+.pv.over { background: rgba(8, 7, 10, .72); }
+.pv .poster {
+  position: relative; background: var(--ink); color: var(--yellow); max-width: 100%; padding: calc(var(--u) * 16) calc(var(--u) * 22) calc(var(--u) * 14); transform: rotate(-.6deg); text-align: center;
+  border: calc(var(--u) * 1) solid #2a2630; box-shadow: 0 calc(var(--u) * 8) calc(var(--u) * 14) rgba(0, 0, 0, .5), calc(var(--u) * 3) calc(var(--u) * 3) 0 var(--pink);
+}
+.pv .poster::before, .pv .poster::after { content: ""; position: absolute; top: calc(var(--u) * -6); width: calc(var(--u) * 50); height: calc(var(--u) * 12); background: var(--tape); }
+.pv .poster::before { left: calc(var(--u) * 14); transform: rotate(-5deg); }
+.pv .poster::after { right: calc(var(--u) * 14); transform: rotate(4deg); }
+.pv .poster .kicker { font-family: var(--display); font-size: calc(var(--u) * 6); letter-spacing: .14em; color: var(--green); margin: 0; }
+.pv .poster h1 { font-family: var(--display); font-weight: 400; margin: calc(var(--u) * 3) 0 calc(var(--u) * 2); line-height: .92; font-size: calc(var(--u) * 44); color: var(--pink); text-shadow: calc(var(--u) * 2.5) calc(var(--u) * 2.5) 0 var(--yellow), calc(var(--u) * 5) calc(var(--u) * 5) 0 var(--green); }
+.pv .poster h2 { font-family: var(--display); font-weight: 400; margin: 0; font-size: calc(var(--u) * 24); line-height: 1; color: var(--pink); text-shadow: calc(var(--u) * 2) calc(var(--u) * 2) 0 var(--yellow); }
+.pv .poster .sub { font-family: var(--hand); font-size: calc(var(--u) * 10); color: #f2f2f2; margin: calc(var(--u) * 8) 0 0; }
+.pv .poster .go { margin-top: calc(var(--u) * 10); }
+.pvbtn { font-family: var(--display); font-size: calc(var(--u) * 9); line-height: 1; padding: calc(var(--u) * 4) calc(var(--u) * 9); cursor: pointer; border: calc(var(--u) * 1.5) solid var(--ink); background: var(--green); color: var(--ink); box-shadow: calc(var(--u) * 2.5) calc(var(--u) * 2.5) 0 var(--pink); outline: none; margin: 0 calc(var(--u) * 3); }
+.pvbtn.alt { background: var(--yellow); }
+.pvbtn:hover, .pvbtn:focus-visible { background: #fff; }
+.pvbtn:active { transform: translate(var(--u), var(--u)); box-shadow: var(--u) var(--u) 0 var(--pink); }
+.pv .poster small { display: block; margin-top: calc(var(--u) * 8); font-family: var(--pixel); font-size: calc(var(--u) * 4.5); color: #8a8494; letter-spacing: .05em; }
+
+/* v0.10: «◀ VOLVER» del mapa (arriba a la izquierda; solo en el mapa) */
+.cm-back { position: absolute; left: 18px; top: 16px; z-index: 3; display: none; font-family: var(--display); font-size: 18px; letter-spacing: .04em; color: var(--ink);
+  background: var(--yellow); border: 3px solid var(--ink); padding: 6px 14px; box-shadow: 4px 4px 0 var(--pink); transform: rotate(-2deg); cursor: pointer; }
+.cm-back:hover, .cm-back:focus-visible { background: var(--green); outline: none; }
+.cm-back:active { transform: rotate(-2deg) translate(3px, 3px); box-shadow: 1px 1px 0 var(--pink); }
+.cm-root.mapon .cm-back { display: block; }
+/* v0.12 (integración): botón de nivel cerrado, ✓ del distrito completo y tarjetas con 3 botones */
+.cm-btn.off { background: #2a2630; color: #8d8898; border-color: #4a4452; box-shadow: none; cursor: not-allowed; }
+.cm-btn.off.f { background: #3a3542; outline-color: #8d8898; }
+.cm-btns { flex-wrap: wrap; row-gap: 14px; }
+.cm-dn.done .cm-dname { color: var(--ink); background: var(--green); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); padding: 2px 5px; text-shadow: none; }
+
+/* ---------- v0.12 táctil: botones de la tarjeta y VOLVER ≥ 44 px CSS. El escenario está escalado por --cs, así que el mínimo se divide entre --cs. ---------- */
+body.touch .cm-btn { min-height: calc(46px / var(--cs)); min-width: calc(64px / var(--cs)); }
+body.touch .cm-btns { row-gap: calc(12px / var(--cs)); column-gap: calc(12px / var(--cs)); }
+body.touch .cm-back { min-height: calc(46px / var(--cs)); min-width: calc(46px / var(--cs)); }
+/* v0.13 T2 (U · G5): en el celu, SALTAR de 44 px y la ayuda de teclas del mapa sin teclas */
+body.touch .cm-skip { min-height: calc(46px / var(--cs)); display: flex; align-items: center; padding: 0 calc(14px / var(--cs)); font-size: calc(16px / var(--cs)); }
+body.touch .cm-mhint { display: none; }

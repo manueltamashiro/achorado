@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO · HD Miraflores + Costa Verde</title>
+<style>
+  :root { --bg: #23222a; --panel: #2e2d36; --ink: #e8e4d6; --dim: #9a96a6; --ground: #6d7064; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.4 ui-monospace, Menlo, monospace; }
+  header { padding: 12px 16px; border-bottom: 1px solid #3c3a46; position: sticky; top: 0; background: var(--bg); z-index: 2; }
+  header b { font-size: 15px; } header a { color: #c9b98a; margin-right: 10px; }
+  #stats { color: var(--dim); margin-top: 4px; white-space: pre-wrap; }
+  h2 { margin: 18px 16px 6px; font-size: 14px; color: #f0d890; }
+  .grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 16px; }
+  .cell { background: var(--panel); border-radius: 4px; padding: 6px; }
+  .cell .lab { color: var(--dim); font-size: 11px; margin-bottom: 4px; max-width: 420px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .pair { display: flex; gap: 6px; align-items: flex-end; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; background: var(--ground); display: block; }
+  .lineup { padding: 0 16px 8px; overflow-x: auto; }
+  .tag { font-size: 10px; color: var(--dim); }
+</style>
+</head>
+<body>
+<header>
+  <b>ACHORADO v0.15 · HD Miraflores + Costa Verde</b> — izquierda 1× (×6), derecha HD (mismo tamaño).
+  <a href="?">todo</a><a href="?solo=lineup">line‑up</a><a href="?solo=mira">miraflores</a><a href="?solo=cv">costa verde</a><a href="?solo=jefes">jefes</a><a href="?solo=var">variantes</a><a href="?hd=0">hd=0</a>
+  <div id="stats">cargando…</div>
+</header>
+<div id="out"></div>
+
+<script src="js/engine/lienzo.js"></script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/calle.js"></script>
+<script src="js/sprites/edificios-casas.js"></script>
+<script src="js/sprites/edificios-industria.js"></script>
+<script src="js/sprites/vehiculos.js"></script>
+<script src="js/sprites/mobiliario.js"></script>
+<script src="js/sprites/luz.js"></script>
+<script src="js/sprites/letreros.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/cerro-suelo.js"></script>
+<script src="js/sprites/cerro-casas.js"></script>
+<script src="js/sprites/cerro-props.js"></script>
+<script src="js/sprites/aves.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script src="js/sprites/retratos.js"></script>
+<script src="js/sprites/retratos-v013.js"></script>
+<script src="js/sprites/cine.js"></script>
+<script src="js/sprites/items-v011.js"></script>
+<script src="js/base/catalogo.js"></script>
+<script src="js/base/arte-base.js"></script>
+<script src="js/miraflores/arte-parque.js"></script>
+<script src="js/miraflores/arte-negocios.js"></script>
+<script src="js/miraflores/arte-personajes.js"></script>
+<script src="js/costaverde/arte-malecon.js"></script>
+<script src="js/costaverde/arte-larcomar.js"></script>
+<script src="js/costaverde/arte-personajes.js"></script>
+<script src="js/costaverde/arte-caida.js"></script>
+<script src="js/costaverde/arte-v013.js"></script>
+<script src="js/sprites/zombis-v013.js"></script>
+<script src="js/sprites/hd.js"></script>
+<script src="js/sprites/hd-callao.js"></script>
+<script src="js/sprites/hd-mira-cv.js"></script>
+<script>
+(function () {
+  'use strict';
+  var S = ACH.sprites, HD = ACH.hd, out = document.getElementById('out');
+  var solo = (location.search.match(/solo=([\w]+)/) || [])[1] || '';
+  ACH.hdCallao.tagAll(); ACH.hdMiraCv.tagAll();
+
+  function pick(path) {
+    var o = S, p = path.split('.');
+    for (var i = 0; i < p.length && o; i++) { try { o = o[p[i]]; } catch (e) { o = null; } }
+    return (o && o.getContext) ? o : null;
+  }
+  function sec(title) { var h = document.createElement('h2'); h.textContent = title; out.appendChild(h); var g = document.createElement('div'); g.className = 'grid'; out.appendChild(g); return g; }
+  function big(c, z) { var o = document.createElement('canvas'); o.width = c.width * z; o.height = c.height * z; var g = o.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(c, 0, 0, o.width, o.height); return o; }
+  function cell(grid, label, c, z) {
+    if (!c) { return; }
+    z = z || 6;
+    var d = document.createElement('div'); d.className = 'cell';
+    var l = document.createElement('div'); l.className = 'lab'; l.textContent = label + '  ' + c.width + '×' + c.height + (c.__hd ? '  [' + c.__hd.key + ']' : ''); d.appendChild(l);
+    var p = document.createElement('div'); p.className = 'pair'; d.appendChild(p);
+    p.appendChild(big(c, z));
+    var h = HD.canvasOf(c);
+    if (h) p.appendChild(big(h, z / 2)); else { var x = document.createElement('div'); x.className = 'tag'; x.textContent = '(sin HD)'; p.appendChild(x); }
+    grid.appendChild(d);
+  }
+  function list(grid, paths, z) { paths.forEach(function (p) { cell(grid, p, pick(p), z); }); }
+  function zv(k, f) { var v = null; try { v = S.zvar[k]; } catch (e) { v = null; } return v && v.move ? v.move[f || 0] : null; }
+
+  var MIRA_Z = ['trab_bembos', 'trab_starbucks', 'trab_lalucha', 'trab_chinawok', 'trab_belisario', 'trab_wong', 'trab_ripley', 'trab_saga', 'trab_tailoy', 'mira_turista', 'mira_jogger', 'mira_sereno'];
+  var CV_Z = ['cv_corredor', 'cv_turista', 'cv_surfista', 'cv_parapentista', 'cv_seguridad', 'cv_barista', 'cv_reySelfie', 'cv_dronero', 'cv_pareja'];
+  var CV_T = Object.keys(S.zvar).filter(function (k) { return /^cv_trab_/.test(k); });
+  var DOGS = Object.getOwnPropertyNames(S.cv.pj.perro || {});
+  var VEND = Object.getOwnPropertyNames(S.cv.pj.npc || {});
+
+  var t0 = performance.now();
+  if (solo === 'one') {
+    var zz = +((location.search.match(/[?&]z=(\d+)/) || [])[1] || 12), go = sec('detalle ×' + zz);
+    decodeURIComponent((location.search.match(/[?&]k=([^&]+)/) || [])[1] || 'mira.picaronera.idle.0').split(',').forEach(function (k) {
+      var m = /^zvar\.(\w+)\.(\w+)\.(\d+)$/.exec(k); cell(go, k, m ? S.zvar[m[1]][m[2]][+m[3]] : pick(k), zz);
+    });
+  }
+  if (!solo || solo === 'lineup') lineup();
+  if (!solo || solo === 'jefes') {
+    var gj = sec('Jefa de Miraflores: Doña Chancaca, la picaronera');
+    ['idle.0', 'idle.1', 'grita.0', 'frie.0', 'lanza.0', 'lanza.2', 'camina.1', 'hurt', 'dead'].forEach(function (p) { cell(gj, p, pick('mira.picaronera.' + p), 6); });
+    var gc = sec('Jefe de Costa Verde: el Maestro Wantán (chef)');
+    ['idle.0', 'alza.0', 'lanza.1', 'llama.0', 'salta.1', 'cae', 'sentado.0', 'hurt', 'dead'].forEach(function (p) { cell(gc, p, pick('cv.pj.chef.' + p), 5); });
+    var gd = sec('Dumpling / baozi');
+    ['dumpling.hop.0', 'dumpling.muerde.0', 'dumpling.dead', 'baozi.hop.0', 'baozi.muerde.1', 'baozi.dead'].forEach(function (p) { cell(gd, p, pick('cv.pj.' + p), 8); });
+  }
+  if (!solo || solo === 'mira') {
+    var gm = sec('Miraflores: trabajadores y zombis pitucos (move[0], move[3], windup)');
+    MIRA_Z.forEach(function (k) { cell(gm, k, zv(k, 0), 5); });
+    ['mira_turista', 'mira_sereno', 'mira_jogger'].forEach(function (k) { var v = S.zvar[k]; if (v && v.windup) cell(gm, k + ' windup', v.windup[0], 5); });
+    cell(gm, 'trab_bembos dead', S.zvar.trab_bembos.dead, 5);
+    var gv = sec('Miraflores: vivos (Don Tito, Don Pepe) y Alexander con inflable');
+    list(gv, ['mira.vendedor.idle.0', 'mira.vendedor.idle.2', 'mira.vendedor.pepe.0', 'mira.vendedor.pepe.2'], 4);
+    list(gv, ['alexInflable.martilloInflable.bird.walk.down.0', 'alexInflable.espadaInflable.nobird.swing.right.1', 'alexInflable.pistolaBurbujas.bird.walk.right.0'], 5);
+  }
+  if (!solo || solo === 'cv') {
+    var gz = sec('Costa Verde: zombis del malecón (move[0])');
+    CV_Z.forEach(function (k) { cell(gz, k, zv(k, 0), 5); });
+    ['cv_barista', 'cv_reySelfie', 'cv_dronero'].forEach(function (k) { var v = S.zvar[k]; if (v && v.windup) cell(gz, k + ' windup', v.windup[0], 5); });
+    var gt = sec('Costa Verde: trabajadores de Larcomar');
+    CV_T.forEach(function (k) { cell(gt, k, zv(k, 0), 4); });
+    var gn = sec('Costa Verde: vivos (vendedores, heladero, parapentistas sobrevivientes)');
+    VEND.forEach(function (id) { cell(gn, 'npc.' + id, pick('cv.pj.npc.' + id + '.idle.0'), 4); });
+    cell(gn, 'heladero ride', pick('cv.pj.heladero.ride.0'), 4); cell(gn, 'heladero stop', pick('cv.pj.heladero.stop'), 4);
+    [0, 1, 2].forEach(function (i) { ['parado', 'sentado', 'saluda'].forEach(function (p) { cell(gn, 'para' + i + ' ' + p, S.cv.t2.para(i, p), 5); }); });
+    var gp = sec('Costa Verde: perros');
+    DOGS.forEach(function (d) { cell(gp, d + ' walk', pick('cv.pj.perro.' + d + '.walk.right.0'), 6); cell(gp, d + ' sit', pick('cv.pj.perro.' + d + '.sit'), 6); });
+    var ga = sec('Alexander con objetos de la Costa Verde');
+    Object.getOwnPropertyNames(S.cv.pj.alexHeld || {}).slice(0, 3).forEach(function (id) { cell(ga, 'held ' + id, pick('cv.pj.alexHeld.' + id + '.bird.walk.down.0'), 5); });
+    cell(ga, 'kick right', pick('cv.pj.alexKick.bird.right.0') || pick('cv.pj.alexKick.bird.right'), 5);
+  }
+  if (!solo || solo === 'var') variantes();
+  var t1 = performance.now();
+
+  /* F3: el mismo tipo ×VARIANTS a escala de juego ×3 (1× y luego las ranuras HD 0…) + caras de perfil ×10 (F5) */
+  function variantes() {
+    var NV = HD.VARIANTS || 3, slots = [], gap = 4, z = 3; for (var i = 0; i < NV; i++) slots.push(i);
+    var rows = [['trab_wong', zv('trab_wong')], ['trab_belisario', zv('trab_belisario')], ['trab_ripley', zv('trab_ripley')], ['trab_bembos', zv('trab_bembos')],
+      ['mira_sereno', zv('mira_sereno')], ['cv_corredor', zv('cv_corredor')], ['cv_surfista', zv('cv_surfista')], ['cv_seguridad', zv('cv_seguridad')]]
+      .concat(CV_T.slice(0, 3).map(function (k) { return [k, zv(k)]; })).filter(function (r) { return r[1]; });
+    var W = 0, H = 0; rows.forEach(function (r) { W = Math.max(W, (r[1].width + gap) * (NV + 1)); H += r[1].height + gap + 4; });
+    var c = document.createElement('canvas'); c.width = W * z + 150; c.height = H * z; c.id = 'variantes';
+    var g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.fillStyle = '#6d7064'; g.fillRect(0, 0, c.width, c.height); g.font = '11px ui-monospace, monospace';
+    var y = 0;
+    rows.forEach(function (r) {
+      var s = r[1], x = 150; g.fillStyle = '#f0e8c8'; g.fillText(r[0], 4, y * z + 14);
+      g.drawImage(s, x, y * z, s.width * z, s.height * z); x += (s.width + gap) * z;
+      slots.forEach(function (v) { var e = HD.src(s, v); if (e) g.drawImage(e.img, e.sx, e.sy, e.w, e.h, x, y * z, s.width * z, s.height * z); x += (s.width + gap) * z; });
+      y += s.height + gap + 4;
+    });
+    var h = sec('Variantes por instancia: 1× y luego HD ranura 0…' + (NV - 1) + ' (×3)'); var w = document.createElement('div'); w.className = 'lineup'; w.appendChild(c); h.appendChild(w);
+    // caras de perfil ×10
+    var list = ['trab_wong', 'trab_belisario', 'trab_bembos', 'mira_sereno', 'mira_jogger', 'cv_corredor', 'cv_seguridad', 'cv_barista'].map(function (k) { return zv(k); }).filter(Boolean);
+    var cw = 14, ch = 13, Z = 10, cf = document.createElement('canvas'); cf.width = list.length * (cw + 2) * Z; cf.height = (ch * 2 + 2) * Z; cf.id = 'caras';
+    var gf = cf.getContext('2d'); gf.imageSmoothingEnabled = false; gf.fillStyle = '#6d7064'; gf.fillRect(0, 0, cf.width, cf.height);
+    list.forEach(function (s, i) {
+      var d = s.getContext('2d').getImageData(0, 0, s.width, s.height).data, top = 0, xs = 0, n = 0, yy, xx, fnd = false;
+      for (yy = 0; yy < s.height && !fnd; yy++) for (xx = 0; xx < s.width; xx++) if (d[(yy * s.width + xx) * 4 + 3] > 128) { top = yy; fnd = true; break; }
+      for (yy = top; yy < top + 8; yy++) for (xx = 0; xx < s.width; xx++) if (d[(yy * s.width + xx) * 4 + 3] > 128) { xs += xx; n++; }
+      var x0 = Math.max(0, Math.min(s.width - cw, Math.round(xs / Math.max(1, n) - cw / 2))), y0 = Math.max(0, top - 1), e = HD.src(s, 0);
+      gf.drawImage(s, x0, y0, cw, ch, i * (cw + 2) * Z, 0, cw * Z, ch * Z);
+      if (e) gf.drawImage(e.img, e.sx + x0 * 2, e.sy + y0 * 2, cw * 2, ch * 2, i * (cw + 2) * Z, (ch + 2) * Z, cw * Z, ch * Z);
+    });
+    var hf = sec('Caras de perfil ×10: arriba 1×, abajo HD'); var w3 = document.createElement('div'); w3.className = 'lineup'; w3.appendChild(cf); hf.appendChild(w3);
+  }
+
+  function lineup() {
+    var who = [['Alexander', pick('alex.bird.walk.down.0')], ['picaronera', pick('mira.picaronera.idle.0')], ['Don Tito', pick('mira.vendedor.idle.0')], ['Don Pepe', pick('mira.vendedor.pepe.0')]];
+    MIRA_Z.forEach(function (k) { who.push([k, zv(k, 0)]); });
+    who.push(['chef', pick('cv.pj.chef.idle.0')], ['dumpling', pick('cv.pj.dumpling.hop.0')], ['baozi', pick('cv.pj.baozi.hop.0')]);
+    CV_Z.forEach(function (k) { who.push([k, zv(k, 0)]); });
+    CV_T.slice(0, 8).forEach(function (k) { who.push([k, zv(k, 0)]); });
+    VEND.forEach(function (id) { who.push([id, pick('cv.pj.npc.' + id + '.idle.0')]); });
+    who.push(['heladero', pick('cv.pj.heladero.ride.0')], ['para', S.cv.t2.para(0, 'parado')]);
+    DOGS.slice(0, 3).forEach(function (d) { who.push([d, pick('cv.pj.perro.' + d + '.walk.right.0')]); });
+    who = who.filter(function (w) { return w[1]; });
+    var half = Math.ceil(who.length / 2);
+    [who.slice(0, half), who.slice(half)].forEach(function (row, ri) {
+      var z = 3, h = sec('Line‑up ×' + z + ' (' + (ri + 1) + '/2) — arriba 1×, abajo HD');
+      var wrap = document.createElement('div'); wrap.className = 'lineup'; h.appendChild(wrap);
+      var gap = 4, W = 0, Hh = 0;
+      row.forEach(function (w) { W += w[1].width + gap; Hh = Math.max(Hh, w[1].height); });
+      var c = document.createElement('canvas'); c.width = W * z; c.height = (Hh * 2 + 8) * z; c.id = 'lineup' + ri;
+      var g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+      g.fillStyle = '#6d7064'; g.fillRect(0, 0, c.width, c.height);
+      var x = 0;
+      row.forEach(function (w) {
+        var s = w[1], ay = s.ay !== undefined ? s.ay : s.height - 1, oy = Math.max(0, Hh - 2 - ay);
+        g.drawImage(s, x * z, oy * z, s.width * z, s.height * z);
+        var e = HD.src(s);
+        if (e) g.drawImage(e.img, e.sx, e.sy, e.w, e.h, x * z, (oy + Hh + 8) * z, s.width * z, s.height * z);
+        x += s.width + gap;
+      });
+      wrap.appendChild(c);
+    });
+  }
+  var st = HD.stats();
+  document.getElementById('stats').textContent = 'HD generadas: ' + st.built + ' · ' + st.msAvg + ' ms/sprite (máx ' + st.msMax + ' ms ' + st.msMaxKey + ') · atlas ' + st.pages + ' pág. · familias: ' + st.families.join(', ') +
+    ' · página ' + Math.round(t1 - t0) + ' ms' + (st.fails ? ' · FALLOS ' + st.fails : '');
+  window.HDSTATS = st;
+  // ?crop=lineup1,x0,w,top,h → recorte ampliado del line‑up (1× arriba, HD abajo), para revisar en pantallas chicas
+  var cr = (location.search.match(/crop=([\w.,]+)/) || [])[1];
+  if (cr) {
+    var a = cr.split(','), s = document.getElementById(a[0]), x0 = +a[1], w = +a[2], top = +a[3], hh = +a[4];
+    var o = document.createElement('canvas'); o.width = 800; o.height = 1000; o.style.cssText = 'position:fixed;left:0;top:0;z-index:99';
+    var og = o.getContext('2d'), k = 800 / w; og.imageSmoothingEnabled = false; og.fillStyle = '#6d7064'; og.fillRect(0, 0, 800, 1000);
+    og.drawImage(s, x0, top, w, hh, 0, 0, 800, hh * k); og.drawImage(s, x0, top + s.height / 2, w, hh, 0, hh * k + 10, 800, hh * k);
+    document.body.appendChild(o);
+  }
+})();
+</script>
+</body>
+</html>

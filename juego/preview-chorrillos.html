@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>preview · cinemática del aterrizaje en Barranco (B4)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Patrick+Hand&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/game.css">
+<style>
+  html, body { margin: 0; height: 100%; background: #16141a; overflow: hidden; display: block; }
+  #stage { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(var(--k, 1)); transform-origin: 50% 50%; }
+  #pv { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #131015; color: #f2f2f2; font-family: "Patrick Hand", cursive; text-align: center; }
+  #pv h1 { font: 400 34px "Bungee", Impact, sans-serif; color: #ffe500; margin: 0; text-shadow: 3px 3px 0 #ff2e88; }
+  #pv p { margin: 0; font-size: 18px; }
+  #pv button { font: 400 20px "Bungee", Impact, sans-serif; color: #131015; background: #1fe07a; border: 3px solid #ff2e88; padding: 8px 18px; cursor: pointer; }
+  #pv.off { display: none; }
+  #info { position: fixed; left: 6px; bottom: 4px; z-index: 30; font: 11px monospace; color: #9a96a2; }
+</style></head>
+<body>
+<div id="stage"></div>
+<div id="pv"><h1>BARRANCO</h1><p>Cinemática del aterrizaje en la Playa Barranco (BARRANCO.md §7.1, antes C5 Chorrillos) · 18,6 s + diálogo</p><p><button id="go" type="button">▶ VER LA CINEMÁTICA</button></p>
+<p style="font-size:13px;opacity:.7">La primera vez no se salta (clave achorado.cine.aterrizaje.v2); después ENTER salta, ESC / P pausan. API: ACH.cv.aterrizaje = ACH.cv.chorrillos. Parámetros: ?t=segundo&amp;freeze=1&amp;nodlg=1&amp;skippable=1&amp;own=1</p></div>
+<div id="info"></div>
+<script src="js/engine/lienzo.js"></script>
+<script src="js/sprites/retratos.js"></script>
+<script src="js/engine/dialogo.js"></script>
+<script src="js/costaverde/chorrillos.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), st = document.getElementById('stage');
+  function fit() {
+    var k = Math.min(window.innerWidth / 960, window.innerHeight / 540);
+    document.documentElement.style.setProperty('--k', k);
+    document.documentElement.style.setProperty('--u', '2px');
+  }
+  fit(); window.addEventListener('resize', fit);
+  function start() {
+    document.getElementById('pv').classList.add('off');
+    var o = { onEnd: function () { document.getElementById('info').textContent = 'onEnd() llamado'; document.getElementById('pv').classList.remove('off'); } };
+    if (q.has('t')) o.t = parseFloat(q.get('t'));
+    if (q.get('freeze') === '1') o.freeze = true;
+    if (q.get('nodlg') === '1') o.dialogo = false;
+    if (q.get('own') === '1') o.ownMusic = true;
+    if (q.has('skippable')) o.skippable = q.get('skippable') === '1';
+    var t0 = performance.now(); var ok = ACH.cv.chorrillos.play(o);
+    document.getElementById('info').textContent = 'play=' + ok + ' · horneado ' + (ACH.cv.chorrillos.debug.state() || {}).ms + ' ms';
+  }
+  document.getElementById('go').addEventListener('click', start);
+  if (q.has('t') || q.has('freeze') || q.get('auto') === '1') start();
+})();
+</script></body></html>

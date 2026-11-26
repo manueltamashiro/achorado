@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO - casas del Cerro (H4b)</title>
+<style>
+  :root { --bg:#2a2833; --panel:#34323f; --ink:#e9e4d4; --dim:#9a97a6; --line:#4a4757; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px 20px 60px; background:var(--bg); color:var(--ink); font:13px/1.35 ui-monospace, Menlo, Consolas, monospace; }
+  h1 { margin:0 0 4px; font-size:20px; }
+  h2 { margin:28px 0 8px; padding-top:10px; border-top:1px solid var(--line); font-size:15px; color:#f2e63c; }
+  p.note { margin:0 0 8px; color:var(--dim); max-width:900px; }
+  nav a { color:#38c8e8; margin-right:12px; text-decoration:none; }
+  .grid { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start; }
+  figure { margin:0; padding:6px; background:var(--panel); border:1px solid var(--line); border-radius:3px; }
+  figcaption { margin-top:4px; max-width:100%; font-size:11px; color:var(--dim); overflow-wrap:anywhere; }
+  figcaption b { color:var(--ink); font-weight:600; }
+  canvas { display:block; image-rendering:pixelated; image-rendering:crisp-edges; }
+  .bad { color:#ff8a2a; }
+  .bare h1, .bare p.note, .bare nav, .bare h2, .bare figcaption { display:none; }
+  .bare body, body.bare { padding:6px; }
+</style>
+</head>
+<body>
+<h1>ACHORADO - casas del Cerro (fase H4b)</h1>
+<p class="note">Arquetipos de <code>js/sprites/cerro-casas.js</code> a ×3, lado N (cara sur + azotea) y lado S (solo azotea), con Alexander (1,70 m) al lado y regla en metros (16 px = 1 m). Cuadrícula tenue = tiles de 16 px. La capa <code>over</code> ya va compuesta encima. Puntos rojos = luces 'foco', celestes = 'local'. Al final, una ladera de prueba con tres terrazas. <code>?arch=estera</code> muestra uno solo.</p>
+<nav id="nav"></nav>
+<div id="out"></div>
+
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/calle.js"></script>
+<script src="js/sprites/edificios-casas.js"></script>
+<script src="js/sprites/edificios-industria.js"></script>
+<script src="js/sprites/vehiculos.js"></script>
+<script src="js/sprites/mobiliario.js"></script>
+<script src="js/sprites/luz.js"></script>
+<script src="js/sprites/letreros.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/cerro-suelo.js"></script>
+<script src="js/sprites/cerro-casas.js"></script>
+<script src="js/sprites/cerro-props.js"></script>
+<script src="js/sprites/aves.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script>
+(function () {
+"use strict";
+var S = ACH.sprites, px = ACH.px, Z = 3;
+var params0 = new URLSearchParams(location.search); if (params0.get('z')) Z = +params0.get('z');
+if (new URLSearchParams(location.search).get('bare')) document.body.className = 'bare';
+var out = document.getElementById('out'), nav = document.getElementById('nav');
+var params = new URLSearchParams(location.search), only = params.get('arch');
+
+function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
+function show(c, z) {
+  var v = document.createElement('canvas'); v.width = c.width; v.height = c.height;
+  v.getContext('2d').drawImage(c, 0, 0);
+  v.style.width = (c.width * z) + 'px'; v.style.height = (c.height * z) + 'px';
+  return v;
+}
+function fig(canvasEl, caption) { var f = el('figure'); f.appendChild(canvasEl); f.appendChild(el('figcaption', '', caption)); return f; }
+function section(id, title, note) {
+  var h = el('h2', '', title); h.id = id; out.appendChild(h);
+  var a = el('a', '', title.split(' (')[0]); a.href = '#' + id; nav.appendChild(a);
+  if (note) out.appendChild(el('p', 'note', note));
+  var d = el('div', 'grid'); out.appendChild(d); return d;
+}
+function nonEmpty(c) { try { var d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; for (var i = 3; i < d.length; i += 4) if (d[i]) return true; } catch (e) {} return false; }
+function alexRef() {
+  var a = S.alex, list = [a && a.bird && a.bird.idle && a.bird.idle.down, a && a.nobird && a.nobird.idle && a.nobird.idle.down];
+  for (var i = 0; i < list.length; i++) { var c = Array.isArray(list[i]) ? list[i][0] : list[i]; if (c && nonEmpty(c)) return c; }
+  return null;
+}
+var GROUND = '#a58f6e';
+function bg(ctx, w, h, grid) {
+  ctx.fillStyle = GROUND; ctx.fillRect(0, 0, w, h);
+  if (grid) { ctx.fillStyle = 'rgba(0,0,0,.10)'; for (var x = 0; x < w; x += 16) ctx.fillRect(x, 0, 1, h); for (var y = 0; y < h; y += 16) ctx.fillRect(0, y, w, 1); }
+}
+/* lote + Alexander + regla */
+function compose(f) {
+  var r = S.buildLot(f); if (!r) return null;
+  var W = r.canvas.width, H = r.canvas.height, al = alexRef(), over = r.over;
+  var extra = 30, rulerH = 16, ovBelow = over ? Math.max(0, r.overY + over.height - H) : 0;
+  var cw = W + extra, ch = H + ovBelow + rulerH;
+  var c = px.canvas(cw, ch), x = c.getContext('2d');
+  bg(x, cw, H + ovBelow, true);
+  x.drawImage(r.canvas, 0, 0);
+  if (al) { var aay = al.ay !== undefined ? al.ay : al.height - 2; x.drawImage(al, W + 6, H - 1 - aay); }
+  if (over) x.drawImage(over, r.overX, r.overY);
+  (r.lights || []).forEach(function (l) { x.fillStyle = l.kind === 'foco' ? '#ff4040' : '#40e0ff'; x.fillRect(l.x, l.y, 1, 1); });
+  var ry = H + ovBelow + 3; x.fillStyle = '#2a2833'; x.fillRect(0, H + ovBelow, cw, rulerH);
+  x.fillStyle = '#e9e4d4'; x.fillRect(0, ry, cw, 1);
+  var gl;
+  for (var m = 0, xx = 0; xx <= cw - 2; xx += 16, m++) {
+    x.fillRect(xx, ry - (m % 5 === 0 ? 3 : 2), 1, m % 5 === 0 ? 4 : 3);
+    if (m % 2 === 0 && m > 0) { gl = new px.G(12, 6); px.text(gl, String(m), 0, 0, { font: 'a5', ink: '#e9e4d4' }); x.drawImage(gl.toCanvas(), xx + 2, ry + 2); }
+  }
+  return { c: c, r: r, W: W, H: H };
+}
+function F(side, c1, r1, arch, o) { return Object.assign({ side: side, c0: 0, c1: c1 - 1, r0: 0, r1: r1 - 1, arch: arch, floors: 1 }, o); }
+var T = {   // fichas de prueba: [etiqueta, ficha]
+  estera: [
+    ['3×6 N paja, plástico', F('N', 3, 6, 'estera', { color: 'paja', seed: 11, damage: 2, roof: ['plastico'], front: ['macetas', 'bandera'] })],
+    ['4×7 N plata, estera', F('N', 4, 7, 'estera', { color: 'plata', seed: 12, damage: 3, roof: ['estera', 'antena'], front: ['balde', 'ropa', 'escoba'] })],
+    ['3×5 N calamina', F('N', 3, 5, 'estera', { seed: 33, damage: 1, roof: ['calamina'], front: ['macetas', 'bidon'] })],
+    ['5×7 N paja, estera', F('N', 5, 7, 'estera', { seed: 5, damage: 2, roof: ['estera', 'llantas'], front: ['luz', 'macetas'] })],
+    ['4×4 S', F('S', 4, 4, 'estera', { seed: 14, damage: 2, roof: ['plastico', 'antena'] })],
+    ['5×5 S', F('S', 5, 5, 'estera', { seed: 21, damage: 1, roof: ['estera'], front: ['bandera'] })]
+  ],
+  triplay: [
+    ['4×7 azul N', F('N', 4, 7, 'triplay', { color: 'azul', seed: 21, damage: 2, roof: ['tanque'], front: ['macetas', 'bidon'] })],
+    ['4×7 verde N', F('N', 4, 7, 'triplay', { color: 'verde', seed: 22, damage: 1, roof: ['antena', 'llantas'], front: ['macetas', 'ropa'] })],
+    ['3×6 turquesa N', F('N', 3, 6, 'triplay', { color: 'turquesa', seed: 23, damage: 3, roof: [], front: ['balde', 'escoba'] })],
+    ['5×8 naranja N', F('N', 5, 8, 'triplay', { color: 'naranja', seed: 24, damage: 2, roof: ['tanque', 'tendal'], front: ['macetas', 'luz'] })],
+    ['4×7 madera N', F('N', 4, 7, 'triplay', { color: 'madera', seed: 26, damage: 3, roof: [], front: ['bandera'] })],
+    ['4×5 azul S', F('S', 4, 5, 'triplay', { color: 'azul', seed: 25, damage: 2, roof: ['tanque'] })],
+    ['5×6 naranja S', F('S', 5, 6, 'triplay', { color: 'naranja', seed: 28, damage: 1, roof: ['tendal', 'antena'] })]
+  ],
+  ladrilloCerro: [
+    ['1 piso 6×6 N', F('N', 6, 6, 'ladrilloCerro', { floors: 1, color: 'azul', seed: 31, damage: 2, roof: ['tanque', 'fierros', 'ladrillos'], front: ['macetas', 'medidor'] })],
+    ['2 pisos 6×8 N', F('N', 6, 8, 'ladrilloCerro', { floors: 2, color: 'verde', seed: 32, damage: 2, roof: ['tanque', 'fierros', 'tendal'], front: ['bandera', 'macetas', 'ropa'] })],
+    ['3 pisos 7×10 N', F('N', 7, 10, 'ladrilloCerro', { floors: 3, color: 'rojo', seed: 33, damage: 2, roof: ['tanque', 'fierros', 'antena', 'bidones'], front: ['bandera', 'medidor', 'ropa'] })],
+    ['3 pisos s/terminar 7×10 N', F('N', 7, 10, 'ladrilloCerro', { floors: 3, color: 'turquesa', seed: 36, damage: 3, roof: ['fierros', 'ladrillos', 'cemento', 'tanque'], front: ['luz'] })],
+    ['2 pisos 8×8 N', F('N', 8, 8, 'ladrilloCerro', { floors: 2, color: 'naranja', seed: 37, damage: 1, roof: ['tanque', 'antena', 'perro'], front: ['macetas', 'bandera', 'luz'] })],
+    ['6×5 S', F('S', 6, 5, 'ladrilloCerro', { floors: 2, seed: 34, damage: 2, roof: ['tanque', 'fierros', 'tendal'] })],
+    ['7×6 S', F('S', 7, 6, 'ladrilloCerro', { floors: 3, seed: 35, damage: 3, roof: ['fierros', 'antena', 'bidones'] })]
+  ],
+  mixta: [
+    ['6×8 N azul', F('N', 6, 8, 'mixta', { floors: 2, color: 'azul', seed: 41, damage: 2, roof: ['tanque', 'antena'], front: ['macetas', 'bandera'] })],
+    ['6×8 N naranja', F('N', 6, 8, 'mixta', { floors: 2, color: 'naranja', seed: 42, damage: 3, roof: ['fierros', 'tendal'], front: ['ropa', 'balde'] })],
+    ['7×10 N 3 pisos', F('N', 7, 10, 'mixta', { floors: 3, color: 'turquesa', seed: 43, damage: 2, roof: ['tanque'], front: ['luz', 'macetas'] })],
+    ['6×5 S', F('S', 6, 5, 'mixta', { floors: 2, color: 'verde', seed: 44, damage: 2, roof: ['tanque', 'fierros'] })]
+  ],
+  bodegaCerro: [
+    ['5×6 N', F('N', 5, 6, 'bodegaCerro', { color: 'amarillo', name: 'BODEGA DOÑA ROSA', seed: 51, damage: 2, roof: ['tanque'], front: ['jabas', 'gas', 'toldo'] })],
+    ['6×6 N', F('N', 6, 6, 'bodegaCerro', { color: 'celeste', name: '', seed: 52, damage: 1, roof: ['antena'], front: ['jabas', 'toldo', 'macetas'] })],
+    ['4×6 N', F('N', 4, 6, 'bodegaCerro', { color: 'rosado', name: 'MINIMARKET EL PROGRESO', seed: 53, damage: 3, roof: [], front: ['gas'] })],
+    ['5×6 N blanco', F('N', 5, 6, 'bodegaCerro', { color: 'blanco', name: 'BODEGA LA ESPERANZA', seed: 54, damage: 2, roof: ['tanque', 'tendal'], front: ['toldo', 'bandera', 'luz'] })],
+    ['5×5 S', F('S', 5, 5, 'bodegaCerro', { color: 'amarillo', name: 'BODEGA DOÑA ROSA', seed: 51, damage: 2, roof: ['tanque'] })],
+    ['6×5 S', F('S', 6, 5, 'bodegaCerro', { color: 'celeste', name: '', seed: 56, damage: 1, roof: ['antena'] })]
+  ],
+  ollaComun: [
+    ['8×6 N', F('N', 8, 6, 'ollaComun', { color: 'cemento', name: 'LAS MARGARITAS', seed: 61, damage: 2, roof: [], front: ['macetas'] })],
+    ['10×7 N', F('N', 10, 7, 'ollaComun', { color: 'cemento', name: 'NUEVO AMANECER', seed: 62, damage: 1, roof: [], front: [] })],
+    ['6×5 N', F('N', 6, 5, 'ollaComun', { color: 'cemento', name: '', seed: 63, damage: 3, roof: [], front: [] })],
+    ['8×5 S', F('S', 8, 5, 'ollaComun', { color: 'cemento', name: 'LAS MARGARITAS', seed: 61, damage: 2, roof: [] })]
+  ],
+  losaDeportiva: [
+    ['10×7 N', F('N', 10, 7, 'losaDeportiva', { color: 'cemento', seed: 71, damage: 2, roof: [], front: [] })],
+    ['12×8 N', F('N', 12, 8, 'losaDeportiva', { color: 'cemento', seed: 72, damage: 1, roof: [], front: [] })],
+    ['9×6 S', F('S', 9, 6, 'losaDeportiva', { color: 'cemento', seed: 73, damage: 2, roof: [] })]
+  ],
+  cruzCima: [
+    ['6×9 N', F('N', 6, 9, 'cruzCima', { color: 'blanco', seed: 81, damage: 1, roof: [], front: [] })],
+    ['7×10 N', F('N', 7, 10, 'cruzCima', { color: 'blanco', seed: 82, damage: 2, roof: [], front: [] })],
+    ['6×8 S', F('S', 6, 8, 'cruzCima', { color: 'blanco', seed: 83, damage: 1, roof: [] })]
+  ]
+};
+
+Object.keys(T).forEach(function (arch) {
+  if (only && only !== arch) return;
+  var d = section('s-' + arch, arch + ' (' + T[arch].length + ' fichas)', '');
+  if (!S.lotArch || !S.lotArch[arch]) { d.appendChild(el('p', 'bad', 'lotArch.' + arch + ' no está registrado')); return; }
+  T[arch].forEach(function (t, ti) {
+    if (params.get('i') !== null && +params.get('i') !== ti) return;
+    if (params.get('from') && ti < +params.get('from')) return;
+    if (params.get('to') && ti > +params.get('to')) return;
+    var f = t[1], t0 = performance.now(), o;
+    if (params.get('side') && f.side !== params.get('side')) return;
+    try { o = compose(f); } catch (e) { d.appendChild(fig(el('div', 'bad', (e.stack || String(e)).replace(/\n/g, '<br>')), arch + ' ' + t[0])); console.error(e); return; }
+    var ms = performance.now() - t0;
+    if (!o) { d.appendChild(fig(el('div', 'bad', 'buildLot devolvió null'), arch + ' ' + t[0])); return; }
+    var r = o.r, cap = '<b>' + arch + '</b> ' + t[0] + ' · lado ' + f.side + ' · ' + o.W + '×' + o.H + ' px (' + (o.W / 16) + '×' + (o.H / 16) + ' tiles) · seed ' + f.seed + ' · daño ' + (f.damage || 1) + (f.floors > 1 ? ' · pisos ' + f.floors : '') +
+      (r.over ? ' · over ' + r.over.width + '×' + r.over.height + '@' + r.overX + ',' + r.overY : '') + ' · luces ' + r.lights.length + ' · ' + ms.toFixed(1) + ' ms';
+    d.appendChild(fig(show(o.c, Z), cap));
+  });
+});
+
+/* ================= ladera de prueba: 3 terrazas, casas mezcladas ================= */
+(function () {
+  if (only && only !== 'ladera') return;
+  var d = section('s-ladera', 'ladera de prueba (3 terrazas)', 'Arriba la invasión (esteras y módulos), en medio la mezcla, abajo el ladrillo de 2-3 pisos con la bodega y la olla común. La pirca entre terrazas está dibujada aquí solo como referencia.');
+  var COLS = 36, Wp = COLS * 16;
+  function L(arch, c0, w, h, o) { return [arch, c0, w, h, o]; }
+  var terr = [
+    { y: 8, h: 9, lots: [L('estera', 1, 3, 6, { seed: 101, damage: 3, roof: ['plastico'], front: ['macetas', 'bandera'] }), L('triplay', 5, 4, 7, { seed: 102, color: 'azul', damage: 2, roof: ['tanque'], front: ['macetas'] }), L('estera', 10, 3, 5, { seed: 103, damage: 2, roof: ['estera'], front: ['balde'] }), L('triplay', 14, 4, 8, { seed: 104, color: 'naranja', damage: 2, roof: ['tendal'], front: ['macetas', 'luz'] }), L('estera', 19, 4, 6, { seed: 105, damage: 3, roof: ['calamina', 'antena'], front: ['ropa', 'bidon'] }), L('triplay', 24, 3, 7, { seed: 106, color: 'verde', damage: 1, roof: ['antena'], front: ['bandera', 'escoba'] }), L('estera', 28, 5, 6, { seed: 107, damage: 1, roof: ['plastico', 'llantas'], front: ['macetas', 'luz'] })] },
+    { y: 21, h: 9, lots: [L('mixta', 1, 6, 8, { seed: 111, floors: 2, color: 'azul', damage: 2, roof: ['tanque'], front: ['macetas', 'bandera'] }), L('triplay', 8, 4, 7, { seed: 112, color: 'turquesa', damage: 2, roof: [], front: ['balde'] }), L('ladrilloCerro', 13, 5, 6, { seed: 113, floors: 1, color: 'naranja', damage: 2, roof: ['fierros', 'tanque'], front: ['macetas'] }), L('bodegaCerro', 19, 5, 6, { seed: 114, color: 'amarillo', name: 'BODEGA LA ESPERANZA', damage: 2, roof: ['tanque'], front: ['jabas', 'gas', 'toldo'] }), L('triplay', 25, 4, 7, { seed: 115, color: 'rosado', damage: 2, roof: ['antena'], front: ['macetas', 'ropa'] }), L('mixta', 30, 5, 8, { seed: 116, floors: 2, color: 'verde', damage: 3, roof: ['tendal'], front: ['luz'] })] },
+    { y: 34, h: 10, lots: [L('ladrilloCerro', 0, 7, 10, { seed: 121, floors: 3, color: 'rojo', damage: 2, roof: ['tanque', 'fierros', 'antena'], front: ['bandera', 'medidor', 'ropa'] }), L('ladrilloCerro', 7, 6, 8, { seed: 122, floors: 2, color: 'verde', damage: 2, roof: ['tanque', 'fierros'], front: ['macetas', 'luz'] }), L('ollaComun', 13, 8, 6, { seed: 123, name: 'LAS MARGARITAS', damage: 2, roof: [], front: [] }), L('ladrilloCerro', 21, 6, 8, { seed: 124, floors: 2, color: 'celeste', damage: 3, roof: ['fierros', 'tendal', 'bidones'], front: ['bandera'] }), L('mixta', 27, 6, 8, { seed: 125, floors: 2, color: 'naranja', damage: 2, roof: ['tanque', 'antena'], front: ['macetas', 'luz'] })] }
+  ];
+  var Hp = (terr[2].y + terr[2].h + 3) * 16, c = px.canvas(Wp, Hp), x = c.getContext('2d'), al = alexRef();
+  x.fillStyle = '#b79f7a'; x.fillRect(0, 0, Wp, Hp);
+  var rnd = px.rng(5), i;
+  for (i = 0; i < Wp * Hp / 18; i++) { x.fillStyle = rnd() < 0.5 ? '#a58f6e' : '#c8b390'; x.fillRect((rnd() * Wp) | 0, (rnd() * Hp) | 0, 1 + (rnd() < 0.3 ? 1 : 0), 1); }
+  function pircaBand(y0, hh) {
+    for (var yy = y0, row = 0; yy < y0 + hh; yy += 4, row++) {
+      var xx = -(row & 1 ? 5 : 0);
+      while (xx < Wp) { var bw = 7 + ((rnd() * 5) | 0), tone = ['#81776a', '#a39a8a', '#6d6557'][(rnd() * 3) | 0]; x.fillStyle = tone; x.fillRect(xx + 1, yy, bw - 1, 3); x.fillStyle = '#403f30'; x.fillRect(xx, yy, 1, 4); x.fillRect(xx, yy + 3, bw, 1); xx += bw; }
+    }
+    x.fillStyle = '#a9a191'; x.fillRect(0, y0 - 1, Wp, 1);
+  }
+  var tot = 0, t0 = performance.now(), over = [];
+  terr.forEach(function (t, ti) {
+    var base = (t.y + t.h) * 16;
+    x.fillStyle = '#c9b996'; x.fillRect(0, base, Wp, 16);
+    pircaBand(base + 16, 16);
+    t.lots.forEach(function (Lt) {
+      var f = Object.assign({ id: 'L', side: 'N', c0: Lt[1], c1: Lt[1] + Lt[2] - 1, r0: 0, r1: Lt[3] - 1, arch: Lt[0], floors: 1, color: 'celeste' }, Lt[4]);
+      var r = S.buildLot(f); if (!r) return; tot++;
+      x.drawImage(r.canvas, Lt[1] * 16, base - r.canvas.height);
+      if (r.over) over.push([r.over, Lt[1] * 16 + r.overX, base - r.canvas.height + r.overY]);
+    });
+    if (al && ti === 2) x.drawImage(al, 11 * 16 - 6, base + 2);
+  });
+  over.forEach(function (o) { x.drawImage(o[0], o[1], o[2]); });
+  var ms = performance.now() - t0;
+  d.appendChild(fig(show(c, Z), '<b>ladera</b> ' + tot + ' lotes · ' + COLS + ' tiles de ancho · ' + ms.toFixed(0) + ' ms (hornear todo)'));
+})();
+})();
+</script>
+</body>
+</html>

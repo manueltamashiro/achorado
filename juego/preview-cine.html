@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>preview cine</title>
+<style>body{margin:0;background:#222;color:#ccc;font:12px monospace}canvas{display:block;image-rendering:pixelated;background:#000}</style></head>
+<body><canvas id="c" width="960" height="540"></canvas><div id="info"></div>
+<script src="js/sprites/cine.js"></script>
+<script>
+(function(){
+  var q = new URLSearchParams(location.search), g = function(k, d){ return q.has(k) ? q.get(k) : d; };
+  var shot = g('shot','hero'), t = parseFloat(g('t','1')), cvs = document.getElementById('c'), ctx = cvs.getContext('2d');
+  var full = document.createElement('canvas'); full.width = 960; full.height = 540; var fx = full.getContext('2d');
+  var t0 = performance.now(); ACH.cine.ready(); var ms = Math.round(performance.now()-t0);
+  function render(tt){
+    fx.clearRect(0,0,960,540);
+    if (shot==='back') ACH.cine.drawBack(fx, tt, parseFloat(g('climb','1')));
+    else if (shot==='hero') ACH.cine.drawHero(fx, tt, {push:parseFloat(g('push','0')), eyes:g('eyes','heroic'), mouth:g('mouth','smirk'), drop:parseFloat(g('drop','0')), bag:parseFloat(g('bag','0')), titina:g('titina','puff'), ray:parseFloat(g('ray','1'))});
+    else if (shot==='map') ACH.cine.drawMap(fx, tt, {miraflores:'open'}, g('hover',null));
+    else if (shot==='pano') ACH.cine.drawPano(fx, parseFloat(g('cam','0')), tt);
+    var c = g('crop', null);
+    if (c){ var a = c.split(',').map(Number); cvs.width = 960; cvs.height = Math.round(960*a[3]/a[2]); ctx.imageSmoothingEnabled=false; ctx.drawImage(full,a[0],a[1],a[2],a[3],0,0,cvs.width,cvs.height); }
+    else { cvs.width=960; cvs.height=540; ctx.drawImage(full,0,0); }
+  }
+  render(t);
+  document.getElementById('info').textContent = 'ready ' + ms + 'ms';
+  window.__render = render;
+  if (g('anim',null)) (function loop(){ render(performance.now()/1000); requestAnimationFrame(loop); })();
+})();
+</script></body></html>

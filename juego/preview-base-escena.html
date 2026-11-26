@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>ACHORADO · escena del cuarto (D2)</title>
+<style>body{background:#17141c;color:#e8e2d6;font:12px system-ui;margin:8px}canvas{image-rendering:pixelated;display:block;margin:4px 0}#err{color:#f88}</style></head><body>
+<div id="err"></div><div id="bar"></div>
+<script src="js/base/catalogo.js"></script><script src="js/base/arte-base.js"></script>
+<script>
+(function(){
+var B=ACH.sprites.base,C=B.cuarto,M=B.muebles,L=B.luz,qs=new URLSearchParams(location.search),Z=+qs.get('z')||3,noche=qs.get('luz')!=='0',on=qs.get('on')!=='0';
+window.addEventListener('error',function(e){document.getElementById('err').textContent+=e.message+' @'+e.lineno});
+function cv(w,h){var c=document.createElement('canvas');c.width=w;c.height=h;c.style.width=w*Z+'px';c.style.height=h*Z+'px';document.body.appendChild(c);return c.getContext('2d');}
+// ---------- cuarto interior 12x8 ----------
+var LW=10,TOP=38,W=LW*2+192,H=TOP+128+4;
+var x=cv(W,H),i,j;
+for(j=0;j<8;j++)for(i=0;i<12;i++)x.drawImage(C.piso[(i*7+j*3)%3],LW+i*16,TOP+j*16);
+x.drawImage(C.pisoGrieta[0],LW+4*16,TOP+5*16);x.drawImage(C.pisoGrieta[1],LW+5*16,TOP+5*16);x.drawImage(C.pisoGrieta[0],LW+6*16,TOP+5*16);
+for(i=0;i<12;i++){x.drawImage(C.tapa,LW+i*16,0);if(i!==1&&i!==2&&i!==11)x.drawImage(C.pared[i%3],LW+i*16,6);}
+x.drawImage(C.ventana,LW+1*16,6);x.drawImage(C.puerta,LW+11*16,6);x.drawImage(C.umbral,LW+11*16,TOP);
+x.drawImage(C.ventanaRayo,LW+1*16,TOP+2);
+for(j=0;j<8;j++){x.drawImage(C.paredIzq[j%2],0,TOP+j*16);x.drawImage(C.paredDer[j%2],LW+192,TOP+j*16);}
+x.drawImage(C.esquinaIzq,0,0);x.drawImage(C.esquinaDer,LW+192,0);
+// muebles: [id,tx,ty,opts]
+var items=[['petate',1,2],['mantaAndina',6,5],['colchon',0,0.6+0,{}],
+['armero',5,0,{p:1}],['aficheChicha',1,0,{p:1}],['cuadroGatos',7,0,{p:1}],['cuadroFaro',7+2,0,{p:1}],['banderaBlanquiazul',0,0,{p:1}],['foco',4,0,{p:1}],['guirnalda',4,0,{p:1,dy:1}],['cuadroMar',0,0,{p:1}]];
+var fl=[['colchon',1,1.0],['baulLata',4,1],['mesa',6,2],['silla',5,2],['silla',8,3],['banquito',8,1],['estante',1,4,{r:0}],['radio',4,4],['cajon',5,5],['palomar',10,1],['lamparin',3,3],['baldePlantas',10,5],['macetaLlanta',10,6],['retablo',2,6],['toroPucara',3,6],['cojines',7,6],['baulMadera',9,6,{}]];
+var walls=[['aficheChicha',0.4,0],['cuadroGatos',6,0],['banderaBlanquiazul',4.6,0],['armero',9.3-3.3,0],['foco',2.5,0],['cuadroMar',3.2,0],['cuadroFaro',8.2,0]];
+// pared: y=10 (dentro de la banda de 32 que empieza en 6)
+var wp=[['armero',0.3],['cuadroGatos',5.3],['aficheChicha',3.6],['banderaBlanquiazul',8.6],['cuadroFaro',10.4],['foco',5.0,-2],['guirnalda',6.0,-9],['cuadroMar',0.2,0]];
+function ctxW(id,tx,ty){}
+var halos=[];
+var P=[['foco',4.7,6],['guirnalda',6.7,22],['cuadroGatos',8.0,14]];
+wp=[['aficheChicha',3.2,12],['armero',4.2,14],['cuadroGatos',6.5,10],['cuadroFaro',9,11],['foco',7.9,6],['guirnalda',3.4,6],['banderaBlanquiazul',0.3,14]];
+wp.forEach(function(w){var o={on:on,frame:1},c=B.get(w[0],o);x.drawImage(c,Math.round(LW+w[1]*16),w[2]);});
+var sorted=[['colchon',0.6,0.4,{rot:0}],['baulLata',0.5,6.5],['baulMadera',2,6.3],['mesa',4.5,3.4],['silla',4,4.4],['silla',6.4,4.2],['banquito',7.2,3.4],['estante',9.5,1.5],['radio',7.5,5.8,{}],['cajon',8.8,5.8,{}],['palomar',10.6,6.4,{}],['lamparin',3.2,5.4],['baldePlantas',0.2,3.1],['macetaLlanta',11,0.4],['retablo',1.6,2.2],['toroPucara',2.9,1.4],['cojines',3.2,2.7],['mantaAndina',5.5,6.4]];
+// pieza por pieza, con luces/sonidos prendidos
+var ex={radio:{sonando:1},cajon:{sonando:1},palomar:{titina:1},lamparin:{on:on}};
+var back=['petate','mantaAndina'];
+var pet=[['petate',0.8,1.6],['mantaAndina',5.5,6.3]];
+pet.forEach(function(p){x.drawImage(M[p[0]],Math.round(LW+p[1]*16),Math.round(TOP+p[2]*16));});
+var rest=sorted.filter(function(s){return back.indexOf(s[0])<0});
+rest.sort(function(a,b){return a[2]-b[2]});
+rest.forEach(function(s){var o=ex[s[0]]||{};var c=B.get(s[0],o);if(s[3]&&s[3].rot!==undefined)c=B.get(s[0],{rot:1});var px=Math.round(LW+s[1]*16),py=Math.round(TOP+s[2]*16)-c.up;x.drawImage(c,px,py);});
+// penumbra con luces
+if(noche){var o=document.createElement('canvas');o.width=W;o.height=H;var q=o.getContext('2d');q.fillStyle='rgba(18,16,40,0.72)';q.fillRect(0,0,W,H);q.globalCompositeOperation='destination-out';
+ var lt=[['foco',LW+7.9*16+8,15],['guirnalda',LW+3.4*16+24,12],['lamparin',LW+3.2*16+8,TOP+5.4*16+6]];
+ lt.forEach(function(l){var h=L[l[0]];q.drawImage(h,Math.round(l[1]-h.r),Math.round(l[2]-h.r));});
+ x.drawImage(o,0,0);
+ x.globalCompositeOperation='lighter';x.globalAlpha=0.25;lt.forEach(function(l){var h=L[l[0]];x.drawImage(h,Math.round(l[1]-h.r),Math.round(l[2]-h.r));});x.globalAlpha=1;x.globalCompositeOperation='source-over';}
+// ---------- azotea 12x4 ----------
+var AH=18+64+14+60,y=cv(W,AH);
+y.fillStyle='#b9b8b0';y.fillRect(0,0,W,AH);
+for(i=0;i<W/192+2;i++)y.drawImage(C.horizonte,i*192,0);
+y.fillStyle='#b9b8b0';
+for(j=0;j<4;j++)for(i=0;i<12;i++)y.drawImage(C.azoteaPiso[(i*5+j*2)%3],LW+i*16,40+j*16);
+for(i=0;i<12;i++)y.drawImage(C.parapeto[i===6?1:0],LW+i*16,22);
+for(j=0;j<4;j++){y.drawImage(C.parapetoLado[0],LW-8,40+j*16);y.drawImage(C.parapetoLado[1],LW+192,40+j*16);}
+for(i=0;i<12;i++)y.drawImage(C.parapetoFrente[i===4?1:0],LW+i*16,104);
+y.drawImage(C.tanque,LW+7*16,40+0*16-22+14);
+y.drawImage(C.cordel[0],LW+1*16,40+1*16-0);
+y.drawImage(C.fierros[0],LW+0*16,40+2*16-24+8);y.drawImage(C.fierros[1],LW+11*16-4,40+2*16-12+4);
+y.drawImage(C.escalera,LW+9*16,40+2*16-8);
+y.globalAlpha=1;y.drawImage(C.neblina[0],0,60);y.drawImage(C.neblina[0],128,60);y.drawImage(C.neblina[1],20,30);y.drawImage(C.neblina[1],180,30);
+y.drawImage(C.cordel[1],LW+4*16,40+2*16);
+})();
+</script></body></html>

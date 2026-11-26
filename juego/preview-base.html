@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>ACHORADO · arte del cuarto (v0.11 D2)</title>
+<style>
+body{background:#17141c;color:#e8e2d6;font:12px/1.4 system-ui,sans-serif;margin:12px}
+h2{font-size:14px;color:#ffd75e;margin:18px 0 6px}
+.fila{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.c{display:flex;flex-direction:column;align-items:center;gap:2px}.c span{font-size:10px;color:#a89fb0}
+canvas{image-rendering:pixelated;background:#8e8a80;display:block}
+canvas.osc{background:#6b2f3a}
+#err{color:#ff8a8a}
+</style></head><body>
+<h1 style="font-size:16px">Arte del cuarto de Alexander (ACH.sprites.base)</h1><div id="err"></div><div id="info"></div>
+<script src="js/base/catalogo.js"></script>
+<script src="js/base/arte-base.js"></script>
+<script>
+(function(){
+var B=ACH.sprites.base, qs=new URLSearchParams(location.search), Z=+qs.get('z')||3;
+window.addEventListener('error',function(e){document.getElementById('err').textContent+=e.message+' @'+e.lineno+' '}); 
+function sec(t){var h=document.createElement('h2');h.textContent=t;document.body.appendChild(h);var f=document.createElement('div');f.className='fila';document.body.appendChild(f);return f;}
+function cel(f,c,name,k,bg){var d=document.createElement('div');d.className='c';var cv=document.createElement('canvas');cv.width=c.width;cv.height=c.height;cv.getContext('2d').drawImage(c,0,0);var z=k||Z;cv.style.width=c.width*z+'px';cv.style.height=c.height*z+'px';if(bg)cv.style.background=bg;d.appendChild(cv);var s=document.createElement('span');s.textContent=name+' '+c.width+'x'+c.height;d.appendChild(s);f.appendChild(d);}
+var t0=performance.now(),SEC=qs.get("sec");
+var cu=B.cuarto;
+var fc=(!SEC||SEC==="cuarto")?sec("cuarto"):null;
+if(fc)Object.keys(cu).forEach(function(k){var v=cu[k];var f=fc;(Array.isArray(v)?v:[v]).forEach(function(c,i){cel(f,c,k+(Array.isArray(v)?'['+i+']':''),(c.width>100?2:Z), (k==='neblina'||k==='ventanaRayo'||k==='horizonte')?'#3a3440':null);});});
+if(SEC==="cuarto"){document.getElementById("info").textContent="";return;}
+var f=sec("muebles");
+Object.keys(B.muebles).forEach(function(id){var c=B.muebles[id];cel(f,c,id,Z,'#7a766c');});
+if(SEC==="cuarto"||SEC==="muebles"){document.getElementById("info").textContent="";return;}f=sec("luz (halos)");Object.keys(B.luz).forEach(function(id){cel(f,B.luz[id],id,1,'#10101a');});
+// tamaño real x1 y comprobacion de huella
+f=sec('muebles a tamaño real x1');Object.keys(B.muebles).forEach(function(id){cel(f,B.muebles[id],id,1,'#7a766c');});
+// catalogo vs arte
+var cat=ACH.base.CATALOGO,falt=[],mal=[];Object.keys(cat).forEach(function(id){var c=B.muebles[id];if(!c){falt.push(id);return;}if(c.fw!==cat[id].w||c.fh!==cat[id].h)mal.push(id);if(c.width!==cat[id].w*16||c.height!==cat[id].h*16+c.up)mal.push(id+'(tam)');
+ if(cat[id].luz&&!B.luz[id])falt.push('luz.'+id);});
+document.getElementById('info').textContent='baked '+(performance.now()-t0).toFixed(0)+' ms · faltan: '+(falt.join(',')||'ninguno')+' · huella mal: '+(mal.join(',')||'ninguna');
+})();
+</script></body></html>

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO · Personajes HD</title>
+<style>
+  :root { --bg: #23222a; --panel: #2e2d36; --ink: #e8e4d6; --dim: #9a96a6; --ground: #6d7064; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.4 ui-monospace, Menlo, monospace; }
+  header { padding: 12px 16px; border-bottom: 1px solid #3c3a46; position: sticky; top: 0; background: var(--bg); z-index: 2; }
+  header b { font-size: 15px; } header a { color: #c9b98a; margin-right: 10px; }
+  #stats { color: var(--dim); margin-top: 4px; white-space: pre-wrap; }
+  h2 { margin: 18px 16px 6px; font-size: 14px; color: #f0d890; }
+  .grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 16px; }
+  .cell { background: var(--panel); border-radius: 4px; padding: 6px; }
+  .cell .lab { color: var(--dim); font-size: 11px; margin-bottom: 4px; max-width: 420px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .pair { display: flex; gap: 6px; align-items: flex-end; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; background: var(--ground); display: block; }
+  .lineup { padding: 0 16px 8px; overflow-x: auto; }
+  .lineup canvas { background: var(--ground); }
+  .tag { font-size: 10px; color: var(--dim); }
+</style>
+</head>
+<body>
+<header>
+  <b>ACHORADO v0.15 · Personajes HD</b> — izquierda 1× (×6), derecha HD (×3 = mismo tamaño).
+  <a href="?">todo</a><a href="?solo=lineup">line‑up</a><a href="?solo=alex">alex</a><a href="?solo=zombie">zombies</a><a href="?solo=zvar">zvar</a><a href="?solo=npc">npc</a><a href="?solo=var">variantes</a>
+  <div id="stats">cargando…</div>
+</header>
+<div id="out"></div>
+
+<script src="js/engine/lienzo.js"></script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/calle.js"></script>
+<script src="js/sprites/edificios-casas.js"></script>
+<script src="js/sprites/edificios-industria.js"></script>
+<script src="js/sprites/vehiculos.js"></script>
+<script src="js/sprites/mobiliario.js"></script>
+<script src="js/sprites/luz.js"></script>
+<script src="js/sprites/letreros.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/cerro-suelo.js"></script>
+<script src="js/sprites/cerro-casas.js"></script>
+<script src="js/sprites/cerro-props.js"></script>
+<script src="js/sprites/cerro-v013.js"></script>
+<script src="js/sprites/aves.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script src="js/sprites/cine.js"></script>
+<script src="js/sprites/retratos.js"></script>
+<script src="js/sprites/items-v011.js"></script>
+<script src="js/sprites/gambetta-v013.js"></script>
+<script src="js/sprites/zombis-v013.js"></script>
+<script src="js/sprites/retratos-v013.js"></script>
+<script src="js/sprites/hd.js"></script>
+<script src="js/sprites/hd-callao.js"></script>
+<script>
+(function () {
+  'use strict';
+  var S = ACH.sprites, HD = ACH.hd, out = document.getElementById('out');
+  var solo = (location.search.match(/solo=([\w]+)/) || [])[1] || '';
+  ACH.hdCallao.tagAll();
+
+  function pick(path) {
+    var o = S, p = path.split('.');
+    for (var i = 0; i < p.length && o; i++) o = o[p[i]];
+    return (o && o.getContext) ? o : null;
+  }
+  function sec(title) { var h = document.createElement('h2'); h.textContent = title; out.appendChild(h); var g = document.createElement('div'); g.className = 'grid'; out.appendChild(g); return g; }
+  function big(c, z) { var o = document.createElement('canvas'); o.width = c.width * z; o.height = c.height * z; var g = o.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(c, 0, 0, o.width, o.height); return o; }
+  function cell(grid, label, c, z) {
+    if (!c) return;
+    z = z || 6;
+    var d = document.createElement('div'); d.className = 'cell';
+    var l = document.createElement('div'); l.className = 'lab'; l.textContent = label + '  ' + c.width + '×' + c.height; d.appendChild(l);
+    var p = document.createElement('div'); p.className = 'pair'; d.appendChild(p);
+    p.appendChild(big(c, z));
+    var h = HD.canvasOf(c);
+    if (h) p.appendChild(big(h, z / 2)); else { var x = document.createElement('div'); x.className = 'tag'; x.textContent = '(sin HD: no marcado)'; p.appendChild(x); }
+    grid.appendChild(d);
+  }
+  function list(grid, prefix, paths, z) { paths.forEach(function (p) { cell(grid, p, pick(prefix + p), z); }); }
+
+  /* ------------ catálogo ------------ */
+  var ALEX = ['walk.down.0', 'walk.down.1', 'walk.up.0', 'walk.right.0', 'walk.left.2', 'attack.right.0', 'attack.right.1', 'attack.down.1', 'sling.right.1', 'sling.down.1',
+    'punch.right.1', 'kick.right.1', 'sick.0', 'jump.down.1', 'throwMolotov.right.1', 'dead', 'skateHold.down.0', 'skateSwing.right.1', 'escobaHold.right.0',
+    'carry.down.0', 'wet.0', 'g1.walk.down.0', 'g2.walk.down.0', 'g2.walk.right.0', 'g3.walk.down.0', 'g3.attack.right.1'];
+  var Z = ['caminante.walk.0', 'caminante.walk.1', 'escolar.walk.0', 'ciego.walk.0', 'cobrador.walk.0', 'cobrador.walk.1', 'escolarSling.walk.0', 'caminante.hurt.0',
+    'musico.timbal.0', 'musico.conga.0', 'musico.trompeta.0', 'musico.bajo.0', 'musico.cantante.0', 'baile.0', 'pasajero.senor.0', 'pasajero.senora.0', 'pasajero.escolar.0',
+    'caminante.dead', 'cobrador.dead'];
+  var NPC = ['perro.idle.0', 'perro.walk.right.1', 'perro.bark.1', 'gato.sit.0', 'gato.walk.right.0', 'gatoVar.1.sit.0', 'gatoVar.2.run.right.0', 'gallinazo.perch.0', 'gallinazo.perch.1',
+    'gallinazo.fly.0', 'gallinazoHostil.glide.0', 'gallinazoHostil.peck.0', 'gallinazoHostil.eat.0', 'gallina.idle.0', 'gallinaVar.1.peck.0', 'gallinaVar.2.run.right.1'];
+
+  var t0 = performance.now();
+  if (solo === 'one') {   // ?solo=one&k=alex.bird.walk.down.0,zombie.ciego.walk.0&z=12  (zvar: k=zvar.<skin>.move.0)
+    var zz = +((location.search.match(/[?&]z=(\d+)/) || [])[1] || 12), go = sec('detalle ×' + zz);
+    decodeURIComponent((location.search.match(/[?&]k=([^&]+)/) || [])[1] || 'alex.bird.walk.down.0').split(',').forEach(function (k) { cell(go, k, pick(k), zz); });
+  }
+  if (!solo || solo === 'lineup') lineup();
+  if (!solo || solo === 'alex') {
+    var g = sec('Alexander (con Titina)'); list(g, 'alex.bird.', ALEX);
+    g = sec('Alexander (sin Titina)'); list(g, 'alex.nobird.', ['walk.down.0', 'walk.right.0', 'walk.up.0', 'attack.down.1', 'sling.up.1', 'jump.right.0', 'dead']);
+    g = sec('Titina'); list(g, 'titina.', ['fly.0', 'fly.1'], 10);
+  }
+  if (!solo || solo === 'zombie') { var gz = sec('Zombies base (Gambetta / Cerro)'); list(gz, 'zombie.', Z); }
+  if (!solo || solo === 'zvar') {
+    var gv = sec('Variantes zvar (cuadro move[0])');
+    Object.getOwnPropertyNames(S.zvar).forEach(function (k) { var v = S.zvar[k]; if (v && v.move) cell(gv, k, v.move[0], 5); });
+    var gs = sec('Señoras: windup / attack');
+    (S.senoraList ? S.senoraList.balde.slice(0, 2).concat(S.senoraList.olla.slice(0, 2)) : []).forEach(function (k) { var v = S.zvar[k]; if (v) { cell(gs, k + ' windup', v.windup[0], 5); cell(gs, k + ' attack', v.attack[0], 5); } });
+  }
+  if (!solo || solo === 'npc') {
+    var gn = sec('Animales'); list(gn, 'npc.', NPC, 8);
+    var gh = sec('Gente de Callao (vendedores, sobrevivientes, pasajeros)');
+    ['cachinero', 'meche', 'pintor', 'rosa'].forEach(function (id) { var v = S.v011 && S.v011.npc[id]; if (v) { cell(gh, 'v011.' + id, v.idle[0], 5); cell(gh, 'v011.' + id + ' hablando', v.hablando, 5); } });
+    ['charo', 'eusebio', 'fosforito', 'vecina', 'perro'].forEach(function (id) { try { cell(gh, 'gb.' + id, S.gb.npc(id, 0), 5); } catch (e) { /* nada */ } });
+    ['celular', 'lucho', 'audifonos'].forEach(function (k) { try { cell(gh, 'pasajero ' + k, S.gb.pasajero(k, 0, false), 5); cell(gh, 'pasajero ' + k + ' zombi', S.gb.pasajero(k, 0, true), 5); } catch (e) { /* nada */ } });
+  }
+  if (!solo || solo === 'var') variantes();
+  var t1 = performance.now();
+
+  /* F3/F5/F8: fila de variantes (mismo tipo ×VARIANTS a escala de juego ×3), tipos sobre piel zvar y caras de perfil ×10 */
+  function sheet(rows, z, slots) {
+    var gap = 4, W = 0, H = 0; rows = rows.filter(function (r) { return r[1]; });
+    rows.forEach(function (r) { W = Math.max(W, (r[1].width + gap) * (slots.length + 1)); H += r[1].height + gap + 4; });
+    var c = document.createElement('canvas'); c.width = W * z + 150; c.height = H * z; var g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+    g.fillStyle = '#6d7064'; g.fillRect(0, 0, c.width, c.height); g.font = '11px ui-monospace, monospace';
+    var y = 0;
+    rows.forEach(function (r) {
+      var s = r[1], x = 150; g.fillStyle = '#f0e8c8'; g.fillText(r[0], 4, y * z + 14);
+      g.drawImage(s, x, y * z, s.width * z, s.height * z); x += (s.width + gap) * z;
+      slots.forEach(function (v) { var e = HD.src(s, v); if (e) g.drawImage(e.img, e.sx, e.sy, e.w, e.h, x, y * z, s.width * z, s.height * z); x += (s.width + gap) * z; });
+      y += s.height + gap + 4;
+    });
+    return c;
+  }
+  function faces(list, z) {
+    var cw = 14, ch = 13; list = list.filter(Boolean);
+    var c = document.createElement('canvas'); c.width = list.length * (cw + 2) * z; c.height = (ch * 2 + 2) * z;
+    var g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.fillStyle = '#6d7064'; g.fillRect(0, 0, c.width, c.height);
+    list.forEach(function (s, i) {
+      var d = s.getContext('2d').getImageData(0, 0, s.width, s.height).data, top = 0, xs = 0, n = 0, yy, xx;
+      var fnd = false;
+      for (yy = 0; yy < s.height && !fnd; yy++) for (xx = 0; xx < s.width; xx++) if (d[(yy * s.width + xx) * 4 + 3] > 128) { top = yy; fnd = true; break; }
+      for (yy = top; yy < top + 8; yy++) for (xx = 0; xx < s.width; xx++) if (d[(yy * s.width + xx) * 4 + 3] > 128) { xs += xx; n++; }
+      var x0 = Math.max(0, Math.min(s.width - cw, Math.round(xs / Math.max(1, n) - cw / 2))), y0 = Math.max(0, top - 2), e = HD.src(s, 0);
+      g.drawImage(s, x0, y0, cw, ch, i * (cw + 2) * z, 0, cw * z, ch * z);
+      if (e) g.drawImage(e.img, e.sx + x0 * 2, e.sy + y0 * 2, cw * 2, ch * 2, i * (cw + 2) * z, (ch + 2) * z, cw * z, ch * z);
+    });
+    return c;
+  }
+  function variantes() {
+    var zv = function (k, f) { var v = S.zvar[k]; return v && v.move ? v.move[f || 0] : null; }, NV = HD.VARIANTS || 3, slots = [];
+    for (var i = 0; i < NV; i++) slots.push(i);
+    var h = sec('Variantes por instancia: 1× y luego HD ranura 0…' + (NV - 1) + ' (×3, escala de juego)');
+    var rows = [['camina_normal_buzo', zv('camina_normal_buzo')], ['camina_normal_buzo f3', zv('camina_normal_buzo', 3)], ['camina_alto_enfermera', zv('camina_alto_enfermera')],
+      ['camina_normal_chaleco', zv('camina_normal_chaleco')], ['camina_normal_casaca', zv('camina_normal_casaca')], ['cojo_normalFlaco_overol', zv('cojo_normalFlaco_overol')],
+      ['camina_altoFlaco_terno', zv('camina_altoFlaco_terno')], ['senoraBalde_normal_manta', zv('senoraBalde_normal_manta')], ['caminante (frente)', pick('zombie.caminante.walk.0')],
+      ['bici_alto_polo prop', S.zvar.bici_alto_polo && S.zvar.bici_alto_polo.extra && S.zvar.bici_alto_polo.extra.prop]];
+    var c = sheet(rows, 3, slots); c.id = 'variantes'; var w = document.createElement('div'); w.className = 'lineup'; w.appendChild(c); h.appendChild(w);
+    if (HD.slot) {
+      var hk = sec('Tipo sobre piel zvar (F8): cobrador · ciego · escolar (ranuras slot(0..2, tipo))');
+      var ks = []; ['cobrador', 'ciego', 'escolar'].forEach(function (t) { for (var j = 0; j < 3; j++) ks.push(HD.slot(j, t)); });
+      var ck = sheet([['cojo_normalFlaco_overol', zv('cojo_normalFlaco_overol')], ['camina_normal_buzo', zv('camina_normal_buzo')], ['camina_bajo_buzo', zv('camina_bajo_buzo')], ['muletas_normal_terno', zv('muletas_normal_terno')]], 3, ks);
+      ck.id = 'tipos'; var w2 = document.createElement('div'); w2.className = 'lineup'; w2.appendChild(ck); hk.appendChild(w2);
+    }
+    var hf = sec('Caras de perfil ×10 (F5): arriba 1×, abajo HD ranura 0');
+    var cf = faces(['camina_normal_buzo', 'camina_alto_enfermera', 'camina_normal_chaleco', 'camina_normal_casaca', 'camina_altoFlaco_terno', 'cojo_normalFlaco_overol', 'camina_bajoAncho_overol', 'camina_normalJoroba_floreada', 'camina_normalAncho_cocinero'].map(function (k) { return zv(k); }), 10);
+    cf.id = 'caras'; var w3 = document.createElement('div'); w3.className = 'lineup'; w3.appendChild(cf); hf.appendChild(w3);
+  }
+
+  function lineup() {
+    var who = [
+      ['Alexander', pick('alex.bird.walk.down.0')], ['Alex sin ave', pick('alex.nobird.walk.right.0')], ['caminante', pick('zombie.caminante.walk.0')],
+      ['escolar', pick('zombie.escolar.walk.0')], ['ciego', pick('zombie.ciego.walk.0')], ['cobrador', pick('zombie.cobrador.walk.0')],
+      ['escolar honda', pick('zombie.escolarSling.walk.0')], ['trompeta', pick('zombie.musico.trompeta.0')], ['cantante', pick('zombie.musico.cantante.0')],
+      ['baile', pick('zombie.baile.0')], ['señora balde', S.zvar.senoraBalde_normal_manta && S.zvar.senoraBalde_normal_manta.move[0]],
+      ['señora olla', S.zvar.senoraOlla_normal_olla && S.zvar.senoraOlla_normal_olla.move[0]],
+      ['enfermera', S.zvar.camina_alto_enfermera.move[0]], ['cocinero', S.zvar.camina_normalAncho_cocinero.move[0]], ['terno', S.zvar.camina_altoFlaco_terno.move[0]],
+      ['muletas', S.zvar.muletas_normal_terno.move[0]], ['Don Lucho', S.zvar.gb_lucho && S.zvar.gb_lucho.move[0]],
+      ['Charo', S.gb && S.gb.npc('charo', 0)], ['Meche', S.v011 && S.v011.npc.meche.idle[0]], ['perro', pick('npc.perro.idle.0')], ['gato', pick('npc.gato.sit.0')],
+      ['gallinazo', pick('npc.gallinazo.perch.0')]
+    ].filter(function (w) { return w[1]; });
+    [3, 4].forEach(function (z) {
+      var h = sec('Line‑up a escala de juego ×' + z + ' — arriba 1×, abajo HD');
+      var wrap = document.createElement('div'); wrap.className = 'lineup'; h.appendChild(wrap);
+      var gap = 6, W = 0, Hh = 0;
+      who.forEach(function (w) { W += w[1].width + gap; Hh = Math.max(Hh, w[1].height); });
+      var c = document.createElement('canvas'); c.width = W * z; c.height = (Hh * 2 + 8) * z; c.id = 'lineup' + z;
+      var g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+      g.fillStyle = '#6d7064'; g.fillRect(0, 0, c.width, c.height);
+      g.fillStyle = '#5f6258'; g.fillRect(0, (Hh + 4) * z, c.width, 1 * z);
+      var x = 0;
+      who.forEach(function (w) {
+        var s = w[1], ay = s.ay !== undefined ? s.ay : s.height - 1, oy = Hh - 2 - ay;
+        g.drawImage(s, x * z, Math.max(0, oy) * z, s.width * z, s.height * z);
+        var e = HD.src(s);
+        if (e) g.drawImage(e.img, e.sx, e.sy, e.w, e.h, x * z, (Math.max(0, oy) + Hh + 8) * z, s.width * z, s.height * z);
+        x += s.width + gap;
+      });
+      wrap.appendChild(c);
+    });
+  }
+  var st = HD.stats(), lz = ACH.lienzo && ACH.lienzo.stats ? ACH.lienzo.stats() : null;
+  document.getElementById('stats').textContent = 'HD generadas: ' + st.built + ' · ' + st.msAvg + ' ms/sprite (máx ' + st.msMax + ' ms ' + st.msMaxKey + ') · total ' + st.msTotal +
+    ' ms · atlas ' + st.pages + ' pág. ' + st.pageSize + '² = ' + st.atlasMB + ' MB (' + st.fill + ' lleno) · marcados ' + st.tagged + ' · familias: ' + st.families.join(', ') +
+    ' · página ' + Math.round(t1 - t0) + ' ms' + (lz ? ' · lienzos ' + lz.cpu + ' cpu / ' + lz.gpu + ' gpu' : '') + (st.fails ? ' · FALLOS ' + st.fails : '');
+  window.HDSTATS = st;
+})();
+</script>
+</body>
+</html>

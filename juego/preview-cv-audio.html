@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Costa Verde · prueba de audio (C3)</title>
+<style>
+  :root { --ink: #131015; --pink: #ff2e88; --yellow: #ffe500; --green: #39ff14; --panel: #1d1722; --line: #3a2f44; --txt: #f4eefc; --dim: #a79db8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #000; color: var(--txt); font: 14px/1.4 "Courier New", monospace; padding: 16px; max-width: 1100px; margin-inline: auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; color: var(--yellow); letter-spacing: .04em; }
+  h2 { font-size: 14px; margin: 22px 0 8px; color: var(--green); text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  p.hint { margin: 2px 0 10px; color: var(--dim); }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
+  button { font: inherit; background: var(--panel); color: var(--txt); border: 2px solid var(--line); padding: 5px 10px; cursor: pointer; }
+  button:hover { border-color: var(--pink); }
+  button.on { background: var(--pink); color: var(--ink); border-color: var(--pink); font-weight: bold; }
+  button.big { background: var(--yellow); color: var(--ink); border-color: var(--yellow); font-weight: bold; padding: 8px 16px; }
+  button.theme { border-color: var(--green); }
+  label { color: var(--dim); display: inline-flex; gap: 6px; align-items: center; }
+  input[type=range] { accent-color: var(--pink); width: 140px; }
+  output { color: var(--yellow); min-width: 3ch; display: inline-block; }
+  .grid { display: flex; flex-wrap: wrap; gap: 5px; }
+  pre { background: #0c0a10; border: 1px solid var(--line); padding: 8px; overflow: auto; max-height: 260px; margin: 6px 0; color: #cfe; white-space: pre-wrap; }
+  pre.err { color: #ff9ab8; border-color: var(--pink); }
+  .ok { color: var(--green); } .bad { color: #ff5d8f; }
+  table { border-collapse: collapse; width: 100%; } td, th { border: 1px solid var(--line); padding: 3px 6px; text-align: left; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>COSTA VERDE · PRUEBA DE AUDIO (C3)</h1>
+<p class="hint">Todo sale de js/costaverde/surf.js, sfx-cv.js y voces-cv.js (Web Audio, sin samples). Primero pulsa <b>ACTIVAR AUDIO</b> (el navegador exige un clic). Si no oyes nada: ¿volumen del sistema? ¿M = silencio?</p>
+<div class="row">
+  <button class="big" id="unlock">ACTIVAR AUDIO</button>
+  <button id="mute">SILENCIO (M)</button>
+  <button id="stopall">PARAR TODO</button>
+  <label>maestro <input type="range" min="0" max="100" value="80" data-bus="master"><output></output></label>
+  <label>música <input type="range" min="0" max="100" value="50" data-bus="music"><output></output></label>
+  <label>efectos <input type="range" min="0" max="100" value="90" data-bus="sfx"><output></output></label>
+  <label>ambiente <input type="range" min="0" max="100" value="85" data-bus="amb"><output></output></label>
+  <label>voces <input type="range" min="0" max="100" value="90" data-bus="voces"><output></output></label>
+</div>
+
+<h2>Música · ánimos del juego</h2>
+<p class="hint">game.js llama setMood + setIntensity. Los cambios caen en el siguiente tiempo (≤ 0,5 s) con anacrusa. «explore» cambia solo con la zona de abajo.</p>
+<div class="row" id="moods"></div>
+<div class="row">
+  <label>intensidad <input type="range" min="0" max="100" value="0" id="inten"><output id="intenO">0.00</output></label>
+  <label><input type="checkbox" id="boss"> setBoss(true) (con horde o chase toca el tema del chef)</label>
+  <label><input type="checkbox" id="night"> noche</label>
+</div>
+
+<h2>Música · Larcomar (bossa que se ensucia)</h2>
+<p class="hint">Solo se oye con el ánimo <b>explore</b>. Zona «larcomar» = «Terraza Larcomar»; la suciedad va de 0 (ingreso: nailon, piano eléctrico, cuerdas) a 1 (arena del chifa: surf con crunch, fuzz, órgano y tempo +18 %).</p>
+<div class="row">
+  <button id="zMal" class="on">zona: malecón</button><button id="zLar">zona: larcomar</button>
+  <label>suciedad <input type="range" min="0" max="100" value="0" id="dirt"><output id="dirtO">0.00</output></label>
+  <button id="dirtSweep">barrer suciedad 0 → 1 en 40 s</button>
+</div>
+
+<h2>Música · temas por nombre (ACH.audio.cv.play)</h2>
+<div class="row" id="themes"></div>
+<p class="hint">Se pisan sobre cualquier ánimo hasta <b>cv.stop()</b>. Con intensidad 0, 0,5 y 0,75 se oyen las capas del chef (melodía; pluck y órgano; cucharón doble). La caída suma cuerdas (0,25), órgano (0,5) y coro (0,75).</p>
+
+<h2>Música · stingers</h2>
+<div class="row" id="stingers"></div>
+
+<h2>Sonidos (ACH.audio.emit)</h2>
+<div class="grid" id="sfx"></div>
+<div class="row" style="margin-top:10px">
+  <b>Bucles:</b>
+  <button data-loop="cv.viento">viento (parapente)</button>
+  <button data-loop="cv.tabla.gira.loop">tabla girando (bucle)</button>
+  <button data-loop="cv.olas">olas</button>
+  <label>velocidad / intensidad <input type="range" min="0" max="100" value="60" id="loopK"><output id="loopO">0.60</output></label>
+  <label>x <input type="range" min="-300" max="300" value="0" id="loopX"><output id="loopXO">0</output></label>
+</div>
+<div class="row"><b>Ambiente automático:</b>
+  <button id="ambOn">director de ambiente: nivel = costaverde</button>
+  <span class="hint" id="ambS"></span></div>
+
+<h2>Frases (ACH.audio.say)</h2>
+<p class="hint">La voz es la de speechSynthesis de tu sistema. Cada botón la dice ya (sin sorteo ni espera).</p>
+<div class="grid" id="phr"></div>
+
+<h2>Estado</h2>
+<pre id="state">…</pre>
+
+<h2>Pruebas estructurales</h2>
+<p class="hint">Renderizan con OfflineAudioContext cada tema y cada ánimo (sin oír): miden pico, RMS, NaN, recortes, que el cambio de ánimo caiga en el siguiente tiempo, y emiten todos los sonidos en vivo comprobando que no haya excepciones ni avisos en la consola.</p>
+<div class="row"><button id="runTests" class="big">CORRER PRUEBAS</button><span id="testStatus" class="hint"></span></div>
+<pre id="tests">sin correr</pre>
+<h2>Consola (errores y avisos)</h2>
+<pre id="cons" class="err">(vacía)</pre>
+
+<script>
+  /* captura de errores y avisos de la consola, antes que cualquier script */
+  window.__cons = [];
+  (function () {
+    var ow = console.warn, oe = console.error;
+    console.warn = function () { window.__cons.push('WARN: ' + [].slice.call(arguments).join(' ')); ow.apply(console, arguments); };
+    console.error = function () { window.__cons.push('ERROR: ' + [].slice.call(arguments).join(' ')); oe.apply(console, arguments); };
+    window.addEventListener('error', function (e) { window.__cons.push('EXC: ' + e.message + ' @' + (e.filename || '').split('/').pop() + ':' + e.lineno); });
+    window.addEventListener('unhandledrejection', function (e) { window.__cons.push('REJECT: ' + (e.reason && e.reason.message || e.reason)); });
+  })();
+</script>
+<script src="js/audio/sfx.js"></script>
+<script src="js/costaverde/surf.js"></script>
+<script src="js/audio/voces.js"></script>
+<script src="js/audio/motor.js"></script>
+<script src="js/miraflores/sfx-mira.js"></script>
+<script src="js/miraflores/voces-mira.js"></script>
+<script src="js/costaverde/sfx-cv.js"></script>
+<script src="js/costaverde/voces-cv.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = ACH.audio, ME = A.musicEngine, CV = A.cv, $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, txt, parent) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; if (parent) parent.appendChild(e); return e; }
+  function on(btns, cur) { btns.forEach(function (b) { b.classList.toggle('on', b.dataset.k === cur); }); }
+
+  /* ---- volumen ---- */
+  [].forEach.call(document.querySelectorAll('input[data-bus]'), function (inp) {
+    var o = inp.nextElementSibling, b = inp.dataset.bus;
+    inp.value = Math.round(A.getVolume(b) * 100); o.textContent = inp.value;
+    inp.addEventListener('input', function () { A.setVolume(b, inp.value / 100); o.textContent = inp.value; });
+  });
+  $('unlock').addEventListener('click', function () { A.unlock(); this.textContent = 'AUDIO ACTIVO'; });
+  $('mute').addEventListener('click', function () { A.mute(!A.muted()); this.classList.toggle('on', A.muted()); });
+  $('stopall').addEventListener('click', function () { CV.stop(); A.stopLoops(); A.music.setMood('explore'); A.music.setIntensity(0); ME.setBoss(false); moodBtns.forEach(function (b) { b.classList.remove('on'); }); });
+
+  /* ---- ánimos ---- */
+  var MOODS = ['title', 'explore', 'chase', 'horde', 'dead', 'won', 'paused'], moodBtns = [];
+  MOODS.forEach(function (m) {
+    var b = el('button', '', m, $('moods')); b.dataset.k = m; moodBtns.push(b);
+    b.addEventListener('click', function () { A.unlock(); A.music.setMood(m); on(moodBtns, m); });
+  });
+  $('inten').addEventListener('input', function () { var v = this.value / 100; $('intenO').textContent = v.toFixed(2); A.music.setIntensity(v); });
+  $('boss').addEventListener('change', function () { A.unlock(); ME.setBoss(this.checked); });
+  $('night').addEventListener('change', function () { A.unlock(); A.music.setNight(this.checked, 3); });
+
+  /* ---- zona y suciedad ---- */
+  $('zMal').addEventListener('click', function () { A.unlock(); CV.setZone('malecon'); this.classList.add('on'); $('zLar').classList.remove('on'); });
+  $('zLar').addEventListener('click', function () { A.unlock(); A.music.setMood('explore'); on(moodBtns, 'explore'); CV.setZone('larcomar'); this.classList.add('on'); $('zMal').classList.remove('on'); });
+  $('dirt').addEventListener('input', function () { var v = this.value / 100; $('dirtO').textContent = v.toFixed(2); CV.setDirt(v); });
+  var sweep = 0;
+  $('dirtSweep').addEventListener('click', function () {
+    A.unlock(); A.music.setMood('explore'); on(moodBtns, 'explore'); CV.setZone('larcomar'); $('zLar').classList.add('on'); $('zMal').classList.remove('on');
+    clearInterval(sweep); var t0 = performance.now();
+    sweep = setInterval(function () { var u = Math.min(1, (performance.now() - t0) / 40000); CV.setDirt(u); $('dirt').value = u * 100; $('dirtO').textContent = u.toFixed(2); if (u >= 1) clearInterval(sweep); }, 200);
+  });
+
+  /* ---- temas por nombre ---- */
+  var themeBtns = [];
+  [['cv.chef', 'chef'], ['cv.caida', 'caida'], ['cv.heroe', 'heroe']].forEach(function (x) {
+    var b = el('button', 'theme', x[0] + ' · ' + { chef: 'Mesa cuatro', caida: 'Caída libre', heroe: 'Aterrizaje en Chorrillos' }[x[1]], $('themes')); b.dataset.k = x[1]; themeBtns.push(b);
+    b.addEventListener('click', function () { A.unlock(); CV.play(x[1]); on(themeBtns, x[1]); });
+  });
+  var sb = el('button', '', 'cv.stop()', $('themes')); sb.addEventListener('click', function () { CV.stop(); on(themeBtns, ''); });
+
+  /* ---- stingers ---- */
+  ['kill', 'hurt', 'horde', 'death', 'win', 'cobrador', 'boss.intro', 'boss.down', 'gong', 'cv.gol'].forEach(function (s) {
+    var b = el('button', '', s, $('stingers')); b.addEventListener('click', function () { A.unlock(); A.music.stinger(s); });
+  });
+
+  /* ---- sonidos ---- */
+  var SFX = CV.sfx.filter(function (n) { return ['cv.viento', 'cv.tabla.gira.loop', 'cv.olas'].indexOf(n) < 0; });
+  SFX.forEach(function (n) {
+    var b = el('button', '', n, $('sfx'));
+    b.addEventListener('click', function () { A.unlock(); A.emit(n, { x: 240 + Number($('loopX').value), y: 135, c: Math.floor(Math.random() * 4), v: Math.random(), charge: Math.random() }); });
+  });
+  var loops = {};
+  [].forEach.call(document.querySelectorAll('button[data-loop]'), function (b) {
+    var n = b.dataset.loop;
+    b.addEventListener('click', function () {
+      A.unlock();
+      if (loops[n]) { loops[n].stop(); loops[n] = null; b.classList.remove('on'); return; }
+      var k = $('loopK').value / 100, d = { speed: k, intensity: k, x: 240 + Number($('loopX').value), y: 135, ttl: 0 };
+      loops[n] = A.loop(n, d); b.classList.add('on');
+    });
+  });
+  function loopPatch() {
+    var k = $('loopK').value / 100; $('loopO').textContent = k.toFixed(2); $('loopXO').textContent = $('loopX').value;
+    Object.keys(loops).forEach(function (n) { if (loops[n]) { loops[n].set({ speed: k, intensity: k }); loops[n].move(240 + Number($('loopX').value), 135); } });
+  }
+  $('loopK').addEventListener('input', loopPatch); $('loopX').addEventListener('input', loopPatch);
+  $('ambOn').addEventListener('click', function () { A.unlock(); ACH.nivel = { id: 'costaverde' }; ACH.G = ACH.G || { state: 'playing', cam: { x: 0, y: 0 }, player: { x: 240, y: 135 } }; this.classList.add('on'); });
+
+  /* ---- frases ---- */
+  CV.phraseIds.forEach(function (id) {
+    var b = el('button', '', id, $('phr'));
+    b.addEventListener('click', function () { A.unlock(); var r = A.say(id, { always: true, force: true, x: 240, y: 135 }); b.title = r ? 'dicha' : 'no se dijo'; });
+  });
+
+  /* ---- estado ---- */
+  function refresh() {
+    var st = ME.state();
+    $('state').textContent = JSON.stringify({ audio: A.info(), music: st && { key: st.key, piece: st.piece, bpm: st.bpm, bar: st.bar, mood: st.mood, intensity: st.intensity, zone: st.zone, dirt: st.dirt, ov: st.ov, boss: st.boss,
+      queued: st.queued, live: st.live, late: st.late, dropped: st.dropped, resyncs: st.resyncs, maxGap: st.maxGap }, cv: CV.info().playing, amb: CV.amb && CV.amb.state() }, null, 1);
+    $('cons').textContent = window.__cons.length ? window.__cons.join('\n') : '(vacía)';
+    $('ambS').textContent = JSON.stringify(CV.amb.state());
+  }
+  setInterval(refresh, 400);
+
+  /* ================= PRUEBAS ================= */
+  var SR = 44100;
+  function stats(buf) {
+    var ch = buf.numberOfChannels, n = buf.length, peak = 0, sum = 0, nan = 0, clip = 0, c, i, x;
+    for (c = 0; c < ch; c++) { var d = buf.getChannelData(c); for (i = 0; i < n; i++) { x = d[i]; if (x !== x || !isFinite(x)) { nan++; continue; } var ax = Math.abs(x); if (ax > peak) peak = ax; if (ax >= 0.999) clip++; sum += x * x; } }
+    return { peak: peak, rms: Math.sqrt(sum / (n * ch)), nan: nan, clip: clip };
+  }
+  function db(v) { return v > 0 ? (20 * Math.log10(v)).toFixed(1) : '-inf'; }
+  function renderPiece(label, script, dur) {
+    return new Promise(function (resolve) {
+      var t0 = performance.now(), res = { label: label };
+      try {
+        var oc = new OfflineAudioContext(2, SR * dur, SR), r = ME._offlineBegin(oc, oc.destination, null, script);
+        r.advance(dur);
+        var info = r.end();
+        res.build = Math.round(performance.now() - t0);
+        oc.startRendering().then(function (buf) {
+          var s = stats(buf); res.peak = db(s.peak); res.rms = db(s.rms); res.nan = s.nan; res.clip = s.clip; res.late = info.late; res.dropped = info.dropped; res.resyncs = info.resyncs; res.sw = info.sw; res.log = info.log;
+          res.ms = Math.round(performance.now() - t0); resolve(res);
+        }, function (e) { res.err = String(e); resolve(res); });
+      } catch (e) { res.err = (e && e.stack || String(e)).split('\n').slice(0, 3).join(' | '); resolve(res); }
+    });
+  }
+  function lines(rs) {
+    return rs.map(function (r) {
+      if (r.err) return 'FALLA  ' + r.label + '  ' + r.err;
+      var ok = r.nan === 0 && r.clip === 0 && r.late === 0 && r.dropped === 0 && r.resyncs === 0 && parseFloat(r.peak) < -2.9;
+      var extra = '';
+      if (r.sw && r.sw.length) extra = '  cambios: ' + r.sw.map(function (s) { return (s.at - s.asked).toFixed(2) + 's'; }).join(',');
+      return (ok ? 'ok     ' : 'OJO    ') + r.label + '  pico ' + r.peak + ' dBFS  rms ' + r.rms + '  NaN ' + r.nan + '  recortes ' + r.clip + '  tardíos ' + r.late + '  descartados ' + r.dropped + '  (' + r.ms + ' ms)' + extra;
+    }).join('\n');
+  }
+  function tests() {
+    var out = [], cases = [
+      ['explore I=0     (malecón)', [{ t: 0, mood: 'explore', intensity: 0 }], 30],
+      ['explore I=1     (malecón)', [{ t: 0, mood: 'explore', intensity: 1 }], 30],
+      ['title', [{ t: 0, mood: 'title' }], 12],
+      ['larco dirt=0', [{ t: 0, mood: 'explore', zone: 'larcomar', dirt: 0 }], 30],
+      ['larco dirt=0.5', [{ t: 0, mood: 'explore', zone: 'larcomar', dirt: 0.5 }], 30],
+      ['larco dirt=1', [{ t: 0, mood: 'explore', zone: 'larcomar', dirt: 1 }], 30],
+      ['chase I=1', [{ t: 0, mood: 'chase', intensity: 1 }], 20],
+      ['horde', [{ t: 0, mood: 'horde', intensity: 1 }], 16],
+      ['cv.chef I=0', [{ t: 0, mood: 'explore', intensity: 0, play: 'chef' }], 22],
+      ['cv.chef I=1', [{ t: 0, mood: 'explore', intensity: 1, play: 'chef' }], 22],
+      ['setBoss horde', [{ t: 0, mood: 'horde', intensity: 1, boss: true }], 16],
+      ['cv.caida I=0.5', [{ t: 0, mood: 'explore', intensity: 0.5, play: 'caida' }], 24],
+      ['cv.caida I=1', [{ t: 0, mood: 'explore', intensity: 1, play: 'caida' }], 24],
+      ['cv.heroe (16 compases)', [{ t: 0, mood: 'explore', intensity: 0, play: 'heroe' }], 40],
+      ['dead', [{ t: 0, mood: 'dead' }], 8]
+    ];
+    var seq = Promise.resolve();
+    cases.forEach(function (c) { seq = seq.then(function () { $('testStatus').textContent = 'render: ' + c[0]; return renderPiece(c[0], c[1], c[2]).then(function (r) { out.push(r); }); }); });
+    // cambios de ánimo en cadena + stingers + zona/dirt/play/stop en vuelo
+    var chain = [{ t: 0, mood: 'explore', intensity: 0.3 }, { t: 6.3, mood: 'chase', intensity: 0.8 }, { t: 10.1, mood: 'horde' }, { t: 13.7, play: 'chef' }, { t: 18.2, stop: true }, { t: 18.3, mood: 'explore' },
+      { t: 23.4, zone: 'larcomar', dirt: 0.4 }, { t: 27, dirt: 0.9 }, { t: 30.2, play: 'caida' }, { t: 34, stinger: 'win' }, { t: 36, play: 'heroe' }, { t: 41.3, stop: true }, { t: 42.1, stinger: 'boss.intro' },
+      { t: 43, stinger: 'boss.down' }, { t: 44, stinger: 'cv.gol' }, { t: 45, stinger: 'gong' }, { t: 46, stinger: 'kill' }, { t: 47, stinger: 'hurt' }, { t: 48, stinger: 'horde' }, { t: 50, stinger: 'death' }];
+    seq = seq.then(function () { $('testStatus').textContent = 'render: cadena de cambios'; return renderPiece('cadena (cambios de ánimo, zona, dirt, temas, stingers)', chain, 56).then(function (r) { out.push(r); }); });
+    return seq.then(function () { return out; });
+  }
+  function sfxTest() {
+    var ctx = A.ctx, res = [], names = CV.sfx.slice(), i = 0;
+    if (!ctx || ctx.state !== 'running') return Promise.resolve('Primero pulsa ACTIVAR AUDIO (sin contexto en marcha no se puede probar en vivo).');
+    var errs0 = window.__cons.length;
+    return new Promise(function (resolve) {
+      var loopsOpen = [];
+      (function step() {
+        if (i >= names.length) {
+          setTimeout(function () { loopsOpen.forEach(function (h) { h.stop(); }); resolve({ n: names.length, newCons: window.__cons.slice(errs0), counts: names.map(function (n) { return n + '=' + (A.counts[n] || 0); }).join(' ') }); }, 600);
+          return;
+        }
+        var n = names[i++];
+        try { if (/^cv\.(viento|tabla\.gira\.loop|olas)$/.test(n)) { var h = A.loop(n, { speed: 0.7, intensity: 0.7, ttl: 0 }); if (h) loopsOpen.push(h); } else A.emit(n, { x: 240, y: 135, c: i % 4, v: 0.7, charge: 0.8, size: 1 }); } catch (e) { res.push(n + ' EXC ' + e); }
+        setTimeout(step, 120);
+      })();
+    }).then(function (o) { o.exc = res; return o; });
+  }
+  $('runTests').addEventListener('click', function () {
+    $('tests').textContent = 'corriendo…'; var t0 = performance.now();
+    tests().then(function (rs) {
+      var txt = lines(rs);
+      $('testStatus').textContent = 'renders listos (' + Math.round((performance.now() - t0) / 1000) + ' s)';
+      return sfxTest().then(function (s) {
+        txt += '\n\nSONIDOS EN VIVO: ' + (typeof s === 'string' ? s : (s.n + ' eventos; excepciones: ' + (s.exc.length ? s.exc.join('; ') : 'ninguna') + '; consola nueva: ' + (s.newCons.length ? s.newCons.join(' | ') : 'ninguna') + '\n' + s.counts));
+        $('tests').textContent = txt; $('testStatus').textContent = 'listo';
+        window.__testResult = { renders: rs, sfx: s, text: txt };
+      });
+    }, function (e) { $('tests').textContent = 'FALLA ' + e; });
+  });
+  window.__cvTest = { tests: tests, lines: lines, sfxTest: sfxTest, renderPiece: renderPiece };
+})();
+</script>
+</body>
+</html>

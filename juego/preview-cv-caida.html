@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>preview caída · El Tablazo (C4)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Patrick+Hand&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/game.css">
+<style>
+  body { flex-direction: column; gap: 8px; }
+  #pv { font: 12px monospace; color: #ccc; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 960px; }
+  #pv button { font: 12px monospace; background: #2a2430; color: #ffe500; border: 1px solid #ff2e88; padding: 3px 8px; cursor: pointer; }
+  #log { font: 11px monospace; color: #9f9; min-height: 30px; max-width: 960px; white-space: pre-wrap; }
+  #ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #ffe500; font: 20px monospace; }
+</style></head>
+<body>
+<div id="stage"><div id="ph">[mundo de mentira] — ENTER o «empezar»</div></div>
+<div id="pv">
+  <button data-a="start">empezar</button><button data-a="skip">saltar intro</button><button data-a="win">ganar</button>
+  <button data-a="god">god</button><button data-a="bot">bot</button><button data-a="p2">jefe 60%</button><button data-a="p3">jefe 30%</button>
+  <button data-a="alt">altura 40 m</button><button data-a="hp1">vida 1</button><button data-a="stop">stop</button><button data-a="fosfo">+fosfo</button>
+</div>
+<div id="log"></div>
+<script src="js/engine/lienzo.js"></script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/retratos.js"></script>
+<script src="js/audio/sfx.js"></script>
+<script src="js/audio/motor.js"></script>
+<script src="js/costaverde/surf.js"></script>
+<script src="js/costaverde/sfx-cv.js"></script>
+<script src="js/engine/dialogo.js"></script>
+<script src="js/costaverde/arte-caida.js"></script>
+<script src="js/costaverde/caida.js"></script>
+<script>
+(function () {
+  var ACH = window.ACH, q = new URLSearchParams(location.search), log = document.getElementById('log');
+  // juego de mentira: G.player.hp (para probar que la vida se lee y se escribe de vuelta)
+  ACH.G = { state: 'playing', player: { hp: +(q.get('hp') || 100) } };
+  ACH.ent = { CFG: { hpMax: 100 } };
+  var nF = +(q.get('fosfo') || 0);
+  ACH.cv.juguetes = { fosfoCount: function () { return nF; } };
+  ACH.cv.freeze = function (b) { ACH.G.state = b ? 'cine' : 'playing'; say('freeze(' + b + ')'); };
+  if (q.has('touch')) ACH.touch = { on: true };
+  if (q.has('nopause')) ACH.cv.caida.CFG.autoPause = false;
+  if (q.has('god')) ACH.cv.caida.debug.god(true);
+  if (q.has('bot')) ACH.cv.caida.debug.bot(true);
+  function say(m) { log.textContent = (new Date().toTimeString().slice(0, 8)) + ' ' + m + '\n' + log.textContent.slice(0, 800); }
+  window.pvRuns = [];
+  function go() {
+    if (ACH.cv.caida.isOn()) return;
+    var t0 = performance.now();
+    ACH.cv.caida.start({
+      onWin: function (r) { var s = ((performance.now() - t0) / 1000).toFixed(1); window.pvRuns.push({ r: 'win', s: +s, hp: ACH.G.player.hp }); say('onWin ' + JSON.stringify(r) + ' en ' + s + ' s · G.player.hp=' + ACH.G.player.hp); },
+      onLose: function (r) { var s = ((performance.now() - t0) / 1000).toFixed(1); window.pvRuns.push({ r: 'lose', s: +s, hp: ACH.G.player.hp }); say('onLose ' + JSON.stringify(r) + ' en ' + s + ' s · G.player.hp=' + ACH.G.player.hp); }
+    });
+    if (q.has('skip')) ACH.cv.caida.debug.skipIntro();
+  }
+  var D = ACH.cv.caida.debug;
+  var acts = {
+    start: go, skip: function () { D.skipIntro(); }, win: function () { D.win(); }, god: function () { say('god ' + D.god()); }, bot: function () { say('bot ' + D.bot()); },
+    p2: function () { D.bossHp(18); }, p3: function () { D.bossHp(9); }, alt: function () { D.alt(40); }, hp1: function () { D.hp(1); },
+    stop: function () { ACH.cv.caida.stop(); say('stop'); }, fosfo: function () { nF++; say('fosfo=' + nF + ' (vale al empezar)'); }
+  };
+  document.getElementById('pv').addEventListener('click', function (e) { var a = e.target.getAttribute('data-a'); if (a && acts[a]) { acts[a](); e.target.blur(); } });
+  window.addEventListener('keydown', function (e) { if ((e.code === 'Enter') && !ACH.cv.caida.isOn() && !(ACH.dialogo && ACH.dialogo.active())) go(); });
+  if (q.has('auto')) setTimeout(go, 300);
+  setInterval(function () { var s = D.state(); if (s) document.title = s.phase + ' ' + s.bossHp + ' ' + s.alt; }, 500);
+})();
+</script>
+</body></html>

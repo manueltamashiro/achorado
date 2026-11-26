@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACHORADO · HD Barranco y jefes</title>
+<style>
+  :root { --bg: #23222a; --panel: #2e2d36; --ink: #e8e4d6; --dim: #9a96a6; --ground: #6d7064; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.4 ui-monospace, Menlo, monospace; }
+  header { padding: 12px 16px; border-bottom: 1px solid #3c3a46; position: sticky; top: 0; background: var(--bg); z-index: 2; }
+  header b { font-size: 15px; } header a { color: #c9b98a; margin-right: 10px; }
+  #stats { color: var(--dim); margin-top: 4px; white-space: pre-wrap; }
+  h2 { margin: 18px 16px 6px; font-size: 14px; color: #f0d890; }
+  .grid { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 16px; }
+  .cell { background: var(--panel); border-radius: 4px; padding: 6px; }
+  .cell .lab { color: var(--dim); font-size: 11px; margin-bottom: 4px; max-width: 520px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .pair { display: flex; gap: 6px; align-items: flex-end; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; background: var(--ground); display: block; }
+  .lineup { padding: 0 16px 8px; overflow-x: auto; }
+  .tag { font-size: 10px; color: var(--dim); }
+</style>
+</head>
+<body>
+<header>
+  <b>ACHORADO v0.15 · HD Barranco + jefes de Callao/Cerro</b> — izquierda 1× (×z), derecha HD (mismo tamaño).
+  <a href="?">todo</a><a href="?solo=lineup">line‑up</a><a href="?solo=zombis">zombis</a><a href="?solo=jefe">jefe</a><a href="?solo=vivos">vivos</a><a href="?solo=banda">banda</a><a href="?solo=alex">alex</a><a href="?solo=callao">callao</a><a href="?solo=var">variantes</a>
+  <a href="?hd=0">(hd=0)</a>
+  <div id="stats">cargando…</div>
+</header>
+<div id="out"></div>
+
+<script src="js/engine/lienzo.js"></script>
+<script src="js/barranco/nivel.js"></script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/calle.js"></script>
+<script src="js/sprites/edificios-casas.js"></script>
+<script src="js/sprites/edificios-industria.js"></script>
+<script src="js/sprites/vehiculos.js"></script>
+<script src="js/sprites/mobiliario.js"></script>
+<script src="js/sprites/luz.js"></script>
+<script src="js/sprites/letreros.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/cerro-suelo.js"></script>
+<script src="js/sprites/cerro-casas.js"></script>
+<script src="js/sprites/cerro-props.js"></script>
+<script src="js/sprites/aves.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script src="js/sprites/retratos.js"></script>
+<script src="js/sprites/retratos-v013.js"></script>
+<script src="js/sprites/cine.js"></script>
+<script src="js/sprites/items-v011.js"></script>
+<script src="js/base/catalogo.js"></script>
+<script src="js/base/arte-base.js"></script>
+<script src="js/miraflores/arte-parque.js"></script>
+<script src="js/miraflores/arte-negocios.js"></script>
+<script src="js/miraflores/arte-personajes.js"></script>
+<script src="js/costaverde/arte-personajes.js"></script>
+<script src="js/costaverde/arte-v013.js"></script>
+<script src="js/barranco/arte-lugares.js"></script>
+<script src="js/barranco/arte-casonas.js"></script>
+<script src="js/barranco/arte-personajes.js"></script>
+<script src="js/sprites/zombis-v013.js"></script>
+<script src="js/sprites/cerro-v013.js"></script>
+<script src="js/sprites/gambetta-v013.js"></script>
+<script src="js/sprites/hd.js"></script>
+<script src="js/sprites/hd-callao.js"></script>
+<script src="js/sprites/hd-barranco.js"></script>
+<script>
+(function () {
+  'use strict';
+  var S = ACH.sprites, HD = ACH.hd, out = document.getElementById('out');
+  var Q = location.search, solo = (Q.match(/solo=([\w]+)/) || [])[1] || '', ZOOM = +((Q.match(/[?&]z=(\d+)/) || [])[1] || 6);
+  if (ACH.hdCallao) ACH.hdCallao.tagAll();
+  try { if (ACH.cerroArte) ACH.cerroArte.presidenta(); } catch (e) { console.warn(e); }
+  if (ACH.hdBarranco) ACH.hdBarranco.tagAll();
+
+  function pick(path) {
+    var o = S, p = path.split('.');
+    for (var i = 0; i < p.length && o; i++) o = o[p[i]];
+    return (o && o.getContext) ? o : null;
+  }
+  function sec(title) { var h = document.createElement('h2'); h.textContent = title; out.appendChild(h); var g = document.createElement('div'); g.className = 'grid'; out.appendChild(g); return g; }
+  function big(c, z) { var o = document.createElement('canvas'); o.width = c.width * z; o.height = c.height * z; var g = o.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(c, 0, 0, o.width, o.height); return o; }
+  function cell(grid, label, c, z) {
+    if (!c) { var m = document.createElement('div'); m.className = 'cell tag'; m.textContent = 'falta: ' + label; grid.appendChild(m); return; }
+    z = z || ZOOM;
+    var d = document.createElement('div'); d.className = 'cell';
+    var l = document.createElement('div'); l.className = 'lab'; l.textContent = label + '  ' + c.width + '×' + c.height + (c.__hd ? '  [' + c.__hd.key + ']' : '  [sin marca]'); d.appendChild(l);
+    var p = document.createElement('div'); p.className = 'pair'; d.appendChild(p);
+    if (!/[?&]only=1/.test(Q)) p.appendChild(big(c, z));   // ?only=1: solo la HD (para mirar de cerca)
+    var h = HD.canvasOf(c);
+    if (h) p.appendChild(big(h, z / 2)); else { var x = document.createElement('div'); x.className = 'tag'; x.textContent = '(sin HD)'; p.appendChild(x); }
+    grid.appendChild(d);
+  }
+  function list(grid, prefix, paths, z) { paths.forEach(function (p) { cell(grid, prefix + p, pick(prefix + p), z); }); }
+
+  var BRZ = ['br_poeta', 'br_poetaRojo', 'br_pintor', 'br_musico_zampona', 'br_musico_guitarra', 'br_musico_cajon', 'br_novio', 'br_novia', 'br_jaranero'];
+  var t0 = performance.now();
+  if (solo === 'one') {   // ?solo=one&k=br.pj.jaranon.idle.0&z=8
+    var go = sec('detalle ×' + ZOOM);
+    decodeURIComponent((Q.match(/[?&]k=([^&]+)/) || [])[1] || 'br.pj.jaranon.idle.0').split(',').forEach(function (k) { cell(go, k, pick(k), ZOOM); });
+  }
+  if (!solo || solo === 'lineup') lineup();
+  if (!solo || solo === 'zombis') {
+    var gz = sec('Zombies bohemios (move[0], move[3], extras)');
+    BRZ.forEach(function (k) {
+      var v = S.zvar[k]; if (!v) return;
+      cell(gz, k + ' move0', v.move[0]); cell(gz, k + ' move3', v.move[3]);
+      ['declama', 'lanza', 'toca', 'mano'].forEach(function (a) { if (v[a]) cell(gz, k + ' ' + a + '1', v[a][1]); });
+      if (v.despechado) cell(gz, k + ' despechado', v.despechado.move[1]);
+    });
+    var gd = sec('Muertos / golpe');
+    BRZ.forEach(function (k) { var v = S.zvar[k]; if (v) { cell(gd, k + ' dead', v.dead, 4); } });
+    cell(gd, 'br_poeta hurt0', S.zvar.br_poeta.hurt[0], 4);
+  }
+  if (!solo || solo === 'jefe') {
+    var gj = sec('Don Jaranón (jefe)'), J = S.br.pj.jaranon;
+    ['idle.0', 'canta.0', 'canta.1', 'pregon.0', 'notas.1', 'panuelo.1', 'zapateo.1', 'sostenida.0', 'sinAire.0', 'aturdido.0', 'sentado', 'hurt'].forEach(function (p) { cell(gj, 'jaranon.' + p, pick('br.pj.jaranon.' + p), solo === 'jefe' ? ZOOM : 4); });
+  }
+  if (!solo || solo === 'banda') {
+    var gb = sec('Banda del tabladillo');
+    [0, 1].forEach(function (f) { cell(gb, 'guitarristaZ.toca.' + f, pick('br.pj.guitarristaZ.toca.' + f)); cell(gb, 'cajoneroZ.toca.' + f, pick('br.pj.cajoneroZ.toca.' + f)); });
+    cell(gb, 'cajoneroZ.cae', pick('br.pj.cajoneroZ.cae'));
+  }
+  if (!solo || solo === 'vivos') {
+    var gv = sec('Sobrevivientes (idle 0, parpadeo, saludo, habla)');
+    ['tomas', 'rosa', 'lucia', 'lucho', 'celedonio'].forEach(function (id) { list(gv, 'br.pj.npc.' + id + '.', ['idle.0', 'idle.1', 'idle.2', 'habla.0']); });
+  }
+  if (!solo || solo === 'alex') {
+    var ga = sec('Alexander con el cajón');
+    list(ga, 'br.pj.alex.cajon.', ['carga.right.0', 'carga.down.1', 'carga.up.0', 'golpe.right.2', 'golpe.0', 'golpe.2', 'nobird.carga.right.1']);
+  }
+  if (!solo || solo === 'callao') {
+    var gc = sec('Jefes y especiales de Callao / Cerro');
+    var P = S.zvar.presidenta;
+    if (P) { cell(gc, 'presidenta move0', P.move[0]); cell(gc, 'presidenta windup', P.windup && P.windup[0]); cell(gc, 'presidenta attack', P.attack && P.attack[0]); }
+    list(gc, 'zombie.', ['musico.timbal.0', 'musico.conga.0', 'musico.trompeta.0', 'musico.bajo.0', 'musico.cantante.0', 'musico.cantante.1', 'baile.0', 'baile.1']);
+    list(gc, 'fx.', ['cantanteVentana.0', 'cantanteVentana.2', 'siluetaVentana.0'], 10);
+    var M = ACH.cerroArte && ACH.cerroArte.megafono && ACH.cerroArte.megafono(); if (M) cell(gc, 'megáfono (prop)', M, 8);
+  }
+  if (!solo || solo === 'var') {   // F3: el mismo tipo ×VARIANTS a escala de juego ×3 (1× y luego las ranuras HD 0…)
+    var NV = HD.VARIANTS || 3, gap = 4, zz = 3, rows = BRZ.map(function (k) { var v = S.zvar[k]; return [k, v && v.move && v.move[0]]; });
+    if (S.zvar.presidenta) rows.push(['presidenta (sin variantes)', S.zvar.presidenta.move[0]]);
+    rows = rows.filter(function (r) { return r[1]; });
+    var VW = 0, VH = 0; rows.forEach(function (r) { VW = Math.max(VW, (r[1].width + gap) * (NV + 1)); VH += r[1].height + gap + 4; });
+    var vc = document.createElement('canvas'); vc.width = VW * zz + 170; vc.height = VH * zz; vc.id = 'variantes';
+    var vg = vc.getContext('2d'); vg.imageSmoothingEnabled = false; vg.fillStyle = '#6d7064'; vg.fillRect(0, 0, vc.width, vc.height); vg.font = '11px ui-monospace, monospace';
+    var vy = 0;
+    rows.forEach(function (r) {
+      var s = r[1], x = 170; vg.fillStyle = '#f0e8c8'; vg.fillText(r[0], 4, vy * zz + 14);
+      vg.drawImage(s, x, vy * zz, s.width * zz, s.height * zz); x += (s.width + gap) * zz;
+      for (var v = 0; v < NV; v++) { var e = HD.src(s, v); if (e) vg.drawImage(e.img, e.sx, e.sy, e.w, e.h, x, vy * zz, s.width * zz, s.height * zz); x += (s.width + gap) * zz; }
+      vy += s.height + gap + 4;
+    });
+    var gv = sec('Variantes por instancia: 1× y luego HD ranura 0…' + (NV - 1) + ' (×3)'); gv.appendChild(vc);
+  }
+  var t1 = performance.now();
+
+  function lineup() {
+    var J = S.br.pj, who = [
+      ['Alexander', pick('alex.bird.walk.right.0')], ['Alex cajón', pick('br.pj.alex.cajon.carga.right.0')]
+    ];
+    BRZ.forEach(function (k) { var v = S.zvar[k]; if (v) who.push([k, (v.toca || v.declama || v.move)[0]]); });
+    who.push(['despechada', S.zvar.br_novia.despechado.move[0]]);
+    ['tomas', 'rosa', 'lucia', 'lucho', 'celedonio'].forEach(function (id) { who.push([id, J.npc[id].idle[0]]); });
+    who.push(['guitarrista', J.guitarristaZ.toca[0]], ['cajonero', J.cajoneroZ.toca[0]], ['JARANÓN', J.jaranon.idle[0]], ['JARANÓN canta', J.jaranon.canta[0]]);
+    if (S.zvar.presidenta) who.push(['presidenta', S.zvar.presidenta.move[0]]);
+    who.push(['cantante', pick('zombie.musico.cantante.0')], ['trompeta', pick('zombie.musico.trompeta.0')]);
+    who = who.filter(function (w) { return w[1]; });
+    [3].forEach(function (z) {
+      var h = sec('Line‑up a escala de juego ×' + z + ' — arriba 1×, abajo HD');
+      var wrap = document.createElement('div'); wrap.className = 'lineup'; h.appendChild(wrap);
+      var gap = 2, W = 0, Hh = 0;
+      who.forEach(function (w) { W += w[1].width + gap; Hh = Math.max(Hh, w[1].height); });
+      var c = document.createElement('canvas'); c.width = W * z; c.height = (Hh * 2 + 8) * z; c.id = 'lineup' + z;
+      var g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+      g.fillStyle = '#6d7064'; g.fillRect(0, 0, c.width, c.height);
+      var x = 0;
+      who.forEach(function (w) {
+        var s = w[1], ay = s.ay !== undefined ? s.ay : s.height - 1, oy = Hh - 2 - ay;
+        g.drawImage(s, x * z, Math.max(0, oy) * z, s.width * z, s.height * z);
+        var e = HD.src(s);
+        if (e) g.drawImage(e.img, e.sx, e.sy, e.w, e.h, x * z, (Math.max(0, oy) + Hh + 8) * z, s.width * z, s.height * z);
+        x += s.width + gap;
+      });
+      wrap.appendChild(c);
+    });
+  }
+  var st = HD.stats();
+  document.getElementById('stats').textContent = 'HD generadas: ' + st.built + ' · ' + st.msAvg + ' ms/sprite (máx ' + st.msMax + ' ms ' + st.msMaxKey + ') · atlas ' + st.pages + ' pág. ' + st.atlasMB + ' MB · marcados ' + st.tagged +
+    ' · familias: ' + st.families.join(', ') + ' · página ' + Math.round(t1 - t0) + ' ms' + (st.fails ? ' · FALLOS ' + st.fails : '');
+  window.HDSTATS = st;
+})();
+</script>
+</body>
+</html>

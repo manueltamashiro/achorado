@@ -1,0 +1,1555 @@
+<title>Cuaderno de Achorado</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Caveat:wght@500;700&family=Patrick+Hand&family=Silkscreen&display=swap">
+<style>
+/* Layout: hojas de cuaderno cuadriculado (escolar peruano) apiladas sobre una mesa de cemento; un solo afiche chicha como portada. Look único, a propósito: papel sobre cemento. */
+:root{
+  color-scheme: light;
+  --desk:#4f5355;        /* cemento */
+  --desk-2:#45494b;
+  --paper:#f0f1ec;       /* hoja cuadriculada */
+  --grid:#cdd7df;
+  --margin:#dc9a9a;
+  --graphite:#33343a;    /* lápiz */
+  --soft:#6c6e74;
+  --pen-blue:#24429a;    /* lapicero azul */
+  --pen-red:#b3302e;     /* lapicero rojo */
+  --tape:rgba(226,214,170,.78);
+  --chicha-ink:#131015;
+  --chicha-pink:#ff2e88;
+  --chicha-yellow:#ffe500;
+  --chicha-green:#1fe07a;
+  --display:"Bungee", "Arial Black", Impact, sans-serif;
+  --hand:"Caveat", "Comic Sans MS", "Segoe Print", cursive;
+  --body:"Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  --pixel:"Silkscreen", "Courier New", monospace;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--desk);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.035) 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 80%, rgba(0,0,0,.06) 0 2px, transparent 3px);
+  background-size:23px 29px, 31px 19px;
+  color:var(--graphite);
+  font-family:var(--body);
+  font-size:19px;
+  line-height:1.45;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:28px 64px;
+}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:40px}
+
+/* ---------- Afiche chicha (portada) ---------- */
+.poster{
+  position:relative;background:var(--chicha-ink);color:var(--chicha-yellow);
+  padding:40px clamp(18px,5vw,56px) 34px;transform:rotate(-.6deg);
+  box-shadow:0 18px 30px rgba(0,0,0,.35);
+}
+.poster::before,.poster::after{content:"";position:absolute;top:-12px;width:110px;height:28px;background:var(--tape)}
+.poster::before{left:30px;transform:rotate(-5deg)}
+.poster::after{right:30px;transform:rotate(4deg)}
+.poster .kicker{font-family:var(--display);font-size:clamp(12px,1.8vw,16px);letter-spacing:.14em;color:var(--chicha-green);margin:0}
+.poster h1{
+  font-family:var(--display);font-weight:400;margin:6px 0 4px;line-height:.92;
+  font-size:clamp(54px,13vw,148px);color:var(--chicha-pink);
+  text-shadow:5px 5px 0 var(--chicha-yellow), 10px 10px 0 var(--chicha-green);
+  letter-spacing:.01em;overflow-wrap:anywhere;
+}
+.poster .sub{font-family:var(--display);font-size:clamp(16px,3vw,28px);color:var(--chicha-yellow);margin:22px 0 0;text-wrap:balance}
+.poster .row{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:22px;font-family:var(--display);font-size:13px;letter-spacing:.1em;color:#f2f2f2}
+.poster .row span{border:2px solid var(--chicha-pink);padding:4px 10px}
+
+/* ---------- Pestañas ---------- */
+nav.tabs{display:flex;flex-wrap:wrap;gap:8px}
+nav.tabs a{
+  font-family:var(--hand);font-weight:700;font-size:22px;text-decoration:none;color:var(--graphite);
+  background:#f6e98a;padding:2px 14px 4px;box-shadow:0 3px 0 rgba(0,0,0,.25);
+}
+nav.tabs a:nth-child(3n+2){background:#f4b8cf}
+nav.tabs a:nth-child(3n){background:#b9e4c9}
+nav.tabs a:focus-visible{outline:3px solid var(--chicha-yellow);outline-offset:2px}
+
+/* ---------- Hoja de cuaderno ---------- */
+.sheet{
+  position:relative;background-color:var(--paper);
+  background-image:
+    linear-gradient(90deg, transparent 47px, var(--margin) 47px, var(--margin) 49px, transparent 49px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:100% 100%, 20px 20px, 20px 20px;
+  padding:34px clamp(16px,4vw,44px) 40px 72px;
+  box-shadow:0 10px 24px rgba(0,0,0,.3);
+  scroll-margin-top:16px;
+}
+.sheet::before{content:"";position:absolute;top:-11px;left:50%;width:120px;height:26px;margin-left:-60px;background:var(--tape);transform:rotate(-2deg)}
+.sheet h2{
+  font-family:var(--display);font-weight:400;font-size:clamp(26px,4.6vw,40px);margin:0;line-height:1.05;color:var(--graphite);text-wrap:balance;
+}
+.sheet h2 small{display:block;font-family:var(--hand);font-size:.62em;color:var(--pen-blue);font-weight:700;margin-top:4px}
+.sheet h3{font-family:var(--hand);font-weight:700;font-size:30px;margin:0;color:var(--pen-blue);line-height:1.1}
+.sheet p{margin:0;max-width:68ch}
+.stack{display:flex;flex-direction:column;gap:22px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px 32px}
+.cols > *{min-width:0}
+.hand{font-family:var(--hand);font-size:25px;line-height:1.15}
+.red{color:var(--pen-red)} .blue{color:var(--pen-blue)}
+.hl{background:linear-gradient(transparent 55%, rgba(255,229,0,.55) 55%)}
+ul.clean{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px}
+ul.clean li::marker{color:var(--pen-red)}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+ol.steps li::marker{font-family:var(--hand);font-weight:700;color:var(--pen-red);font-size:1.2em}
+
+.ficha{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0}
+.ficha dt{font-family:var(--hand);font-weight:700;font-size:23px;color:var(--pen-red)}
+.ficha dd{margin:0;min-width:0}
+
+.note-box{border:2px dashed var(--soft);padding:12px 16px}
+.sticky{background:#f6e98a;padding:14px 16px;box-shadow:0 4px 8px rgba(0,0,0,.18);transform:rotate(.8deg)}
+.sticky.pink{background:#f4c3d6;transform:rotate(-.8deg)}
+
+/* Bocetos SVG */
+.sk-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.sk-wrap svg{display:block;width:100%;min-width:620px;height:auto}
+.sk-wrap.small svg{min-width:520px}
+svg .ln{fill:none;stroke:var(--graphite);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+svg .lt{fill:none;stroke:var(--graphite);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+svg .f{fill:var(--paper)}
+svg .dk{fill:var(--graphite)}
+svg .hair{fill:url(#hatchDense);stroke:var(--graphite);stroke-width:2.4;stroke-linejoin:round}
+svg .note{font-family:var(--hand);font-size:24px;font-weight:700;fill:var(--pen-red)}
+svg .note.b{fill:var(--pen-blue)}
+svg .note.g{fill:var(--graphite);font-weight:500;font-size:21px}
+svg .arr{fill:none;stroke:var(--pen-red);stroke-width:1.8;stroke-linecap:round}
+svg .arr.b{stroke:var(--pen-blue)}
+svg .pr{fill:none;stroke:var(--pen-red);stroke-width:2.2;stroke-linecap:round}
+svg .pb{fill:none;stroke:var(--pen-blue);stroke-width:2.2;stroke-linecap:round}
+svg .label{font-family:var(--display);font-size:20px;fill:var(--graphite);letter-spacing:.04em}
+svg .cap{font-family:var(--hand);font-size:20px;fill:var(--graphite);font-weight:700}
+
+/* Pixel art */
+canvas.px{image-rendering:pixelated;image-rendering:crisp-edges;display:block;max-width:100%;height:auto}
+.pixlabel{font-family:var(--pixel);font-size:12px;letter-spacing:.04em;color:var(--soft);text-transform:uppercase}
+.anim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px}
+.anim-card{background:rgba(255,255,255,.55);border:2px solid var(--graphite);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.anim-card .stage{background:#9fa3a2;background-image:linear-gradient(#a7abaa 50%, #9a9e9d 50%);background-size:8px 8px;display:flex;justify-content:center;align-items:flex-end;gap:10px;padding:12px 8px;min-height:150px;flex-wrap:wrap}
+.anim-card .strip{background:#d9dcd8;padding:6px;overflow-x:auto}
+.anim-card h4{margin:0;font-family:var(--hand);font-size:27px;line-height:1;color:var(--graphite)}
+.anim-card p{font-size:17px;line-height:1.35}
+.keys{display:flex;flex-wrap:wrap;gap:6px}
+kbd{font-family:var(--pixel);font-size:12px;background:var(--graphite);color:var(--paper);padding:3px 7px;border-bottom:3px solid #000}
+.songbtns{display:flex;flex-wrap:wrap;gap:6px}
+.songbtns button{font-family:var(--hand);font-weight:700;font-size:19px;border:2px solid var(--graphite);background:var(--paper);color:var(--graphite);padding:0 10px 2px;cursor:pointer}
+.songbtns button[aria-pressed="true"]{background:var(--graphite);color:var(--paper)}
+.songbtns button:focus-visible,.btn:focus-visible{outline:3px solid var(--pen-blue);outline-offset:2px}
+
+/* Bestiario */
+.bestiary{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+.zcard{background:rgba(255,255,255,.6);border:2px solid var(--graphite);display:flex;flex-direction:column;min-width:0}
+.zcard .stage{background:#8d918f;display:flex;justify-content:center;align-items:flex-end;padding:12px;min-height:150px;position:relative}
+.zcard .bubble{position:absolute;top:8px;left:8px;right:8px;font-family:var(--display);font-size:12px;background:var(--paper);border:2px solid var(--graphite);padding:3px 6px;text-align:center}
+.zcard .body{padding:10px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.zcard h4{margin:0;font-family:var(--hand);font-size:27px;line-height:1}
+.zcard .meta{font-family:var(--pixel);font-size:11px;color:var(--soft);text-transform:uppercase;letter-spacing:.04em}
+.zcard p{font-size:16.5px;line-height:1.35}
+.zcard .joke{font-family:var(--hand);font-size:20px;color:var(--pen-red);line-height:1.15}
+.threat{display:flex;gap:3px;align-items:center}
+.threat i{width:12px;height:12px;border:2px solid var(--graphite);display:block}
+.threat i.on{background:var(--pen-red);border-color:var(--pen-red)}
+.threat span{font-family:var(--pixel);font-size:10px;margin-left:6px;color:var(--soft)}
+
+.bosses{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.boss{border:3px double var(--graphite);padding:12px 14px;background:rgba(255,255,255,.5);display:flex;flex-direction:column;gap:4px;min-width:0}
+.boss h4{margin:0;font-family:var(--display);font-weight:400;font-size:19px;line-height:1.1}
+.boss .zone{font-family:var(--pixel);font-size:11px;color:var(--pen-red);text-transform:uppercase}
+.boss p{font-size:16.5px;line-height:1.35}
+
+/* Zonas */
+.zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.zone-card{border-left:4px solid var(--pen-blue);padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.zone-card h4{margin:0;font-family:var(--display);font-weight:400;font-size:18px}
+.zone-card p{font-size:16.5px;line-height:1.35}
+.scene-box{display:flex;flex-direction:column;gap:10px}
+.scene-box canvas{width:100%;border:3px solid var(--graphite);background:#777}
+.btn{font-family:var(--hand);font-weight:700;font-size:22px;background:var(--graphite);color:var(--paper);border:0;padding:2px 16px 4px;cursor:pointer;align-self:flex-start}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:16px}
+.legend b{font-family:var(--pixel);font-size:11px;font-weight:400;text-transform:uppercase;padding:1px 5px;color:#fff}
+
+/* Storyboard */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.panel{display:flex;flex-direction:column;gap:6px;min-width:0}
+.panel svg{width:100%;height:auto;display:block;background:var(--paper);border:3px solid var(--graphite)}
+.panel .pcap{font-family:var(--hand);font-size:21px;line-height:1.15}
+.panel .pcap b{color:var(--pen-red)}
+
+table.songs{border-collapse:collapse;width:100%;font-size:17px}
+table.songs th{font-family:var(--hand);font-size:22px;text-align:left;color:var(--pen-red);border-bottom:2px solid var(--graphite);padding:4px 8px}
+table.songs td{border-bottom:1px dashed var(--soft);padding:6px 8px;vertical-align:top}
+.tbl{overflow-x:auto}
+
+.qs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.qs .sticky p{font-size:18px}
+.qs .sticky h4{margin:0 0 4px;font-family:var(--hand);font-size:25px;line-height:1}
+
+/* Sobrevivientes */
+.survivors{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px}
+.surv{display:flex;flex-direction:column;gap:10px;min-width:0}
+.surv .art{display:grid;grid-template-columns:1fr auto;align-items:end;gap:8px;border-bottom:2px solid var(--graphite);padding-bottom:8px}
+.surv .art svg{width:100%;height:auto;display:block;min-width:0}
+.surv .art .pix{background:#8d918f;padding:8px;display:flex;align-items:flex-end;justify-content:center}
+.surv h4{margin:0;font-family:var(--display);font-weight:400;font-size:21px;line-height:1.1}
+.surv .role{font-family:var(--pixel);font-size:11px;text-transform:uppercase;color:var(--pen-red);letter-spacing:.04em}
+.surv .ficha{font-size:16.5px;line-height:1.35}
+.surv .ficha dt{font-size:20px}
+.surv .quote{font-family:var(--hand);font-size:22px;line-height:1.15;color:var(--pen-blue)}
+.surv .concert{background:rgba(255,229,0,.35);padding:6px 10px;font-size:16.5px}
+
+/* Pantallas chicha */
+.ui-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:26px}
+.chicha{background:var(--chicha-ink);color:#f2f2f2;border:4px solid var(--chicha-pink);box-shadow:6px 6px 0 var(--chicha-yellow);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.chicha .kick{font-family:var(--pixel);font-size:11px;color:#9a96a2;letter-spacing:.08em}
+.chicha .tag{font-family:var(--display);color:var(--chicha-yellow);font-size:19px;line-height:1}
+.chicha p{color:#f2f2f2;font-size:19px;line-height:1.35}
+.dlg{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.dlg > *{min-width:0}
+.portrait{background:#2a2630;border:3px solid var(--chicha-green);padding:6px;display:flex}
+.slang{color:var(--chicha-green);border-bottom:2px dotted var(--chicha-green)}
+.tip{align-self:flex-start;background:var(--chicha-green);color:var(--chicha-ink);font-family:var(--pixel);font-size:11px;padding:3px 7px}
+.opts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-family:var(--display);font-size:14px;color:#f2f2f2}
+.opts li:first-child{color:var(--chicha-yellow)}
+.opts b{display:inline-block;background:var(--chicha-pink);color:var(--chicha-ink);padding:0 6px;margin-right:8px;font-weight:400}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.slot{aspect-ratio:1;background:#2a2630;border:2px solid #4a4452;display:flex;align-items:center;justify-content:center;max-width:100%}
+.slot.sel{border-color:var(--chicha-yellow);box-shadow:0 0 0 2px var(--chicha-pink)}
+.slot canvas{width:60%}
+.itemdesc{display:flex;flex-direction:column;gap:2px;border-top:2px solid var(--chicha-pink);padding-top:8px}
+.itemdesc b{font-family:var(--display);font-weight:400;color:var(--chicha-yellow);font-size:15px}
+.itemdesc span{font-size:18px}
+.newsong{align-items:center;text-align:center}
+.newsong .big{font-family:var(--display);font-size:clamp(26px,4vw,36px);color:var(--chicha-pink);text-shadow:3px 3px 0 var(--chicha-yellow),6px 6px 0 var(--chicha-green);line-height:1}
+.newsong .songname{font-family:var(--display);font-size:20px;color:var(--chicha-yellow)}
+.newsong .from{font-size:17px;color:#cfcbd6}
+.strings{display:flex;gap:10px;height:56px;align-items:stretch}
+.strings span{width:3px;background:#5a5462}
+.strings span.on{background:var(--chicha-green);box-shadow:0 0 8px var(--chicha-green)}
+.chicha kbd{background:var(--chicha-pink);color:var(--chicha-ink);border-bottom-color:#7a1040}
+
+/* Glosario */
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 26px;margin:0}
+.gloss > div{min-width:0;border-bottom:1px dashed var(--soft);padding-bottom:6px}
+.gloss dt{font-family:var(--hand);font-weight:700;font-size:25px;color:var(--pen-red);line-height:1.05}
+.gloss dd{margin:0;font-size:17px;line-height:1.3}
+
+ul.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ul.checks li{position:relative;padding-left:30px}
+ul.checks li::before{content:"✓";position:absolute;left:4px;top:-4px;font-family:var(--hand);font-weight:700;font-size:26px;color:var(--pen-red)}
+
+footer{color:#c9ccc9;font-family:var(--hand);font-size:22px;text-align:center}
+
+@media (max-width:640px){
+  body{font-size:18px}
+  .sheet{padding:28px 16px 30px 22px;background-image:
+    linear-gradient(90deg, transparent 9px, var(--margin) 9px, var(--margin) 10px, transparent 10px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);}
+  .ficha{grid-template-columns:1fr}
+  .ficha dt{margin-top:6px}
+}
+@media (prefers-reduced-motion: reduce){ .poster,.sticky,.sticky.pink{transform:none} }
+</style>
+
+<!-- Defs compartidos para los bocetos -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="pencil" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(40)"><line x1="0" y1="0" x2="0" y2="7" stroke="#33343a" stroke-width="1" opacity=".55"/></pattern>
+    <pattern id="hatchLight" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><line x1="0" y1="0" x2="0" y2="10" stroke="#33343a" stroke-width=".9" opacity=".35"/></pattern>
+    <pattern id="hatchDense" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="#33343a" stroke-width="1.6"/></pattern>
+    <pattern id="hatchBlue" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(80)"><line x1="0" y1="0" x2="0" y2="5" stroke="#24429a" stroke-width="1.5" opacity=".85"/></pattern>
+    <pattern id="hatchSea" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(10)"><line x1="0" y1="0" x2="0" y2="12" stroke="#24429a" stroke-width=".9" opacity=".35"/></pattern>
+    <pattern id="hatchTeal" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-30)"><line x1="0" y1="0" x2="0" y2="5" stroke="#2c7a68" stroke-width="1.4"/></pattern>
+    <pattern id="hatchPurple" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><line x1="0" y1="0" x2="0" y2="5" stroke="#6b4a8a" stroke-width="1.4"/></pattern>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#b3302e" stroke-width="1.6" stroke-linecap="round"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#24429a" stroke-width="1.6" stroke-linecap="round"/></marker>
+  </defs>
+</svg>
+
+<div class="wrap">
+
+  <header class="poster">
+    <p class="kicker">CALLAO · NIVEL 1 · CUADERNO DE DISEÑO</p>
+    <h1>ACHORADO</h1>
+    <p class="sub">Canciones para el fin del mundo</p>
+    <div class="row"><span>SUPERVIVENCIA 2D</span><span>ZOMBIES</span><span>UNA GUITARRA</span><span>UNA PALOMA</span></div>
+  </header>
+
+  <nav class="tabs" aria-label="Secciones del cuaderno">
+    <a href="#idea">La idea</a>
+    <a href="#alexander">Alexander</a>
+    <a href="#titina">Titina</a>
+    <a href="#sobrevivientes">Sobrevivientes</a>
+    <a href="#base">La base</a>
+    <a href="#movimientos">Movimientos</a>
+    <a href="#pantallas">Pantallas</a>
+    <a href="#zombies">Zombies</a>
+    <a href="#callao">El Callao</a>
+    <a href="#inicio">Así empieza</a>
+    <a href="#glosario">Glosario</a>
+    <a href="#preguntas">Decisiones</a>
+  </nav>
+
+  <!-- ===================== LA IDEA ===================== -->
+  <section class="sheet stack" id="idea">
+    <h2>La idea<small>lo que decidimos en la lluvia de ideas</small></h2>
+    <p class="hand">Alexander, 22 años, sube a las combis de la Av. Gambetta con su guitarra y su paloma Titina en el hombro. Canta con el corazón, pasa la lata... y nadie le hace caso. <span class="hl">Hasta que llega el fin del mundo y por fin tiene un público fiel: los zombies. Lástima que quieran comérselo.</span></p>
+
+    <div class="cols">
+      <div class="stack" style="gap:10px">
+        <h3>Pilares</h3>
+        <ul class="clean">
+          <li><b>Explorar y pelear</b> es el corazón del juego: salir a barrios bravos, saquear, abrir camino.</li>
+          <li><b>La guitarra lo es todo:</b> arma (guitarrazo), magia (canciones) y sustento (le pagan por tocar).</li>
+          <li><b>El ruido es un arma de doble filo:</b> tocar te salva, pero los zombies ciegos te escuchan.</li>
+          <li><b>Humor negro chalaco:</b> reír para no llorar. El apocalipsis es terrible, la gente sigue siendo la misma.</li>
+          <li><b>Nadie sabe por qué pasó.</b> No hay misterio científico: importa sobrevivir y la gente.</li>
+        </ul>
+      </div>
+      <div class="stack" style="gap:10px">
+        <h3>Un día en el juego</h3>
+        <ol class="steps">
+          <li><b>Amanece con neblina.</b> Los zombies están lentos. Alexander baja del techo de su casa en el cerro.</li>
+          <li><b>Explora una zona</b> y saquea: cuerdas, comida, chatarra, chapas.</li>
+          <li><b>Toca en un refugio.</b> Ahora sí le pagan: un pan, una cuerda, una pila.</li>
+          <li><b>Vuelve antes de que oscurezca.</b> De noche los zombies salen en mancha y más fuertes.</li>
+          <li><b>Noche en la base:</b> defender el techo, arreglar la guitarra, darle canchita a Titina.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="stack" style="gap:10px">
+        <h3>Lo que hay que cuidar</h3>
+        <dl class="ficha">
+          <dt>Vida</dt><dd>Si llega a cero, despiertas en la base y pierdes parte de lo que llevabas.</dd>
+          <dt>Aliento</dt><dd>Se gasta al cantar y al correr. Se recupera caminando tranquilo.</dd>
+          <dt>Cuerdas</dt><dd>La guitarra tiene 6. Cada canción usa ciertas cuerdas y a veces una se revienta. Sin esa cuerda, no hay canción.</dd>
+          <dt>La lata</dt><dd>Su vieja lata de leche ahora es su mochila de pagos: lo que la gente le da por cantar.</dd>
+        </dl>
+      </div>
+      <div class="stack" style="gap:10px">
+        <h3>La ironía (las dos)</h3>
+        <div class="sticky"><p class="hand">Antes: cantaba y nadie volteaba.<br>Ahora: cada vez que toca, cien cabezas voltean a mirarlo. Son zombies. Son sus fans. Quieren su autógrafo... con los dientes.</p></div>
+        <div class="sticky pink"><p class="hand">Y los sobrevivientes, que antes lo ignoraban en la combi, ahora le pagan con comida para escuchar una canción y no volverse locos.</p></div>
+      </div>
+    </div>
+
+    <h3>Las tres canciones del nivel 1</h3>
+    <p>Alexander empieza solo con el guitarrazo. Cada sobreviviente que encuentra le enseña una canción.</p>
+    <div class="tbl">
+      <table class="songs">
+        <thead><tr><th>Canción</th><th>Se la enseña</th><th>Qué hace</th><th>Cuerdas</th><th>Riesgo</th></tr></thead>
+        <tbody>
+          <tr><td><b>Huayno del Alivio</b></td><td>Doña Charo · día 2</td><td>Cura a Alexander y a los sobrevivientes cerca.</td><td>2 · 6</td><td>Mucho ruido: atrae ciegos</td></tr>
+          <tr><td><b>Vals del Señuelo</b></td><td>Don Eusebio · día 3<br><span class="hand red" style="font-size:19px">«de las de antes»</span></td><td>La horda camina hacia donde apuntas. Sirve para liberar un paso.</td><td>4 · 5</td><td>Ruido bajo</td></tr>
+          <tr><td><b>Cumbia del Mareo</b></td><td>DJ Fosforito · día 4</td><td>Los zombies cercanos se quedan bailando unos segundos, aturdidos. Llega justo antes de El Estibador.</td><td>1 · 2 · 3</td><td>Ruido medio</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hand blue">Las canciones del juego serán originales (nombres y melodías nuestras), nada de covers con derechos.</p>
+  </section>
+
+  <!-- ===================== ALEXANDER ===================== -->
+  <section class="sheet stack" id="alexander">
+    <h2>Alexander<small>protagonista · hoja de personaje</small></h2>
+
+    <div class="sk-wrap">
+      <svg viewBox="0 0 720 520" role="img" aria-label="Boceto de Alexander de frente: pelo parado, polo a rayas, short, sandalias, guitarra en la espalda, la paloma Titina en el hombro y una lata en la mano">
+        <g filter="url(#pencil)">
+          <!-- sombra -->
+          <ellipse cx="230" cy="470" rx="100" ry="11" fill="url(#hatchLight)"/>
+          <!-- guitarra detrás -->
+          <ellipse class="f ln" cx="302" cy="232" rx="27" ry="28"/>
+          <ellipse class="f ln" cx="304" cy="286" rx="35" ry="44"/>
+          <path class="f ln" d="M288 206 L330 66 L342 70 L300 210 Z"/>
+          <path class="lt" d="M292 200 L333 68 M296 202 L337 69"/>
+          <path class="f ln" d="M328 70 L320 30 L346 25 L344 72 Z"/>
+          <circle class="ln" cx="318" cy="40" r="3"/><circle class="ln" cx="350" cy="36" r="3"/><circle class="ln" cx="318" cy="54" r="3"/><circle class="ln" cx="350" cy="50" r="3"/>
+          <path class="ln" d="M318 300 L340 296 M322 312 L338 318" stroke-width="5" opacity=".45"/>
+          <!-- piernas -->
+          <path class="ln" d="M192 372 Q190 412 194 452 M214 372 Q216 412 212 452"/>
+          <path class="ln" d="M248 372 Q246 412 250 452 M270 372 Q272 412 268 452"/>
+          <path class="lt" d="M196 410 q8 4 14 0 M252 410 q8 4 14 0"/>
+          <!-- sandalias -->
+          <ellipse class="f ln" cx="201" cy="462" rx="23" ry="8"/>
+          <ellipse class="f ln" cx="259" cy="462" rx="23" ry="8"/>
+          <path class="ln" d="M188 456 Q201 444 214 456 M246 456 Q259 444 272 456"/>
+          <!-- short -->
+          <path class="f ln" d="M182 300 L278 300 L285 373 L237 373 L230 336 L223 373 L175 373 Z"/>
+          <path d="M182 300 L278 300 L285 373 L237 373 L230 336 L223 373 L175 373 Z" fill="url(#hatchLight)"/>
+          <path class="lt" d="M182 310 L278 310 M226 310 q-4 14 -8 16 M234 310 q4 14 8 16"/>
+          <!-- brazos -->
+          <path class="f ln" d="M158 220 L177 232 L175 300 L159 298 Z"/>
+          <path class="f ln" d="M302 220 L283 232 L286 300 L302 298 Z"/>
+          <ellipse class="f ln" cx="167" cy="311" rx="10" ry="12"/>
+          <!-- torso (polo) -->
+          <clipPath id="torsoClip"><path d="M178 178 L282 178 L304 218 L284 230 L278 300 L182 300 L176 230 L156 218 Z"/></clipPath>
+          <path class="f ln" d="M178 178 L282 178 L304 218 L284 230 L278 300 L182 300 L176 230 L156 218 Z"/>
+          <g clip-path="url(#torsoClip)">
+            <rect x="162" y="170" width="13" height="140" fill="url(#hatchBlue)"/>
+            <rect x="188" y="170" width="13" height="140" fill="url(#hatchBlue)"/>
+            <rect x="214" y="170" width="13" height="140" fill="url(#hatchBlue)"/>
+            <rect x="240" y="170" width="13" height="140" fill="url(#hatchBlue)"/>
+            <rect x="266" y="170" width="13" height="140" fill="url(#hatchBlue)"/>
+            <rect x="292" y="170" width="13" height="140" fill="url(#hatchBlue)"/>
+          </g>
+          <path class="ln" d="M214 178 Q230 192 246 178"/>
+          <path class="ln" d="M196 178 L290 304" stroke-width="5" opacity=".7"/>
+          <!-- lata en la mano derecha -->
+          <rect class="f ln" x="283" y="298" width="24" height="32" rx="3"/>
+          <path class="lt" d="M283 306 L307 306 M283 322 L307 322"/>
+          <ellipse class="f ln" cx="294" cy="312" rx="10" ry="12"/>
+          <!-- cuello -->
+          <path class="ln" d="M218 156 L218 178 M242 156 L242 178"/>
+          <!-- cabeza -->
+          <ellipse class="f ln" cx="187" cy="116" rx="7" ry="11"/>
+          <ellipse class="f ln" cx="273" cy="116" rx="7" ry="11"/>
+          <ellipse class="f ln" cx="230" cy="110" rx="42" ry="50"/>
+          <path class="hair" d="M188 104 Q186 52 230 54 Q276 52 272 104 L266 84 L258 98 L250 72 L240 92 L230 66 L220 92 L208 74 L200 96 L192 82 Z"/>
+          <path class="ln" d="M205 60 L196 36 L218 54 M232 55 L236 28 L248 56 M256 60 L274 42 L266 70"/>
+          <ellipse class="dk" cx="214" cy="118" rx="4" ry="5"/>
+          <ellipse class="dk" cx="246" cy="118" rx="4" ry="5"/>
+          <path class="ln" d="M205 105 L222 101 M238 101 L255 105"/>
+          <path class="ln" d="M231 122 Q236 132 228 134"/>
+          <path class="ln" d="M222 143 Q230 147 238 143"/>
+          <path class="pr" d="M198 131 l7 -3 M202 135 l7 -3 M252 131 l7 -3 M256 135 l7 -3"/>
+          <!-- Titina en el hombro derecho -->
+          <path class="f ln" d="M186 160 L204 166 L188 174 Z"/>
+          <ellipse class="f ln" cx="166" cy="166" rx="25" ry="15" transform="rotate(-8 166 166)"/>
+          <path d="M160 156 Q176 158 184 170" class="lt"/>
+          <path class="lt" d="M166 160 q4 6 0 12 M174 160 q4 6 0 12" stroke-width="2.4"/>
+          <path d="M144 156 Q148 168 160 170 L162 154 Z" fill="url(#hatchTeal)"/>
+          <circle class="f ln" cx="146" cy="146" r="11"/>
+          <path class="ln" d="M135 146 L127 150 L135 152"/>
+          <circle class="dk" cx="142" cy="144" r="2"/>
+          <path class="ln" d="M160 180 L160 186 M170 180 L170 186"/>
+        </g>
+
+        <!-- anotaciones -->
+        <text class="note" x="10" y="44">pelo chuzo,</text>
+        <text class="note" x="10" y="68">nunca se peina</text>
+        <path class="arr" d="M150 56 Q172 50 192 62" marker-end="url(#ar)"/>
+
+        <text class="note" x="10" y="112">Titina, siempre</text>
+        <text class="note" x="10" y="136">en el hombro</text>
+        <text class="note" x="10" y="160">derecho</text>
+        <path class="arr" d="M86 154 Q110 162 128 154" marker-end="url(#ar)"/>
+
+        <text class="note" x="10" y="250">brazos flacos:</text>
+        <text class="note" x="10" y="274">no pelea,</text>
+        <text class="note" x="10" y="298">es músico</text>
+        <path class="arr" d="M132 262 Q146 256 157 250" marker-end="url(#ar)"/>
+
+        <text class="note b" x="384" y="48">guitarra «La Chola»</text>
+        <text class="note b" x="384" y="72">parchada con cinta de embalaje</text>
+        <path class="arr b" d="M384 64 Q362 76 344 92" marker-end="url(#ab)"/>
+
+        <text class="note" x="384" y="196">polo blanquiazul a rayas</text>
+        <text class="note g" x="384" y="220">(el jugador puede cambiar de equipo)</text>
+        <path class="arr" d="M382 190 Q330 186 296 200" marker-end="url(#ar)"/>
+
+        <text class="note" x="384" y="306">lata de leche = alcancía</text>
+        <text class="note g" x="384" y="330">suena «clink»... casi nunca</text>
+        <path class="arr" d="M382 300 Q350 300 312 310" marker-end="url(#ar)"/>
+
+        <text class="note" x="384" y="390">short de baño reciclado</text>
+        <path class="arr" d="M382 384 Q330 380 288 360" marker-end="url(#ar)"/>
+
+        <text class="note" x="384" y="456">sandalias, sin medias</text>
+        <text class="note g" x="384" y="480">(gracias a Dios)</text>
+        <path class="arr" d="M382 452 Q330 470 286 462" marker-end="url(#ar)"/>
+      </svg>
+    </div>
+
+    <div class="cols">
+      <dl class="ficha">
+        <dt>Nombre</dt><dd>Alexander. En la combi le dicen «el Ruiseñor de Gambetta» (de burla).</dd>
+        <dt>Edad</dt><dd>22 años.</dd>
+        <dt>Vive</dt><dd>En un cuartito alquilado en el techo de una casa sin terminar, en el cerro. Será su base.</dd>
+        <dt>Sueño</dt><dd>Cantar en una peña de verdad, con un público que lo escuche hasta el final.</dd>
+        <dt>Cómo es</dt><dd>Tímido, habla bajito, pide permiso para todo. Con la guitarra se transforma: canta con todo el pecho.</dd>
+      </dl>
+      <div class="stack" style="gap:12px">
+        <div class="note-box">
+          <p class="hand">Frase al subir a la combi:<br><span class="red">«Con su permiso, señor conductor, señores pasajeros...»</span></p>
+          <p class="hand">Frase cuando tumba a un zombie:<br><span class="red">«Gracias por su atención, que Dios los bendiga.»</span></p>
+        </div>
+        <p style="font-size:16px"><b>Nota legal:</b> el polo se dibuja con rayas blanquiazules genéricas, sin escudo ni marca oficial. Los polos de otros equipos se diseñan igual, solo con colores, para no usar marcas registradas.</p>
+      </div>
+    </div>
+
+    <h3>Expresiones</h3>
+    <div class="sk-wrap small">
+      <svg id="faces" viewBox="0 0 720 230" role="img" aria-label="Tres caras de Alexander: tímido, cantando y asustado"></svg>
+    </div>
+  </section>
+
+  <!-- ===================== TITINA ===================== -->
+  <section class="sheet stack" id="titina">
+    <h2>Titina<small>compañera de apoyo · paloma gris común</small></h2>
+    <div class="sk-wrap">
+      <svg viewBox="0 0 720 380" role="img" aria-label="Boceto de Titina, una paloma gris gordita de perfil, con cuello tornasol y un hilito de lana roja en la pata">
+        <g filter="url(#pencil)">
+          <path class="lt" d="M230 330 Q350 322 480 330"/>
+          <!-- cola -->
+          <path class="f ln" d="M420 186 L528 212 L522 242 L408 226 Z"/>
+          <path d="M420 186 L528 212 L522 242 L408 226 Z" fill="url(#hatch)"/>
+          <path class="lt" d="M440 196 L520 222 M436 212 L522 232"/>
+          <!-- patas -->
+          <path class="ln" d="M322 266 L318 310 M354 266 L358 310" stroke="#a24a3e"/>
+          <path class="ln" d="M300 314 L318 310 L334 316 M318 310 L316 320 M342 314 L358 310 L374 316 M358 310 L360 320" stroke="#a24a3e"/>
+          <!-- cuerpo -->
+          <ellipse class="f ln" cx="340" cy="200" rx="112" ry="74" transform="rotate(-8 340 200)"/>
+          <ellipse cx="340" cy="200" rx="112" ry="74" transform="rotate(-8 340 200)" fill="url(#hatchLight)"/>
+          <!-- ala -->
+          <path class="f ln" d="M298 162 Q386 136 446 188 Q404 244 318 232 Q296 200 298 162 Z"/>
+          <path d="M298 162 Q386 136 446 188 Q404 244 318 232 Q296 200 298 162 Z" fill="url(#hatch)"/>
+          <path class="ln" d="M362 170 Q376 198 362 228 M394 178 Q408 204 396 232" stroke-width="7"/>
+          <!-- cuello tornasol -->
+          <path class="f ln" d="M222 124 Q212 176 262 208 Q304 194 304 152 Q284 120 256 112 Z"/>
+          <path d="M222 124 Q216 160 242 192 L270 140 L256 112 Z" fill="url(#hatchTeal)"/>
+          <path d="M242 192 Q252 202 262 208 Q304 194 304 152 L270 140 Z" fill="url(#hatchPurple)"/>
+          <!-- cabeza -->
+          <circle class="f ln" cx="232" cy="108" r="38"/>
+          <circle class="ln" cx="220" cy="98" r="9" stroke="#d0702f" stroke-width="3"/>
+          <circle class="dk" cx="219" cy="98" r="4"/>
+          <path class="ln" d="M210 90 L230 86"/>
+          <path class="f ln" d="M196 108 L170 117 L196 123 Z"/>
+          <ellipse class="f ln" cx="200" cy="109" rx="6" ry="4"/>
+          <!-- lana -->
+          <path class="pr" d="M310 286 q8 -6 16 0 q-8 6 -16 0 M312 290 q6 4 14 -1 M326 288 q6 8 2 18" stroke-width="3"/>
+        </g>
+        <text class="note" x="16" y="50">ojo naranja,</text>
+        <text class="note" x="16" y="74">mirada de juez</text>
+        <path class="arr" d="M138 66 Q180 70 208 94" marker-end="url(#ar)"/>
+
+        <text class="note b" x="16" y="196">cuello tornasol</text>
+        <text class="note b" x="16" y="220">verde y morado:</text>
+        <text class="note g" x="16" y="244">el único brillo de</text>
+        <text class="note g" x="16" y="268">color en un mundo gris</text>
+        <path class="arr b" d="M176 200 Q210 192 236 170" marker-end="url(#ab)"/>
+
+        <text class="note" x="500" y="70">gordita de tanto</text>
+        <text class="note" x="500" y="94">comer canchita</text>
+        <path class="arr" d="M520 104 Q470 130 420 150" marker-end="url(#ar)"/>
+
+        <text class="note" x="430" y="300">hilito de lana roja:</text>
+        <text class="note g" x="430" y="324">se lo amarró Alexander</text>
+        <text class="note g" x="430" y="348">el día que la rescató</text>
+        <path class="arr" d="M428 296 Q380 286 334 288" marker-end="url(#ar)"/>
+      </svg>
+    </div>
+
+    <div class="cols">
+      <div class="stack" style="gap:10px">
+        <h3>Qué hace (sin que la controles)</h3>
+        <dl class="ficha">
+          <dt>Vista de paloma</dt><dd>Sube al cielo unos segundos y te muestra el mapa cercano y dónde hay zombies.</dd>
+          <dt>Picotea</dt><dd>Encuentra cosas brillantes: cuerdas, chapas, monedas, pilas.</dd>
+          <dt>Aletea</dt><dd>Se lanza a la cara de un zombie y lo distrae. Te da tiempo para escapar.</dd>
+          <dt>Mensajera</dt><dd>Lleva recados a otros refugios. Así se desbloquean misiones y sobrevivientes.</dd>
+        </dl>
+      </div>
+      <div class="stack" style="gap:12px">
+        <div class="sticky"><p class="hand">Sube de nivel comiendo: canchita, migas de pan, maní. Mientras más come, más lejos vuela (y más gordita se pone).</p></div>
+        <p class="hand red">Si un zombie la agarra, Titina se asusta, sale volando y vuelve al rato. Mientras no está, no tienes sus habilidades.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SOBREVIVIENTES ===================== -->
+  <section class="sheet stack" id="sobrevivientes">
+    <h2>Sobrevivientes<small>los tres que Alexander necesita para el gran concierto</small></h2>
+    <p>En el nivel 1 hay tres personas clave. Cada una tiene su refugio, le paga a Alexander a su manera y aporta algo para el concierto final.</p>
+    <div class="survivors" id="survivors"></div>
+  </section>
+
+  <!-- ===================== LA BASE ===================== -->
+  <section class="sheet stack" id="base">
+    <h2>La base<small>el techo de la casa sin terminar · vista desde arriba</small></h2>
+    <div class="sk-wrap">
+      <svg viewBox="0 0 720 440" role="img" aria-label="Boceto del techo visto desde arriba: el cuartito de Alexander, el tanque de agua, el palomar de Titina, el taller de guitarra, el huerto en baldes, las barricadas y la escalera">
+        <g filter="url(#pencil)">
+          <rect x="60" y="40" width="600" height="360" fill="url(#hatchLight)"/>
+          <rect class="ln" x="60" y="40" width="600" height="360"/>
+          <g class="ln">
+            <circle cx="60" cy="40" r="5"/><circle cx="260" cy="40" r="5"/><circle cx="460" cy="40" r="5"/><circle cx="660" cy="40" r="5"/>
+            <circle cx="60" cy="220" r="5"/><circle cx="660" cy="220" r="5"/>
+            <circle cx="60" cy="400" r="5"/><circle cx="260" cy="400" r="5"/><circle cx="460" cy="400" r="5"/><circle cx="660" cy="400" r="5"/>
+          </g>
+          <!-- cuartito -->
+          <rect class="f ln" x="80" y="58" width="190" height="130"/>
+          <path class="lt" d="M100 58 L100 188 M120 58 L120 188 M140 58 L140 188 M160 58 L160 188 M180 58 L180 188 M200 58 L200 188 M220 58 L220 188 M240 58 L240 188 M260 58 L260 188"/>
+          <path class="ln" d="M150 188 L150 206 M190 188 L190 206" stroke-width="3"/>
+          <!-- tanque -->
+          <circle class="f ln" cx="330" cy="100" r="34"/><circle class="ln" cx="330" cy="100" r="12"/>
+          <!-- tendedero -->
+          <path class="lt" d="M270 70 Q400 92 540 74"/>
+          <rect class="f ln" x="372" y="80" width="14" height="18"/><rect class="f ln" x="402" y="82" width="18" height="12"/><rect class="f ln" x="440" y="82" width="12" height="20"/>
+          <!-- palomar -->
+          <rect class="f ln" x="540" y="58" width="96" height="76"/>
+          <path class="ln" d="M540 58 L588 96 L636 58 M540 134 L588 96 L636 134"/>
+          <ellipse class="f ln" cx="600" cy="150" rx="13" ry="8"/><circle class="f ln" cx="590" cy="144" r="5"/>
+          <!-- taller -->
+          <rect class="f ln" x="420" y="196" width="170" height="74"/>
+          <ellipse class="f ln" cx="470" cy="233" rx="22" ry="17"/><path class="ln" d="M492 233 L562 226 M492 239 L562 232"/><rect class="f ln" x="560" y="221" width="16" height="16"/>
+          <path class="ln" d="M440 206 L456 214 M520 208 L536 206 M526 252 L548 258"/>
+          <!-- huerto -->
+          <circle class="f ln" cx="104" cy="268" r="17"/><circle class="f ln" cx="148" cy="268" r="17"/><circle class="f ln" cx="192" cy="268" r="17"/>
+          <circle class="f ln" cx="104" cy="318" r="17"/><circle class="f ln" cx="148" cy="318" r="17"/>
+          <circle class="ln" cx="214" cy="332" r="30"/><circle class="ln" cx="214" cy="332" r="14"/>
+          <path class="lt" d="M98 262 l6 6 l6 -6 M142 262 l6 6 l6 -6 M186 262 l6 6 l6 -6 M98 312 l6 6 l6 -6 M142 312 l6 6 l6 -6 M206 326 l8 6 l8 -6" stroke-width="2"/>
+          <!-- escalera -->
+          <rect class="f ln" x="560" y="300" width="80" height="90"/>
+          <path class="ln" d="M560 315 L640 315 M560 330 L640 330 M560 345 L640 345 M560 360 L640 360 M560 375 L640 375"/>
+          <!-- barricadas -->
+          <path class="ln" d="M60 410 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10 l15 -10 l15 10" stroke-width="3"/>
+          <path class="ln" d="M670 40 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15 l-10 15 l10 15" stroke-width="3"/>
+          <path class="pr" d="M300 36 l4 -8 l4 8 M330 36 l4 -8 l4 8 M360 36 l4 -8 l4 8 M390 36 l4 -8 l4 8 M420 36 l4 -8 l4 8" stroke-width="2"/>
+        </g>
+        <text class="label" x="96" y="132" style="font-size:16px">CUARTITO</text>
+        <text class="note g" x="96" y="154" style="font-size:18px">donde duerme (y guarda)</text>
+        <text class="note g" x="296" y="160" style="font-size:18px">tanque de agua</text>
+        <text class="label" x="544" y="122" style="font-size:14px">PALOMAR</text>
+        <text class="note b" x="616" y="168" style="font-size:18px">Titina</text>
+        <text class="label" x="420" y="190" style="font-size:16px">TALLER DE GUITARRA</text>
+        <text class="label" x="84" y="236" style="font-size:16px">HUERTO EN BALDES</text>
+        <text class="note g" x="250" y="372" style="font-size:18px">llantas con papas</text>
+        <text class="label" x="520" y="294" style="font-size:14px">ESCALERA</text>
+        <text class="note" x="380" y="340" style="font-size:19px">la única entrada:</text>
+        <text class="note" x="380" y="360" style="font-size:19px">aquí atacan de noche</text>
+        <text class="note" x="300" y="24" style="font-size:19px">botellas rotas en el muro</text>
+        <text class="note" x="250" y="432" style="font-size:19px">barricadas de calamina y fierro</text>
+      </svg>
+    </div>
+    <div class="zones">
+      <div class="zone-card"><h4>Barricadas</h4><p><b>1:</b> calaminas amarradas con alambre. <b>2:</b> fierros y botellas rotas en el muro. <b>3:</b> reja con candado en la escalera.</p><p class="hand red">Aguantan los ataques de la noche.</p></div>
+      <div class="zone-card"><h4>Huerto en baldes</h4><p><b>1:</b> hierbas (huacatay, hierba buena). <b>2:</b> ají y cebolla china. <b>3:</b> papas en llantas viejas.</p><p class="hand red">Comida propia sin salir a saquear.</p></div>
+      <div class="zone-card"><h4>Palomar para Titina</h4><p><b>1:</b> cajón de fruta. <b>2:</b> casita con techo: vuela más lejos. <b>3:</b> palomar con antena: encuentra cosas brillantes desde lejos.</p><p class="hand red">Mejorarlo sube las habilidades de Titina.</p></div>
+      <div class="zone-card"><h4>Taller de guitarra</h4><p><b>1:</b> cambiar cuerdas. <b>2:</b> forrar con calamina: guitarrazo más fuerte. <b>3:</b> conectarla al parlante del DJ: canciones con más alcance.</p><p class="hand red">Usa lo que trae Don Eusebio.</p></div>
+    </div>
+  </section>
+
+  <!-- ===================== MOVIMIENTOS ===================== -->
+  <section class="sheet stack" id="movimientos">
+    <h2>Movimientos<small>primeras pruebas de sprites en pixel art · vista desde arriba, como Stardew</small></h2>
+    <p>Cada recuadro muestra la animación en vivo arriba y la tira de cuadros (sprite sheet) abajo. Escala de prueba: Alexander mide 20 × 28 píxeles.</p>
+
+    <div class="anim-grid">
+      <div class="anim-card">
+        <h4>Caminar</h4>
+        <div class="stage" id="st-walk"></div>
+        <div class="strip" id="sp-walk"></div>
+        <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span class="pixlabel">· 4 direcciones</span></div>
+        <p>Camina con las sandalias arrastrando. Titina se balancea en el hombro.</p>
+      </div>
+      <div class="anim-card">
+        <h4>Guitarrazo</h4>
+        <div class="stage" id="st-attack"></div>
+        <div class="strip" id="sp-attack"></div>
+        <div class="keys"><kbd>CLIC</kbd><span class="pixlabel">· golpe cuerpo a cuerpo</span></div>
+        <p>Levanta la guitarra, ¡PLANG!, y la baja. Titina sale volando del susto y regresa. Cada golpe gasta un poquito la guitarra.</p>
+      </div>
+      <div class="anim-card">
+        <h4>Tocar canción</h4>
+        <div class="stage" id="st-play"></div>
+        <div class="songbtns" role="group" aria-label="Elegir canción">
+          <button type="button" id="song-mareo" data-song="mareo" aria-pressed="true">Cumbia del Mareo</button>
+          <button type="button" id="song-senuelo" data-song="senuelo" aria-pressed="false">Vals del Señuelo</button>
+          <button type="button" id="song-alivio" data-song="alivio" aria-pressed="false">Huayno del Alivio</button>
+        </div>
+        <p id="song-desc"></p>
+        <div class="keys"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><span class="pixlabel">· cada canción</span></div>
+      </div>
+      <div class="anim-card">
+        <h4>Pasar la lata</h4>
+        <div class="stage" id="st-lata"></div>
+        <div class="strip" id="sp-lata"></div>
+        <div class="keys"><kbd>F</kbd><span class="pixlabel">· después de cantar en un refugio</span></div>
+        <p>El gesto de siempre, con la mirada al piso. Ahora sí cae algo.</p>
+      </div>
+      <div class="anim-card">
+        <h4>Titina</h4>
+        <div class="stage" id="st-titina"></div>
+        <div class="strip" id="sp-titina"></div>
+        <div class="keys"><kbd>Q</kbd><span class="pixlabel">vista de paloma</span><kbd>E</kbd><span class="pixlabel">picotear</span></div>
+        <p>Parada mueve la cabeza como toda paloma. Volando, aletea pesado (está gordita).</p>
+      </div>
+      <div class="anim-card">
+        <h4>Controles (borrador)</h4>
+        <dl class="ficha" style="font-size:17px">
+          <dt>WASD</dt><dd>Moverse</dd>
+          <dt>Shift</dt><dd>Correr (hace ruido y gasta aliento)</dd>
+          <dt>Clic</dt><dd>Guitarrazo</dd>
+          <dt>1 · 2 · 3</dt><dd>Canciones</dd>
+          <dt>Q · E</dt><dd>Órdenes a Titina</dd>
+          <dt>F</dt><dd>Pasar la lata / hablar</dd>
+          <dt>Tab</dt><dd>Mochila</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PANTALLAS ===================== -->
+  <section class="sheet stack" id="pantallas">
+    <h2>Pantallas<small>menús estilo afiche chicha sobre un mundo gris</small></h2>
+    <p>El mundo del juego es gris y sucio. Los menús son lo contrario: negro con letras fosforescentes, como los afiches de chicha pegados en los postes. El contraste es a propósito.</p>
+    <div class="ui-grid">
+      <div class="chicha">
+        <span class="kick">DIÁLOGO</span>
+        <div class="dlg">
+          <div class="portrait" id="portrait"></div>
+          <div class="stack" style="gap:6px">
+            <span class="tag">DOÑA CHARO</span>
+            <p>Ya, <span class="slang">causa</span>, cántate algo y te sirvo tu plato. Pero <span class="slang">al toque</span>, que se enfría.</p>
+            <span class="tip">CAUSA = amigo, compañero</span>
+          </div>
+        </div>
+        <ul class="opts">
+          <li><b>1</b> Cantar un bolero</li>
+          <li><b>2</b> Ahorita no, doña</li>
+        </ul>
+      </div>
+
+      <div class="chicha">
+        <span class="kick">INVENTARIO</span>
+        <span class="tag">LA LATA</span>
+        <div class="slots" id="slots"></div>
+        <div class="itemdesc"><b>CARAMELO DE LIMÓN</b><span>Era de Pocho. No se come.</span></div>
+      </div>
+
+      <div class="chicha newsong">
+        <span class="kick">CANCIÓN APRENDIDA</span>
+        <p class="big">¡NUEVA CANCIÓN!</p>
+        <p class="songname">VALS DEL SEÑUELO</p>
+        <p class="from">Te la enseñó Don Eusebio</p>
+        <div class="strings" aria-label="Usa las cuerdas 4 y 5">
+          <span></span><span></span><span></span><span class="on"></span><span class="on"></span><span></span>
+        </div>
+        <p class="from">Cuerdas 4 y 5 · tecla <kbd>2</kbd></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ZOMBIES ===================== -->
+  <section class="sheet stack" id="zombies">
+    <h2>Zombies del Callao<small>bestiario · los zombies conservan su oficio</small></h2>
+    <p>Regla general: de día, con la neblina, andan lentos. <b>De noche salen en mancha, más rápidos y con los ojos rojos.</b> Todos son atraídos por el ruido, pero los ciegos solo se guían por eso.</p>
+    <div class="bestiary" id="bestiary"></div>
+
+    <h3>Jefes de zona</h3>
+    <div class="bosses">
+      <div class="boss"><span class="zone">Av. Gambetta</span><h4>El Chofer</h4><p>Maneja la combi zombie a toda velocidad y nunca frena en el paradero (como siempre). Hay que cruzarse en su ruta y esquivarlo.</p></div>
+      <div class="boss"><span class="zone">Mercado</span><h4>La Caserita</h4><p>Vendedora gigante que grita «¿qué va a llevar, casero?» y lanza papas, cebollas y un balde de chicha. Se distrae si le cantas un vals.</p></div>
+      <div class="boss"><span class="zone">El cerro</span><h4>El Dirigente</h4><p>Con megáfono convoca a «asamblea» y llegan zombies de todos los techos. Hay que callarle el megáfono a guitarrazos.</p></div>
+      <div class="boss"><span class="zone">Puerto / Chucuito</span><h4>El Estibador</h4><p>Carga un contenedor en la espalda. El más fuerte del nivel 1. Lento, pero un golpe suyo te manda a la base.</p></div>
+    </div>
+
+    <h3>Conocidos</h3>
+    <p>Zombies que eran gente que Alexander conocía. El juego se detiene un momento: baja la música, Titina se queda quieta. Humor negro, pero con pena.</p>
+    <div class="bosses">
+      <div class="boss"><span class="zone">Día 1 · Av. Gambetta</span><h4>Don Lucho</h4><p>El cobrador que siempre lo bajaba de la combi: «¡Baja, baja, aquí no se canta!». Zombie, sigue gritando la ruta.</p><p class="hand blue">«Esta vez no me bajas, Don Lucho.»</p></div>
+      <div class="boss"><span class="zone">Día 2 · Mercado</span><h4>La señora Rosa</h4><p>La única pasajera que siempre le daba una moneda. Sigue con su bolsa del mercado. Alexander no puede golpearla: le canta su canción favorita y ella se queda quieta un segundo.</p><p class="hand blue">Alexander deja una moneda en su bolsa.</p></div>
+      <div class="boss"><span class="zone">Día 3 · El cerro</span><h4>Pocho</h4><p>Su compañero de chamba, vendía caramelos en las combis. Aparece con su bandeja colgada. Mini jefe: hay que pelear con él.</p><p class="hand blue">Después, Alexander guarda un caramelo de limón en la lata.</p></div>
+    </div>
+  </section>
+
+  <!-- ===================== EL CALLAO ===================== -->
+  <section class="sheet stack" id="callao">
+    <h2>El Callao, nivel 1<small>mapa de boceto · ruta de la historia</small></h2>
+    <div class="sk-wrap">
+      <svg viewBox="0 0 900 560" role="img" aria-label="Mapa a mano del nivel 1: el mar a la izquierda, el puerto y Chucuito en la costa, el mercado al centro, la Av. Gambetta de sur a norte, el asentamiento en el cerro al este, y una ruta numerada del 1 al 4">
+        <g filter="url(#pencil)">
+          <!-- mar -->
+          <path d="M0 0 L260 0 Q235 90 255 170 Q232 260 250 360 Q200 400 120 430 Q60 450 70 470 Q110 488 200 482 Q262 478 278 520 L270 560 L0 560 Z" fill="url(#hatchSea)"/>
+          <path class="ln" d="M260 0 Q235 90 255 170 Q232 260 250 360 Q200 400 120 430 Q60 450 70 470 Q110 488 200 482 Q262 478 278 520 L270 560"/>
+          <path class="pb" d="M40 120 q10 -8 20 0 q10 8 20 0 M120 240 q10 -8 20 0 q10 8 20 0 M60 340 q10 -8 20 0 q10 8 20 0 M150 80 q10 -8 20 0 q10 8 20 0 M40 520 q10 -8 20 0 q10 8 20 0" opacity=".7"/>
+          <!-- neblina -->
+          <path d="M150 190 q30 -24 70 -6 q40 -18 70 8 q-20 22 -70 14 q-40 12 -70 -16 Z" fill="url(#hatchLight)"/>
+          <path d="M560 470 q30 -22 70 -6 q40 -16 66 10 q-20 20 -66 12 q-40 12 -70 -16 Z" fill="url(#hatchLight)"/>
+          <!-- puerto / contenedores -->
+          <rect class="f ln" x="290" y="400" width="34" height="18"/><rect class="f ln" x="324" y="400" width="34" height="18"/><rect class="f ln" x="358" y="400" width="34" height="18"/>
+          <rect class="f ln" x="300" y="382" width="34" height="18"/><rect class="f ln" x="334" y="382" width="34" height="18"/>
+          <rect class="f ln" x="296" y="418" width="34" height="18"/><rect class="f ln" x="340" y="418" width="34" height="18"/>
+          <path class="ln" d="M410 436 L410 344 L470 344 M410 344 L380 344 M455 344 L455 372 M410 360 L430 344"/>
+          <path class="ln" d="M200 470 L260 470 M215 470 L215 486 M245 470 L245 486"/>
+          <!-- Chucuito casonas -->
+          <path class="f ln" d="M150 440 L150 420 L170 408 L190 420 L190 440"/>
+          <path class="f ln" d="M196 440 L196 422 L212 412 L228 422 L228 440"/>
+          <!-- mercado -->
+          <path class="f ln" d="M420 300 L440 280 L460 300 L480 280 L500 300 L520 280 L540 300 L540 330 L420 330 Z"/>
+          <path class="lt" d="M432 330 L432 310 M456 330 L456 310 M480 330 L480 310 M504 330 L504 310 M528 330 L528 310"/>
+          <!-- av gambetta -->
+          <path class="ln" d="M545 560 Q600 300 640 0 M580 560 Q636 300 676 0"/>
+          <path class="lt" d="M562 560 Q618 300 658 0" stroke-dasharray="10 12"/>
+          <!-- combi volcada -->
+          <g transform="rotate(-70 604 418)"><rect class="f ln" x="580" y="404" width="50" height="26" rx="5"/><rect class="lt" x="586" y="408" width="38" height="8"/><circle class="ln" cx="592" cy="434" r="5"/><circle class="ln" cx="620" cy="434" r="5"/></g>
+          <!-- cerro -->
+          <path class="f ln" d="M690 330 Q740 130 820 92 Q868 78 900 104 L900 330"/>
+          <path class="lt" d="M720 300 Q760 160 830 124 Q870 110 900 132 M752 316 Q780 200 846 160 Q874 148 900 160"/>
+          <rect class="f ln" x="735" y="250" width="16" height="12"/><rect class="f ln" x="760" y="210" width="16" height="12"/><rect class="f ln" x="790" y="180" width="16" height="12"/><rect class="f ln" x="832" y="140" width="16" height="12"/><rect class="f ln" x="850" y="200" width="16" height="12"/><rect class="f ln" x="800" y="250" width="16" height="12"/><rect class="f ln" x="864" y="250" width="16" height="12"/>
+          <path class="ln" d="M770 300 L780 290 L774 280 L786 270 L778 260 L790 248 L782 238 L794 226" stroke-width="2"/>
+          <!-- base -->
+          <rect class="f ln" x="780" y="138" width="34" height="22"/>
+          <path class="ln" d="M784 138 L784 124 M792 138 L792 126 M800 138 L800 124 M808 138 L808 126"/>
+          <!-- ruta -->
+          <path class="pr" d="M598 430 Q520 390 486 318 Q610 210 790 168 Q600 330 350 380" stroke-dasharray="9 8" stroke-width="2.6"/>
+          <!-- brújula -->
+          <path class="ln" d="M850 520 L850 460 M842 474 L850 460 L858 474"/>
+        </g>
+        <!-- etiquetas -->
+        <text class="note b" x="20" y="40">Océano Pacífico</text>
+        <text class="note g" x="20" y="64">(gris, como todo)</text>
+        <text class="label" x="840" y="452">N</text>
+
+        <circle cx="612" cy="452" r="15" fill="var(--pen-red)"/><text x="612" y="460" text-anchor="middle" class="label" style="fill:#fff;font-size:17px">1</text>
+        <text class="label" x="640" y="500">INICIO</text>
+        <text class="note" x="640" y="526">la combi volcada</text>
+        <text class="note" x="640" y="550">en el paradero</text>
+
+        <circle cx="470" cy="352" r="15" fill="var(--pen-red)"/><text x="470" y="360" text-anchor="middle" class="label" style="fill:#fff;font-size:17px">2</text>
+        <text class="label" x="420" y="268">MERCADO</text>
+
+        <circle cx="830" cy="176" r="15" fill="var(--pen-red)"/><text x="830" y="184" text-anchor="middle" class="label" style="fill:#fff;font-size:17px">3</text>
+        <text class="label" x="690" y="364">ASENTAMIENTO</text>
+        <text class="note" x="690" y="390" style="font-size:21px">en el cerro: aquí está</text>
+        <text class="note" x="690" y="412" style="font-size:21px">la BASE, en el techo</text>
+        <text class="note g" x="690" y="434">de la casa sin terminar</text>
+
+        <circle cx="336" cy="364" r="15" fill="var(--pen-red)"/><text x="336" y="372" text-anchor="middle" class="label" style="fill:#fff;font-size:17px">4</text>
+        <text class="label" x="290" y="462">PUERTO</text>
+        <text class="label" x="120" y="400">CHUCUITO</text>
+
+        <text class="label" x="0" y="0" transform="translate(664 330) rotate(-80)" style="font-size:17px">AV. GAMBETTA</text>
+        <text class="note g" x="20" y="540">mapa libre, inspirado en el Callao · no es a escala</text>
+      </svg>
+    </div>
+
+    <div class="zones">
+      <div class="zone-card"><h4>1 · Av. Gambetta / paradero</h4><p>Tráfico abandonado, combis cruzadas, un grifo saqueado. Zona tutorial. Muchos zombies «de oficio»: cobradores, ambulantes, mototaxistas.</p><p class="hand red">Botín: cuerdas, chapas, agua.</p></div>
+      <div class="zone-card"><h4>2 · Mercado</h4><p>Puestos con toldos rotos, carretillas, pasillos angostos. Las anticucheras y picaroneras siguen atendiendo. Primer refugio donde le pagan por cantar.</p><p class="hand red">Botín: comida, pilas, ollas.</p></div>
+      <div class="zone-card"><h4>3 · Asentamiento en el cerro</h4><p>Casas de esteras y ladrillo sin tarrajear, escaleras larguísimas, techos con fierros. Aquí está la base. Defenderla de noche.</p><p class="hand red">Botín: madera, calaminas, alambre.</p></div>
+      <div class="zone-card"><h4>4 · Puerto / Chucuito</h4><p>Contenedores, grúas quietas, casonas viejas y el mar gris. La zona más peligrosa del nivel. Aquí espera El Estibador.</p><p class="hand red">Botín: cosas raras de los contenedores.</p></div>
+    </div>
+
+    <h3>Prueba de escena en pixel art: la calle</h3>
+    <div class="scene-box">
+      <canvas id="scene" class="px" width="320" height="160" aria-label="Escena de prueba en pixel art: calle del Callao con cielo gris, casas de ladrillo, un poste con cables, una combi abandonada, Alexander caminando con Titina volando y zombies acercándose"></canvas>
+      <button class="btn" id="nightBtn" type="button" aria-pressed="false">Ver de noche</button>
+      <div class="legend">
+        <span><b style="background:#b53a34">vida</b> barra roja</span>
+        <span><b style="background:#4a7bb5">aliento</b> barra azul</span>
+        <span><b style="background:#33343a">cuerdas</b> 6 rayitas (una reventada)</span>
+        <span><b style="background:#7c8084">lata</b> lo que te pagaron</span>
+      </div>
+      <p style="font-size:16px">Paleta sucia y desaturada: cielo panza de burro, neblina, ladrillo sin tarrajear. Lo único con color vivo son Alexander, Titina y las canciones.</p>
+    </div>
+  </section>
+
+  <!-- ===================== ASÍ EMPIEZA ===================== -->
+  <section class="sheet stack" id="inicio">
+    <h2>Así empieza<small>storyboard de la escena 1 · dentro de la combi (tutorial)</small></h2>
+    <div class="board" id="board"></div>
+  </section>
+
+  <!-- ===================== GLOSARIO ===================== -->
+  <section class="sheet stack" id="glosario">
+    <h2>Glosario chalaco<small>los diálogos van con harta jerga (sin lisuras fuertes) · este glosario va dentro del juego</small></h2>
+    <p>Cuando aparece una palabra de jerga por primera vez, se subraya en el diálogo. Al pasar el mouse encima, sale su significado y se guarda en el glosario del menú.</p>
+    <dl class="gloss">
+      <div><dt>achorado</dt><dd>Atrevido, bravo, que no se deja de nadie.</dd></div>
+      <div><dt>chalaco</dt><dd>Del Callao.</dd></div>
+      <div><dt>causa · pata · choche</dt><dd>Amigo, compañero.</dd></div>
+      <div><dt>jato</dt><dd>Casa.</dd></div>
+      <div><dt>chamba</dt><dd>Trabajo.</dd></div>
+      <div><dt>bacán</dt><dd>Muy bueno, chévere.</dd></div>
+      <div><dt>piña</dt><dd>Mala suerte.</dd></div>
+      <div><dt>roche</dt><dd>Vergüenza.</dd></div>
+      <div><dt>manyar</dt><dd>Entender, darse cuenta.</dd></div>
+      <div><dt>chibolo</dt><dd>Niño, muchacho.</dd></div>
+      <div><dt>al toque</dt><dd>Rápido, de inmediato.</dd></div>
+      <div><dt>casero · caserito</dt><dd>Cliente de siempre en el mercado.</dd></div>
+      <div><dt>¡habla!</dt><dd>Saludo: «¿qué tal?».</dd></div>
+      <div><dt>combi</dt><dd>Minibús de transporte público.</dd></div>
+      <div><dt>cobrador</dt><dd>El que cobra el pasaje y grita la ruta desde la puerta de la combi.</dd></div>
+      <div><dt>«al fondo hay sitio»</dt><dd>Lo que grita el cobrador aunque la combi esté llena.</dd></div>
+    </dl>
+  </section>
+
+  <!-- ===================== DECISIONES ===================== -->
+  <section class="sheet stack" id="preguntas">
+    <h2>Decisiones<small>rondas 5 a 8 · y lo que todavía falta</small></h2>
+    <div class="cols">
+      <div class="stack" style="gap:10px">
+        <h3>Ya decidido</h3>
+        <ul class="checks">
+          <li><b>Un jugador primero.</b> Dejamos la puerta abierta a un modo cooperativo más adelante (otro músico, otra mascota).</li>
+          <li><b>Al morir, Alexander despierta en la base</b> y pierde parte de lo que llevaba. Puede volver a buscarlo.</li>
+          <li><b>El final es el gran concierto:</b> junta a todos los sobrevivientes y toca el concierto de su vida, con zombies incluidos.</li>
+          <li><b>La música se decide después.</b> Por ahora el prototipo va sin música.</li>
+          <li><b>Mucha jerga chalaca</b>, sin lisuras fuertes y con glosario.</li>
+          <li><b>Primero en computadora</b> (navegador, teclado y mouse). Celular más adelante.</li>
+          <li><b>Titina se escapa y vuelve</b> si un zombie la agarra.</li>
+          <li><b>Título:</b> ACHORADO: Canciones para el fin del mundo.</li>
+          <li><b>El nivel 1 es corto:</b> de 30 a 60 minutos, como una demo para ver si el juego engancha.</li>
+          <li><b>En la base se construye todo:</b> barricadas, huerto en baldes, palomar para Titina y taller de guitarra.</li>
+          <li><b>Hay zombies conocidos</b>, con momentos tristes en medio del humor.</li>
+          <li><b>Dificultad intermedia:</b> hay que pensar cuándo tocar y cuándo correr, pero sin frustrar.</li>
+          <li><b>Menús estilo afiche chicha</b>: negro y fosforescente, contra el mundo gris.</li>
+          <li><b>Tres canciones en el nivel 1</b>, y cada una se la enseña un sobreviviente.</li>
+        </ul>
+      </div>
+      <div class="stack" style="gap:12px">
+        <h3>El gran concierto (final)</h3>
+        <div class="sticky"><p class="hand">Escenario de calaminas y fierros armado por Don Eusebio. Sonido del DJ Fosforito con su generador. Doña Charo repartiendo comida al público. Y abajo, una mancha de zombies que por fin escucha a Alexander de principio a fin.</p></div>
+        <p class="hand red">¿Dónde es? Idea: en la losa deportiva del cerro, mirando al mar.</p>
+      </div>
+    </div>
+    <h3>El nivel 1 en 4 días (propuesta)</h3>
+    <p>Cada día dura entre 10 y 15 minutos de juego, así el nivel completo entra en una hora.</p>
+    <ol class="steps">
+      <li><b>Av. Gambetta.</b> Tutorial en la combi, Don Lucho, El Chofer. Llega al cerro antes de que oscurezca.</li>
+      <li><b>Mercado.</b> Conoce a Doña Charo y encuentra a la señora Rosa. Pelea con La Caserita.</li>
+      <li><b>El cerro.</b> Don Eusebio le ayuda a armar la base. Pelea con Pocho y con El Dirigente.</li>
+      <li><b>Puerto y Chucuito.</b> Rescata al DJ Fosforito y vence a El Estibador.</li>
+    </ol>
+    <p class="hand red">Cierre del nivel: un primer concierto chiquito en la losa del cerro, como adelanto del gran concierto final.</p>
+
+    <h3>Para la próxima ronda</h3>
+    <div class="qs">
+      <div class="sticky"><h4>¿Dónde se publica?</h4><p>Para que otros lo jueguen: ¿en itch.io (página gratis para juegos de navegador) o en una web propia?</p></div>
+      <div class="sticky pink"><h4>¿Guardar partida?</h4><p>¿Se guarda solo al dormir en la base, o en cualquier momento?</p></div>
+      <div class="sticky"><h4>¿Solo en español?</h4><p>¿O también en inglés más adelante, con el glosario explicando la jerga?</p></div>
+      <div class="sticky pink"><h4>¿Empezamos a construir?</h4><p>El concepto ya está casi completo. Siguiente paso: un prototipo jugable mínimo, con Alexander caminando por Gambetta y dando guitarrazos.</p></div>
+    </div>
+  </section>
+
+  <footer>cuaderno de diseño · nivel 1 · v0.4</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ======================== PIXEL ENGINE ======================== */
+const P = {
+  k:'#141216', skin:'#a8714c', skinD:'#80523a', hair:'#1f1715', eye:'#141414',
+  blue:'#1f2f66', white:'#e6e6e0', shorts:'#5d6150', shortsD:'#464a3c',
+  sandal:'#5e3f27', wood:'#a86e38', woodD:'#6b4223', head:'#3a2a1e', metal:'#c9c9be', tape:'#cbbf98', strap:'#3b2b21',
+  tin:'#a9adb0', tinD:'#7c8084', mouth:'#2a1515',
+  pg:'#8e939b', pgD:'#5d6168', pgL:'#b6bac0', irG:'#3f9a7c', irP:'#8a5aa6', beak:'#3b3436', cere:'#ece7de', peye:'#e07a2a', pleg:'#c4655a', lana:'#d8322c',
+  zs:'#7f8c71', zsD:'#5f6b55', zeye:'#e9ecd5', zeyeN:'#ff3b2f', blood:'#5b1d1d'
+};
+class G{
+  constructor(w,h){this.w=w;this.h=h;this.d=new Array(w*h).fill(null);this.eyes=[]}
+  set(x,y,c){x=Math.round(x);y=Math.round(y);if(x>=0&&y>=0&&x<this.w&&y<this.h)this.d[y*this.w+x]=c}
+  get(x,y){return (x>=0&&y>=0&&x<this.w&&y<this.h)?this.d[y*this.w+x]:null}
+  rect(x,y,w,h,c){for(let j=0;j<h;j++)for(let i=0;i<w;i++)this.set(x+i,y+j,c)}
+  line(x0,y0,x1,y1,c){x0=Math.round(x0);y0=Math.round(y0);x1=Math.round(x1);y1=Math.round(y1);
+    const dx=Math.abs(x1-x0),sx=x0<x1?1:-1,dy=-Math.abs(y1-y0),sy=y0<y1?1:-1;let e=dx+dy;
+    for(let n=0;n<200;n++){this.set(x0,y0,c);if(x0===x1&&y0===y1)break;const e2=2*e;if(e2>=dy){e+=dy;x0+=sx}if(e2<=dx){e+=dx;y0+=sy}}}
+  disc(cx,cy,r,c){for(let y=Math.floor(cy-r);y<=Math.ceil(cy+r);y++)for(let x=Math.floor(cx-r);x<=Math.ceil(cx+r);x++){if((x-cx)*(x-cx)+(y-cy)*(y-cy)<=r*r)this.set(x,y,c)}}
+  outline(c){c=c||P.k;const add=[];for(let y=0;y<this.h;y++)for(let x=0;x<this.w;x++){if(this.get(x,y))continue;
+    if(this.get(x-1,y)||this.get(x+1,y)||this.get(x,y-1)||this.get(x,y+1))add.push([x,y])}
+    add.forEach(p=>this.set(p[0],p[1],c));return this}
+  flip(){const n=new G(this.w,this.h);for(let y=0;y<this.h;y++)for(let x=0;x<this.w;x++)n.d[y*this.w+(this.w-1-x)]=this.d[y*this.w+x];
+    n.eyes=this.eyes.map(e=>[this.w-1-e[0],e[1]]);return n}
+  draw(ctx,ox,oy){ox=Math.round(ox);oy=Math.round(oy);for(let y=0;y<this.h;y++)for(let x=0;x<this.w;x++){const c=this.d[y*this.w+x];if(c){ctx.fillStyle=c;ctx.fillRect(ox+x,oy+y,1,1)}}}
+}
+function stripes(g,x0,y0,w,h){for(let j=0;j<h;j++)for(let i=0;i<w;i++){const x=x0+i;g.set(x,y0+j,((x>>1)%2)?P.white:P.blue)}}
+
+function titinaMini(g,x,y,right,peck){peck=peck||0;
+  const p=(dx,dy,c)=>g.set(right?x+5-dx:x+dx,y+dy,c);
+  p(1,peck,P.pg);p(2,peck,P.pg);p(1,1+peck,P.pg);p(2,1+peck,P.pg);
+  p(0,1+peck,P.beak);p(1,peck,P.peye);
+  p(1,2,P.irP);p(2,2,P.irG);p(3,2,P.pg);p(4,2,P.pg);
+  p(1,3,P.pg);p(2,3,P.pg);p(3,3,P.pgD);p(4,3,P.pg);p(5,3,P.pgD);
+}
+
+/* ---- Alexander ---- */
+function alexFront(g,f){
+  f=f||{};const bob=f.bob||0,lL=f.lL||0,lR=f.lR||0,sw=f.sw||0,face=f.face||'normal',arms=f.arms||'walk',
+    guitarBack=f.guitarBack!==false,titina=f.titina!==false,back=!!f.back,peck=f.peck||0;
+  const o=1,u=bob+o;
+  if(!back&&guitarBack){g.rect(15,3+u,2,10,P.woodD);g.rect(14,0+u,3,3,P.head);g.set(13,1+u,P.metal);g.set(17,1+u,P.metal);g.disc(16,17+u,2.6,P.wood);g.set(17,18+u,P.tape)}
+  // head
+  g.rect(6,2+u,8,4,P.hair);[6,9,12].forEach(x=>g.set(x,1+u,P.hair));g.set(13,2+u,P.hair);
+  if(!back){
+    g.rect(6,5+u,8,6,P.skin);g.rect(7,11+u,6,1,P.skin);g.rect(5,4+u,1,3,P.hair);g.rect(14,4+u,1,3,P.hair);
+    g.set(5,7+u,P.skin);g.set(14,7+u,P.skin);
+    g.set(7,5+u,P.hair);g.set(8,5+u,P.hair);g.set(11,5+u,P.hair);g.set(12,5+u,P.hair);
+    g.set(6,10+u,P.skinD);g.set(13,10+u,P.skinD);
+    if(face==='sing'){g.set(7,7+u,P.eye);g.set(8,7+u,P.eye);g.set(11,7+u,P.eye);g.set(12,7+u,P.eye);g.rect(9,9+u,2,2,P.mouth)}
+    else if(face==='shy'){g.set(8,8+u,P.eye);g.set(11,8+u,P.eye);g.set(9,10+u,P.skinD);g.set(10,10+u,P.skinD);g.set(7,9+u,'#b5675a');g.set(12,9+u,'#b5675a')}
+    else {g.set(8,7+u,P.eye);g.set(11,7+u,P.eye);g.set(9,9+u,P.skinD);g.set(10,9+u,P.skinD)}
+  } else {
+    g.rect(6,5+u,8,6,P.hair);g.rect(7,11+u,6,1,P.skinD);g.set(5,7+u,P.skin);g.set(14,7+u,P.skin);g.rect(5,4+u,1,3,P.hair);g.rect(14,4+u,1,3,P.hair);
+  }
+  g.rect(9,12+u,2,1,P.skinD);
+  stripes(g,5,13+u,10,6);
+  if(!back)g.line(6,13+u,13,18+u,P.strap);
+  if(back){g.disc(10,17+u,3.2,P.wood);g.disc(10,14+u,2.3,P.wood);g.set(10,16+u,P.woodD);g.set(8,19+u,P.tape);g.set(9,19+u,P.tape);
+    g.line(11,12+u,14,2+u,P.woodD);g.line(12,12+u,15,2+u,P.woodD);g.rect(14,0+u,3,2,P.head)}
+  if(arms==='walk'){g.rect(3,13+u,2,2,P.blue);g.rect(15,13+u,2,2,P.blue);g.rect(3,15+u,2,3+(sw>0?1:0),P.skin);g.rect(15,15+u,2,3+(sw<0?1:0),P.skin)}
+  // shorts
+  g.rect(6,19+u,8,3,P.shorts);g.rect(6,19+u,8,1,P.shortsD);g.set(9,21+u,null);g.set(10,21+u,null);
+  // legs
+  g.rect(7,22+o,2,3+lL,P.skin);g.rect(6,25+o+lL,3,1,P.sandal);
+  g.rect(11,22+o,2,3+lR,P.skin);g.rect(11,25+o+lR,3,1,P.sandal);
+  if(titina){ if(back) titinaMini(g,13,10+u,true,peck); else titinaMini(g,1,10+u,false,peck); }
+}
+function alexSide(g,f){
+  f=f||{};const ox=f.ox||0,bob=f.bob||0,a=f.a||0,sw=f.sw||0,guitar=f.guitar!==false,arm=f.arm!==false,titina=f.titina!==false;
+  const o=1,u=bob;
+  const S=(x,y,c)=>g.set(x+ox,y,c),R=(x,y,w,h,c)=>g.rect(x+ox,y,w,h,c),L=(x0,y0,x1,y1,c)=>g.line(x0+ox,y0,x1+ox,y1,c),D=(x,y,r,c)=>g.disc(x+ox,y,r,c);
+  if(guitar){L(5,12+o+u,3,2+o+u,P.woodD);L(6,12+o+u,4,2+o+u,P.woodD);R(2,0+o+u,3,2,P.head);D(6,17+o+u,3,P.wood);D(6,14+o+u,2.2,P.wood);S(6,16+o+u,P.woodD);S(5,19+o+u,P.tape);S(7,19+o+u,P.tape)}
+  const xa=10+a,xb=10-a;
+  R(xb,22+o,2,3,P.skinD);R(xb,25+o,3,1,P.sandal);
+  R(8,2+o+u,6,4,P.hair);S(9,1+o+u,P.hair);S(12,1+o+u,P.hair);S(14,3+o+u,P.hair);R(7,4+o+u,3,5,P.hair);
+  R(10,5+o+u,4,6,P.skin);S(14,8+o+u,P.skin);S(10,7+o+u,P.skinD);S(12,7+o+u,P.eye);S(13,10+o+u,P.skinD);R(10,11+o+u,3,1,P.skin);
+  R(10,12+o+u,2,1,P.skinD);
+  stripes(g,8+ox,13+o+u,6,6);
+  L(9,13+o+u,13,18+o+u,P.strap);
+  R(8,19+o+u,6,3,P.shorts);R(8,19+o+u,6,1,P.shortsD);
+  R(xa,22+o,2,3,P.skin);R(xa,25+o,3,1,P.sandal);
+  if(arm){R(10,13+o+u,2,2,P.blue);R(10+sw,15+o+u,2,3,P.skin)}
+  if(titina)titinaMini(g,3+ox,10+o+u,true);
+}
+function drawGuitar(g,hx,hy,bx,by){
+  const dx=bx-hx,dy=by-hy,len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len;
+  const nx=bx-ux*3.5,ny=by-uy*3.5;
+  g.line(hx,hy,nx,ny,P.woodD);g.line(hx-uy,hy+ux,nx-uy,ny+ux,P.woodD);
+  g.disc(bx-ux*2.4,by-uy*2.4,2.1,P.wood);g.disc(bx,by,2.8,P.wood);g.set(bx-ux,by-uy,P.woodD);g.set(bx+uy*2,by-ux*2,P.tape);
+  g.rect(Math.round(hx-ux*1.5)-1,Math.round(hy-uy*1.5)-1,2,2,P.head);
+}
+function alexWalk(dir){
+  const out=[];
+  if(dir==='down'||dir==='up'){
+    const seq=[{bob:0,lL:0,lR:0,sw:0},{bob:1,lL:-1,lR:0,sw:1},{bob:0,lL:0,lR:0,sw:0},{bob:1,lL:0,lR:-1,sw:-1}];
+    seq.forEach(s=>{const g=new G(20,28);alexFront(g,Object.assign({back:dir==='up'},s));g.outline();out.push(g)});
+  } else {
+    const seq=[{a:1,sw:1,bob:0},{a:0,sw:0,bob:1},{a:-1,sw:-1,bob:0},{a:0,sw:0,bob:1}];
+    seq.forEach(s=>{const g=new G(20,28);alexSide(g,s);g.outline();out.push(dir==='left'?g.flip():g)});
+  }
+  return out;
+}
+function alexAttack(){
+  const P3=[{H:[12,8],B:[6,4]},{H:[20,14],B:[27,12]},{H:[18,18],B:[24,24]}];
+  return P3.map((p,fr)=>{
+    const g=new G(32,30);
+    if(fr===0)drawGuitar(g,p.H[0],p.H[1],p.B[0],p.B[1]);
+    alexSide(g,{ox:3,guitar:false,arm:false,titina:fr===0,bob:fr===1?1:0,a:fr===1?1:0});
+    g.line(14,15,p.H[0],p.H[1],P.skin);g.line(15,15,p.H[0]+1,p.H[1],P.skin);g.rect(13,14,2,2,P.blue);
+    if(fr>0)drawGuitar(g,p.H[0],p.H[1],p.B[0],p.B[1]);
+    if(fr===1){titinaMini(g,4,0,true);g.set(3,0,P.pgL);g.set(9,0,P.pgL)}
+    if(fr===2){titinaMini(g,4,4,true)}
+    g.outline();
+    if(fr===1){['#fff6c8','#ffe36b'].forEach((c,i)=>{const pts=i?[[30,8],[31,12],[30,16],[28,7]]:[[29,10],[30,11],[29,14],[31,9],[31,15]];pts.forEach(q=>g.set(q[0],q[1],c))})}
+    return g;
+  });
+}
+function alexPlay(){
+  return [0,1,2,3].map(fr=>{
+    const g=new G(22,28);const o=1;const bob=fr%2;
+    alexFront(g,{face:'sing',arms:'none',guitarBack:false,bob:0,peck:bob});
+    g.disc(9,17+o,2.4,P.wood);g.disc(6,18+o,3.2,P.wood);g.set(7,17+o,P.woodD);g.set(5,20+o,P.tape);
+    g.line(10,16+o,18,13+o,P.woodD);g.line(10,17+o,18,14+o,P.woodD);g.rect(18,12+o,2,2,P.head);g.set(19,11+o,P.metal);
+    g.rect(3,13+o,2,2,P.blue);g.rect(4,15+o,3,2,P.skin);g.rect(7,(bob?15:17)+o,2,2,P.skin);
+    g.rect(15,13+o,2,2,P.blue);g.rect(16,15+o,2,1,P.skin);g.rect(16,14+o,2,1,P.skin);
+    g.outline();return g;
+  });
+}
+function alexLata(){
+  return [0,1].map(fr=>{
+    const g=new G(20,28);const o=1;
+    alexFront(g,{face:'shy',arms:'none'});
+    g.rect(3,13+o,2,2,P.blue);g.rect(3,15+o,2,3,P.skin);
+    g.rect(15,13+o,2,2,P.blue);g.rect(15,15+o,2,3,P.skin);
+    const ly=18+o-fr;g.rect(15,ly,3,3,P.tin);g.rect(15,ly,3,1,P.tinD);
+    g.outline();
+    if(fr===1){g.set(18,15,'#ffe36b');g.set(19,14,'#ffe36b')}
+    return g;
+  });
+}
+function titinaBig(mode){
+  const frames=mode==='idle'?[0,1,2,3]:[0,1];
+  return frames.map(fr=>{
+    const g=new G(17,16);const o=1;
+    const by=mode==='fly'?(fr%2?0:1):0;
+    const hb=mode==='idle'?[0,1,0,0][fr]:0,hx=mode==='idle'?[0,-1,0,0][fr]:0;
+    g.rect(11,7+o+by,4,2,P.pgD);g.set(15,8+o+by,P.pgD);
+    g.disc(8,8+o+by,3.3,P.pg);g.rect(6,11+by,5,1,P.pgL);
+    g.set(9,7+o+by,P.pgD);g.set(10,8+o+by,P.pgD);g.set(8,8+o+by,P.pgD);
+    g.set(5,5+o+by,P.irG);g.set(6,6+o+by,P.irP);
+    g.disc(4+hx,4+o+hb+by,2,P.pg);
+    g.set(4+hx,6+o+hb+by,P.irG);g.set(5+hx,6+o+hb+by,P.irP);
+    g.set(3+hx,3+o+hb+by,P.peye);g.set(1+hx,4+o+hb+by,P.beak);g.set(2+hx,4+o+hb+by,P.cere);
+    if(mode==='idle'){g.set(7,13,P.lana);g.set(7,14,P.pleg);g.set(9,13,P.pleg);g.set(9,14,P.pleg)}
+    else if(fr===0){g.rect(7,3+by,3,4,P.pgL);g.rect(8,1+by,3,2,P.pgL);g.set(10,1+by,P.pgD)}
+    else {g.rect(7,11+by,3,3,P.pgL);g.rect(8,14,2,1,P.pgL);g.set(11,12+by,P.pleg)}
+    g.outline();return g;
+  });
+}
+function titinaTiny(){
+  return [0,1].map(fr=>{const g=new G(9,7);
+    g.rect(2,3,4,2,P.pg);g.rect(1,2,2,2,P.pg);g.set(0,3,P.beak);g.set(1,2,P.peye);g.set(6,4,P.pgD);g.set(2,4,P.irG);
+    if(fr===0){g.rect(3,1,2,2,P.pgL);g.set(4,0,P.pgL)}else{g.rect(3,5,2,1,P.pgL);g.set(4,6,P.pgL)}
+    g.outline();return g});
+}
+
+/* ---- Zombies ---- */
+function zFront(opt,fr){
+  opt=opt||{};const H=opt.h||32;const g=new G(opt.w||20,H);
+  const S=opt.skin||P.zs,SD=opt.human?P.skinD:P.zsD,hair=opt.hair||'#2a2420',shoe=opt.shoe||'#2b2622',pants=opt.pants||'#3d4149';
+  const y0=1+(opt.small?3:0)+(opt.yoff?opt.yoff[fr%opt.yoff.length]:0);
+  const tilt=opt.noTilt?0:((fr%2)?1:0);const hx=5+tilt+(opt.dx||0),bx=(opt.dx||0);
+  g.rect(hx,2+y0,8,4,hair);
+  if(opt.bald){g.set(hx+3,2+y0,S);g.set(hx+4,2+y0,S);g.set(hx+5,3+y0,S);g.set(hx+4,3+y0,S)}
+  if(opt.bun){g.rect(hx+2,y0,4,2,hair)}
+  if(opt.cap){g.rect(hx-1,2+y0,10,2,opt.cap);g.rect(hx+1,1+y0,6,1,opt.cap)}
+  g.rect(hx,5+y0,8,6,S);g.rect(hx+1,11+y0,6,1,S);g.set(hx,5+y0,hair);g.set(hx+7,5+y0,hair);
+  if(opt.fringe){g.rect(hx+1,5+y0,6,1,hair)}
+  if(!opt.human){g.set(hx+1,6+y0,SD);g.set(hx+6,9+y0,SD)}
+  const eyes=[[hx+2,7+y0],[hx+5,7+y0]];
+  if(opt.blind){g.rect(hx-1,7+y0,10,1,'#d6d1bf');g.set(hx+8,8+y0,'#d6d1bf');g.set(hx-1,6+y0,S);g.set(hx+8,6+y0,S)}
+  else eyes.forEach(e=>g.set(e[0],e[1],opt.human?P.eye:P.zeye));
+  const sh=opt.shout?1:0;
+  if(opt.human){g.rect(hx+3,9+y0,2,1,SD)}else{g.rect(hx+3,9+y0,2,1+sh,P.mouth);g.set(hx+4,10+y0+sh,P.blood)}
+  g.rect(9+bx,12+y0,2,1,SD);
+  g.rect(5+bx,13+y0,10,6,opt.shirt||'#6b5a47');
+  if(opt.apron)g.rect(6+bx,15+y0,8,4,opt.apron);
+  if(opt.straps){g.rect(6+bx,13+y0,1,5,opt.straps);g.rect(13+bx,13+y0,1,5,opt.straps)}
+  if(opt.collar){g.set(8+bx,13+y0,opt.collar);g.set(11+bx,13+y0,opt.collar)}
+  if(!opt.human){g.set(8+bx,15+y0,P.blood);g.set(9+bx,16+y0,P.blood);g.set(12+bx,17+y0,P.blood);
+    g.set(5+bx,18+y0,null);g.set(14+bx,17+y0,null)}
+  const am=opt.arms||'reach',up=fr%2;
+  if(am==='reach'){g.rect(3+bx,(up?10:11)+y0,2,up?5:4,S);g.rect(15+bx,13+y0,2,up?5:6,S);g.rect(3+bx,13+y0,2,1,opt.shirt||'#6b5a47')}
+  else if(am==='wide'){g.rect(1+bx,14+y0-(fr%2),4,2,S);g.rect(15+bx,14+y0-((fr+1)%2),4,2,S)}
+  else if(am==='hold'){g.rect(3+bx,14+y0,2,4,S);g.rect(15+bx,14+y0,2,4,S)}
+  else if(am==='fan'){g.rect(3+bx,14+y0,2,4,S);g.rect(15+bx,12+y0-up,2,4,S);g.rect(15+bx,10+y0-up,3,2,'#bfa36a')}
+  g.rect(6+bx,19+y0,8,3,pants);g.set(9+bx,21+y0,null);g.set(10+bx,21+y0,null);
+  if(opt.belt)g.rect(6+bx,19+y0,8,2,opt.belt);
+  const L=opt.small?1:3;
+  const l1=[0,-1,0,0][fr%4],l2=[0,0,0,-1][fr%4];
+  if(opt.oneLeg){g.rect(7+bx,22+y0,2,L,SD);g.rect(6+bx,22+y0+L,3,1,shoe);g.rect(11+bx,22+y0,2,1,pants)}
+  else{g.rect(7+bx,22+y0,2,L+l1,SD);g.rect(6+bx,22+y0+L+l1,3,1,shoe);g.rect(11+bx,22+y0,2,L+l2,SD);g.rect(11+bx,22+y0+L+l2,3,1,shoe)}
+  if(opt.coins){g.set(7+bx,20+y0,'#c8b35a');g.set(12+bx,20+y0,'#c8b35a')}
+  g.eyes=eyes;
+  if(opt.extra)opt.extra(g,y0,fr);
+  g.outline();
+  if(opt.after)opt.after(g,y0,fr);
+  return g;
+}
+function crawler(fr){
+  const g=new G(28,15);const o=1;
+  g.rect(10,6+o,12,5,'#55606b');g.set(22,7+o,'#55606b');g.set(22,9+o,'#55606b');g.set(21,10+o,null);
+  g.set(14,8+o,P.blood);g.set(17,7+o,P.blood);
+  g.rect(4,4+o,6,6,P.zs);g.rect(5,3+o,5,2,'#2a2420');g.set(4,4+o,'#2a2420');g.set(5,6+o,P.zeye);g.rect(4,8+o,2,1,P.mouth);g.set(5,9+o,P.blood);
+  if(fr%2===0){g.rect(0,9+o,5,2,P.zs)}else{g.rect(2,8+o,4,2,P.zs);g.rect(1,10+o,2,1,P.zs)}
+  g.rect(11,10+o,3,2,P.zs);
+  g.eyes=[[5,6+o]];
+  g.outline();
+  g.rect(20,12+o,7,1,'rgba(91,29,29,.55)');
+  return g;
+}
+function carretillero(fr){
+  const g=new G(30,30);const o=1;const a=[1,0,-1,0][fr%4];
+  // zombie
+  g.rect(17+a,22+o,2,4,P.zsD);g.rect(17+a,26+o,3,1,'#2b2622');
+  g.rect(16,2+o,6,2,'#3a3330');g.rect(16,4+o,6,6,P.zs);g.set(17,6+o,P.zeye);g.set(16,9+o,P.mouth);g.set(21,4+o,'#3a3330');
+  g.rect(17,10+o,2,1,P.zsD);
+  g.rect(16,11+o,6,8,'#7b6a4c');g.set(18,14+o,P.blood);
+  g.rect(16,19+o,6,3,'#45484e');
+  g.rect(20-a,22+o,2,4,P.zs);g.rect(19-a,26+o,3,1,'#2b2622');
+  g.line(17,13+o,12,16+o,P.zs);g.line(18,14+o,12,17+o,P.zs);
+  // carretilla
+  g.rect(3,11+o,4,2,'#9a5c46');g.rect(7,11+o,4,2,'#87503d');g.rect(5,9+o,4,2,'#9a5c46');
+  g.rect(2,13+o,11,1,'#596065');g.rect(3,14+o,9,2,'#7f868b');g.rect(4,16+o,7,1,'#7f868b');
+  g.line(11,17+o,12,22+o,'#596065');g.line(12,15+o,14,16+o,'#596065');
+  g.disc(5,20+o,2.4,'#2a2a2a');g.set(5+(fr%2),20+o-(fr%2?0:1),'#808080');
+  g.eyes=[[17,6+o]];
+  g.outline();return g;
+}
+function mototaxi(fr){
+  const g=new G(34,27);const o=1;const b=fr%2;
+  g.rect(8,2+o+b,22,2,'#6d3a35');g.rect(8,4+o+b,22,1,'#4f2a27');
+  g.line(9,5+o+b,9,12+o+b,'#3d3d3d');g.line(29,5+o+b,29,14+o+b,'#3d3d3d');
+  g.rect(14,9+o+b,16,9,'#2e4b63');g.rect(17,10+o+b,8,4,'#1d2a33');
+  g.rect(20,10+o+b,3,3,P.zs);g.set(20,11+o+b,P.zeye);
+  g.rect(9,5+o+b,4,4,P.zs);g.rect(9,4+o+b,4,1,'#2a2420');g.set(9,6+o+b,P.zeye);g.set(9,8+o+b,P.mouth);
+  g.rect(9,9+o+b,4,5,'#5a5a3a');g.line(9,10+o+b,5,10+o+b,P.zs);
+  g.rect(4,9+o+b,3,1,'#3d3d3d');g.line(5,10+o+b,4,18+o,'#3d3d3d');
+  g.rect(5,15+o+b,10,2,'#2e4b63');g.set(3,11+o+b,'#e7e2b0');
+  g.disc(4,21+o,3,'#232323');g.disc(25,21+o,3,'#232323');
+  g.set(4+(b?1:0),21+o-(b?0:1),'#8a8a8a');g.set(25-(b?1:0),21+o+(b?0:1),'#8a8a8a');
+  g.eyes=[[9,6+o+b],[20,11+o+b]];
+  g.outline();return g;
+}
+
+/* ======================== ANIMATOR ======================== */
+const anims=[];
+function mk(w,h,scale){const c=document.createElement('canvas');c.width=w;c.height=h;c.className='px';c.style.width=(w*scale)+'px';return c}
+function addAnim(parent,frames,scale,opts){
+  opts=opts||{};const w=opts.w||frames[0].w,h=opts.h||frames[0].h;
+  const c=mk(w,h,scale);parent.appendChild(c);const ctx=c.getContext('2d');
+  const a={ctx,frames,i:0,t:0,fps:opts.fps||6,w,h,draw:opts.draw,acc:0};
+  anims.push(a);renderAnim(a);return a;
+}
+function renderAnim(a){a.ctx.clearRect(0,0,a.w,a.h);if(a.draw)a.draw(a.ctx,a.i,a.t);else a.frames[a.i].draw(a.ctx,Math.floor((a.w-a.frames[a.i].w)/2),a.h-a.frames[a.i].h)}
+function strip(parent,frames,scale){
+  const gap=3,w=frames.reduce((s,f)=>s+f.w+gap,-gap),h=Math.max.apply(null,frames.map(f=>f.h));
+  const c=mk(w,h,scale);parent.appendChild(c);const ctx=c.getContext('2d');
+  let x=0;frames.forEach(f=>{f.draw(ctx,x,h-f.h);x+=f.w+gap});
+}
+let last=performance.now();
+function tick(now){
+  const dt=Math.min(100,now-last);last=now;
+  anims.forEach(a=>{a.acc+=dt;a.t+=dt;const step=1000/a.fps;if(a.acc>=step){a.acc-=step;a.i=(a.i+1)%a.frames.length;renderAnim(a)} else if(a.draw&&a.live)renderAnim(a)});
+  if(sceneTick)sceneTick(dt);
+  requestAnimationFrame(tick);
+}
+
+/* ======================== MOVIMIENTOS ======================== */
+const $=id=>document.getElementById(id);
+const W={down:alexWalk('down'),left:alexWalk('left'),right:alexWalk('right'),up:alexWalk('up')};
+['down','left','right','up'].forEach(d=>addAnim($('st-walk'),W[d],3));
+strip($('sp-walk'),W.down.concat(W.right),2);
+
+const ATK=alexAttack();
+addAnim($('st-attack'),ATK,4,{fps:4});
+strip($('sp-attack'),ATK,2);
+
+const SONGS={
+  mareo:{color:'#f0dc4a',desc:'Cumbia del Mareo: los zombies cercanos se quedan bailando unos segundos. Usa las cuerdas 1, 2 y 3.'},
+  senuelo:{color:'#ec5aa0',desc:'Vals del Señuelo: la horda camina hacia donde apuntas. Usa las cuerdas 4 y 5.'},
+  alivio:{color:'#5fd68e',desc:'Huayno del Alivio: cura a Alexander y a los sobrevivientes cerca. Usa las cuerdas 2 y 6. Hace mucho ruido.'}
+};
+let song='mareo';
+const NOTE=[[2,0],[2,1],[3,1],[2,2],[2,3],[0,3],[1,3],[0,4],[1,4]];
+const PLAY=alexPlay();
+const playAnim=addAnim($('st-play'),PLAY,3,{w:56,h:44,fps:6,draw:(ctx,i,t)=>{
+  const col=SONGS[song].color;
+  const cx=28,cy=26;
+  for(let k=0;k<2;k++){const r=((t/60)+k*11)%22+4;ctx.fillStyle=col;ctx.globalAlpha=Math.max(0,1-r/26);
+    for(let ang=0;ang<Math.PI*2;ang+=1/r){ctx.fillRect(Math.round(cx+Math.cos(ang)*r),Math.round(cy+Math.sin(ang)*r*.7),1,1)}}
+  ctx.globalAlpha=1;
+  PLAY[i].draw(ctx,17,16);
+  for(let k=0;k<3;k++){const ph=((t/1400)+k/3)%1;const nx=Math.round(8+k*18+Math.sin(ph*6+k)*3),ny=Math.round(22-ph*20);
+    ctx.globalAlpha=1-ph;ctx.fillStyle=col;NOTE.forEach(p=>ctx.fillRect(nx+p[0],ny+p[1],1,1));}
+  ctx.globalAlpha=1;
+}});
+playAnim.live=true;
+function setSong(s){song=s;document.querySelectorAll('.songbtns button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.song===s?'true':'false'));$('song-desc').textContent=SONGS[s].desc;renderAnim(playAnim)}
+document.querySelectorAll('.songbtns button').forEach(b=>b.addEventListener('click',()=>setSong(b.dataset.song)));
+setSong('mareo');
+
+const LATA=alexLata();
+addAnim($('st-lata'),LATA,4,{fps:3});
+strip($('sp-lata'),LATA,2);
+
+const TI=titinaBig('idle'),TF=titinaBig('fly');
+addAnim($('st-titina'),TI,5,{fps:4});
+addAnim($('st-titina'),TF,5,{fps:5});
+strip($('sp-titina'),TI.concat(TF),2);
+
+/* ======================== BESTIARIO ======================== */
+const frames4=fn=>[0,1,2,3].map(fn);
+const Z=[
+  {name:'El Caminante',meta:'en todas partes',threat:1,frames:frames4(f=>zFront({},f)),
+   text:'El vecino de siempre, ahora con hambre. Lento y torpe de día. Dos guitarrazos y cae.',joke:'Todavía tiene el celular en la mano. Sin señal, como antes.'},
+  {name:'El Escolar',meta:'cerca del colegio y el paradero',threat:2,frames:frames4(f=>zFront({small:true,shirt:'#dcdcd4',pants:'#7a7c80',hair:'#151515',fringe:true,straps:'#3b4f8a',collar:'#9a9a94'},f)),
+   text:'Uniforme plomo, mochila y mucha energía. Pequeño y rápido: llegan en grupo a la salida.',joke:'Le dejaron tarea. No la hizo.'},
+  {name:'El Ciego',meta:'callejones oscuros',threat:3,frames:frames4(f=>zFront({blind:true,arms:'wide',shirt:'#5d4f6a',bald:true},f)),
+   text:'Vendado, con los brazos abiertos. No te ve, pero te escucha: cada canción, cada carrera, cada «clink» de la lata.',joke:'Es el único que escucha a Alexander hasta el final.'},
+  {name:'El Arrastrado',meta:'debajo de combis y puestos',threat:2,frames:[0,1].map(crawler),
+   text:'Se arrastra por el piso. Se esconde debajo de los carros y te agarra el tobillo.',joke:'Mira siempre dónde pisas. Es como caminar por Gambetta, pero peor.'},
+  {name:'El Saltarín',meta:'la avenida',threat:2,frames:frames4(f=>zFront({oneLeg:true,yoff:[3,1,0,2],noTilt:true,arms:'wide',shirt:'#4f6b5a',h:34},f)),
+   text:'Le falta una pierna y avanza saltando de un pie. Su ritmo es impredecible.',joke:'Tiene más ritmo que muchos en la peña.'},
+  {name:'El Carretillero',meta:'mercado',threat:2,frames:[0,1,2,3].map(carretillero),
+   text:'Empuja su carretilla con ladrillos y te embiste. Si lo esquivas, se estrella contra la pared.',joke:'«¡Cuidado, cuidado, pasa la carga!»'},
+  {name:'El Mototaxista',meta:'calles del cerro',threat:3,frames:[0,1].map(mototaxi),
+   text:'Sigue haciendo carreras. Pasa a toda velocidad y lleva un pasajero zombie atrás.',joke:'Te cobra tres soles por atropellarte.'},
+  {name:'La Anticuchera',meta:'esquina del mercado',threat:2,frames:frames4(f=>zFront({bun:true,hair:'#2a2420',shirt:'#6a4a5a',apron:'#c9c2ad',arms:'fan',h:30,
+     after:(g,y0,fr)=>{g.rect(1,20+y0,18,3,'#2d2d2d');g.rect(1,19+y0,18,1,'#55595c');for(let x=2;x<18;x+=2)g.set(x+(fr%2),21+y0,fr%2?'#d06a2a':'#a44a2a');
+       [[3,17],[9,17],[14,17]].forEach(q=>{g.line(q[0],q[1]+y0,q[0]+4,q[1]+y0+1,'#c4a26d');g.set(q[0]+1,q[1]+y0,'#5a2e22');g.set(q[0]+2,q[1]+y0,'#5a2e22');g.set(q[0]+3,q[1]+y0+1,'#5a2e22')});
+       g.rect(2,23+y0,1,4,'#2d2d2d');g.rect(17,23+y0,1,4,'#2d2d2d');
+       for(let k=0;k<5;k++){g.set(5+k*3+(fr%2),14+y0-k%3-fr,'rgba(200,202,198,.75)')}}},f)),
+   text:'Sigue abanicando la parrilla. El olor atrae a otros zombies... y a Alexander, que tiene hambre.',joke:'«¿Con su papita, joven?»'},
+  {name:'La Picaronera',meta:'mercado de noche',threat:2,frames:frames4(f=>zFront({hair:'#3a2a22',bun:true,shirt:'#7a5a3a',arms:'hold',h:30,
+     extra:(g,y0,fr)=>{g.rect(3,19+y0,14,6,'#4a4a4c');g.rect(2,18+y0,16,1,'#6a6a6e');g.rect(3,19+y0,14,1,'#8a6a2a');
+       [[5,16],[10,15],[13,16]].forEach((q,k)=>{const yy=q[1]+y0-((fr+k)%2);g.rect(q[0],yy,3,2,'#b06a2e');g.set(q[0]+1,yy,null)})}},f)),
+   text:'Con su olla de aceite caliente. Si te acercas mucho, te salpica. Sus picarones curan, si logras quitárselos.',joke:'La miel de chancaca es lo único dulce que queda.'},
+  {name:'El Cobrador',meta:'Av. Gambetta',threat:2,bubble:'¡AL FONDO HAY SITIO!',frames:frames4(f=>zFront({shout:true,shirt:'#6c7b8a',belt:'#2b2b2b',coins:true,cap:'#4a5a3a'},f)),
+   text:'Sigue colgado de la puerta, gritando la ruta. Su grito atrae a todos los zombies de la cuadra.',joke:'Él ya no cobra: muerde.'}
+];
+const best=$('bestiary');
+Z.forEach(z=>{
+  const card=document.createElement('article');card.className='zcard';
+  const st=document.createElement('div');st.className='stage';
+  if(z.bubble){const b=document.createElement('div');b.className='bubble';b.textContent=z.bubble;st.appendChild(b);st.style.paddingTop='44px'}
+  card.appendChild(st);
+  const body=document.createElement('div');body.className='body';
+  const th='<div class="threat" aria-label="Peligro '+z.threat+' de 3">'+[1,2,3].map(n=>'<i class="'+(n<=z.threat?'on':'')+'"></i>').join('')+'<span>PELIGRO</span></div>';
+  body.innerHTML='<h4></h4><div class="meta"></div>'+th+'<p></p><p class="joke"></p>';
+  body.querySelector('h4').textContent=z.name;body.querySelector('.meta').textContent=z.meta;
+  body.querySelector('p').textContent=z.text;body.querySelector('.joke').textContent=z.joke;
+  card.appendChild(body);best.appendChild(card);
+  const sc=z.frames[0].w>26?3:4;
+  addAnim(st,z.frames,sc,{fps:z.frames.length===2?3:4});
+});
+
+/* ======================== SOBREVIVIENTES ======================== */
+function survSketch(kind){
+  let s='<svg viewBox="0 0 280 300" role="img" aria-label="Boceto a lápiz"><g filter="url(#pencil)">';
+  // utilería detrás
+  if(kind==='menu'){s+='<rect class="f ln" x="176" y="214" width="84" height="62" rx="4"/><path class="ln" d="M170 214 L266 214 M166 236 L176 236 M260 236 L270 236"/><path class="lt" d="M196 204 q-8 -14 0 -26 q8 -12 0 -24 M218 204 q-8 -14 0 -26 q8 -12 0 -24 M240 204 q-8 -14 0 -26"/>';}
+  if(kind==='rec'){s+='<rect class="f ln" x="166" y="176" width="104" height="66"/><circle class="ln" cx="186" cy="266" r="20"/><circle class="ln" cx="250" cy="266" r="20"/><path class="ln" d="M186 266 L196 242 M250 266 L246 242"/><circle class="ln" cx="196" cy="176" r="16"/><path class="ln" d="M226 176 L238 140 M238 176 L250 146 M226 158 L250 158"/><rect class="f ln" x="248" y="160" width="12" height="26"/><path class="lt" d="M172 200 L264 200 M172 220 L264 220"/>';}
+  if(kind==='dj'){s+='<rect class="f ln" x="182" y="112" width="78" height="170" rx="4"/><circle class="ln" cx="221" cy="160" r="24"/><circle class="ln" cx="221" cy="160" r="8"/><circle class="ln" cx="221" cy="236" r="30"/><circle class="ln" cx="221" cy="236" r="10"/><path class="lt" d="M182 290 q-30 -6 -40 6 q-14 10 -40 2"/>';}
+  // cuerpo base
+  s+='<path class="ln" d="M96 214 L94 280 M124 214 L126 280"/><path class="ln" d="M82 284 L100 284 M120 284 L140 284"/>';
+  s+='<path class="f ln" d="M78 110 L142 110 L152 216 L68 216 Z"/>';
+  if(kind==='menu')s+='<path class="f ln" d="M86 138 L134 138 L144 216 L76 216 Z"/><rect class="lt" x="98" y="168" width="24" height="18"/><path class="pr" d="M92 196 l6 4 M126 150 l5 3" stroke-width="3"/>';
+  if(kind==='rec')s+='<path class="ln" d="M92 110 L96 216 M128 110 L124 216" stroke-width="6" opacity=".55"/><path class="lt" d="M80 160 L140 160"/>';
+  if(kind==='dj')s+='<path class="pr" d="M76 150 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l8 6 M74 182 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10"/>';
+  // brazos
+  if(kind==='dj')s+='<path class="ln" d="M78 116 L62 190 M142 116 L168 66"/><circle class="f ln" cx="170" cy="60" r="8"/>';
+  else if(kind==='menu')s+='<path class="ln" d="M78 116 L62 190 M142 116 L160 176"/><path class="ln" d="M160 176 L176 112"/><ellipse class="f ln" cx="178" cy="104" rx="10" ry="7"/>';
+  else s+='<path class="ln" d="M78 116 L62 190 M142 116 L158 190"/>';
+  s+='<path class="ln" d="M102 100 L102 112 M118 100 L118 112"/>';
+  // cabeza
+  s+='<ellipse class="f ln" cx="110" cy="68" rx="28" ry="34"/>';
+  if(kind==='menu'){s+='<circle class="hair" cx="110" cy="28" r="13"/><path class="hair" d="M82 64 Q80 32 110 34 Q140 32 138 64 Q124 48 110 50 Q96 48 82 64 Z"/><circle class="ln" cx="81" cy="80" r="3"/><circle class="ln" cx="139" cy="80" r="3"/><circle class="dk" cx="100" cy="70" r="3"/><circle class="dk" cx="120" cy="70" r="3"/><path class="ln" d="M100 86 Q110 92 120 86"/>';}
+  if(kind==='rec'){s+='<path class="f ln" d="M80 54 Q110 24 140 54 L164 58 L140 62 Z"/><path d="M80 54 Q110 24 140 54 Z" fill="url(#hatch)"/><circle class="dk" cx="100" cy="70" r="3"/><circle class="dk" cx="120" cy="70" r="3"/><path class="ln" d="M98 64 L106 62 M114 62 L122 64"/><path class="ln" d="M102 88 L118 88"/><path class="lt" d="M92 90 l1 1 M98 94 l1 1 M106 96 l1 1 M114 96 l1 1 M122 94 l1 1 M128 90 l1 1" stroke-width="2.4"/>';}
+  if(kind==='dj'){s+='<path class="f ln" d="M82 52 Q110 26 138 52 Z"/><path d="M82 52 Q110 26 138 52 Z" fill="url(#hatchDense)"/><path class="ln" d="M84 52 L62 58 L84 62"/><rect class="dk" x="90" y="62" width="16" height="9" rx="3"/><rect class="dk" x="114" y="62" width="16" height="9" rx="3"/><path class="ln" d="M106 66 L114 66"/><path class="ln" d="M98 84 Q110 94 122 84"/><path class="ln" d="M88 104 Q110 126 132 104"/><circle class="f ln" cx="88" cy="104" r="8"/><circle class="f ln" cx="132" cy="104" r="8"/>';}
+  s+='</g>';
+  if(kind==='menu')s+='<text class="note" x="150" y="40" style="font-size:20px">cucharón =</text><text class="note" x="150" y="60" style="font-size:20px">arma y batuta</text><text class="note g" x="6" y="250" style="font-size:18px">mandil con</text><text class="note g" x="6" y="268" style="font-size:18px">manchas de ají</text>';
+  if(kind==='rec')s+='<text class="note" x="168" y="30" style="font-size:20px">triciclo lleno</text><text class="note" x="168" y="50" style="font-size:20px">de «repuestos»</text><text class="note g" x="6" y="250" style="font-size:18px">chaleco</text><text class="note g" x="6" y="268" style="font-size:18px">reflectante</text>';
+  if(kind==='dj')s+='<text class="note" x="186" y="30" style="font-size:20px">torre de</text><text class="note" x="186" y="50" style="font-size:20px">parlantes</text><text class="note g" x="6" y="250" style="font-size:18px">polo con</text><text class="note g" x="6" y="268" style="font-size:18px">dibujo chicha</text>';
+  return s+'</svg>';
+}
+const SURV=[
+  {kind:'menu',name:'Doña Charo',role:'la señora del menú · refugio del mercado',
+   frames:[0,1].map(f=>zFront({human:true,noTilt:true,skin:P.skin,bun:true,hair:'#2a2420',shirt:'#7a5a6a',apron:'#d8d2c0',arms:'hold',pants:'#4a3f48',
+     extra:(g,y0,fr)=>{g.line(17,(fr?9:10)+y0,16,17+y0,'#8a8a88');g.rect(16,(fr?8:9)+y0,3,2,'#8a8a88');g.set(4,8+y0,'#c8b35a');g.set(13,8+y0,'#c8b35a')}},f)),
+   what:'Cocina para el refugio con lo que encuentra. Su comida sube la vida máxima.',
+   pays:'Un plato caliente si Alexander le canta un bolero.',
+   teach:'Huayno del Alivio (cura). «Mi mamá me lo cantaba cuando me enfermaba.»',
+   concert:'Le da de comer al público.',
+   quote:'«Hoy hay seco con frejoles... de lata. Cántate algo, pues, flaco.»'},
+  {kind:'rec',name:'Don Eusebio «el Chatarra»',role:'el reciclador · recorre el cerro y Gambetta',
+   frames:[0,1].map(f=>zFront({human:true,noTilt:true,skin:'#8f5e3e',cap:'#5a5a4a',hair:'#3a3a36',shirt:'#5f6a5a',straps:'#c9b23a',arms:'hold',pants:'#3f3f3a',
+     extra:(g,y0,fr)=>{g.rect(14,8+y0,5,7,'#9a8a62');g.set(15,8+y0,'#6e6244');g.set(16,8+y0,'#6e6244');g.set(7,10+y0,'#4a3020');g.set(9,11+y0,'#4a3020');g.set(11,10+y0,'#4a3020')}},f)),
+   what:'Arma mejoras para la guitarra (cuerdas de alambre, clavos, protector de calamina) y defensas para la base.',
+   pays:'Chatarra útil a cambio de canciones «de las de antes».',
+   teach:'Vals del Señuelo (atrae a la horda). Un vals criollo viejo que silbaba mientras reciclaba.',
+   concert:'Arma el escenario con calaminas y fierros.',
+   quote:'«Nada es basura, causa. Todo es repuesto.»'},
+  {kind:'dj',name:'DJ Fosforito',role:'DJ de chicha · atrincherado en Chucuito',
+   frames:[0,1,2,3].map(f=>zFront({human:true,skin:'#b07a55',cap:'#c23a74',hair:'#1b1b1b',shirt:'#c9b23a',arms:'reach',pants:'#2e3a52',
+     extra:(g,y0,fr)=>{g.rect(7,12+y0,6,1,'#222');g.rect(6,12+y0,1,2,'#222');g.rect(13,12+y0,1,2,'#222');g.set(7,15+y0,'#c23a74');g.set(10,16+y0,'#1f9a5a');g.set(12,14+y0,'#c23a74')}},f)),
+   what:'Tiene parlantes y un generador. Con su ayuda, las canciones de Alexander llegan más lejos.',
+   pays:'Pilas y combustible para la base.',
+   teach:'Cumbia del Mareo (aturde). «Con esta hasta los muertos bailan. Literal.»',
+   concert:'Pone el sonido. Sin él, nadie escucha.',
+   quote:'«¡Habla, Callao! Esto no es el fin del mundo, es el after.»'}
+];
+const sv=$('survivors');
+SURV.forEach(s=>{
+  const el=document.createElement('article');el.className='surv';
+  el.innerHTML='<div class="art">'+survSketch(s.kind)+'<div class="pix"></div></div><div><h4></h4><div class="role"></div></div>'+
+    '<dl class="ficha"><dt>Qué hace</dt><dd class="w"></dd><dt>Le paga</dt><dd class="p"></dd><dt>Le enseña</dt><dd class="t"></dd></dl><p class="concert"><b>En el concierto:</b> <span></span></p><p class="quote"></p>';
+  el.querySelector('h4').textContent=s.name;el.querySelector('.role').textContent=s.role;
+  el.querySelector('.w').textContent=s.what;el.querySelector('.p').textContent=s.pays;el.querySelector('.t').textContent=s.teach;
+  el.querySelector('.concert span').textContent=s.concert;el.querySelector('.quote').textContent=s.quote;
+  sv.appendChild(el);
+  addAnim(el.querySelector('.pix'),s.frames,3,{fps:s.frames.length===4?4:2});
+});
+
+/* ======================== PANTALLAS ======================== */
+addAnim($('portrait'),SURV[0].frames,3,{fps:2});
+function icon(fn){const g=new G(14,14);fn(g);g.outline();return g}
+const ICONS=[
+  icon(g=>{for(let a=0;a<Math.PI*2;a+=.2){g.set(7+Math.cos(a)*4,7+Math.sin(a)*4,'#d8d4c8');g.set(7+Math.cos(a)*2.4,7+Math.sin(a)*2.4,'#b9b4a6')}}), // cuerda
+  icon(g=>{g.disc(7,7.5,4.2,'#c8913f');g.rect(4,6,6,1,'#a46f2a');g.rect(5,9,4,1,'#a46f2a')}), // pan
+  icon(g=>{g.disc(7,7,4,'#b9b9be');g.disc(7,7,2.4,'#8e2f2f');[[3,7],[11,7],[7,3],[7,11],[4,4],[10,10],[4,10],[10,4]].forEach(p=>g.set(p[0],p[1],'#7a7a80'))}), // chapa
+  icon(g=>{g.rect(5,3,4,9,'#3a3a3a');g.rect(5,3,4,3,'#c89a3a');g.rect(6,2,2,1,'#bdbdbd')}), // pila
+  icon(g=>{g.rect(2,4,10,7,'#8a9096');for(let x=2;x<12;x+=2)g.rect(x,4,1,7,'#6a7076')}), // calamina
+  icon(g=>{[[5,5],[8,4],[6,8],[9,7],[4,9],[8,10]].forEach(p=>g.rect(p[0],p[1],2,2,'#e0c060'))}), // canchita
+  icon(g=>{g.rect(5,5,4,4,'#d8e04a');g.set(6,6,'#f2f5b0');g.rect(3,6,2,2,'#c9c96a');g.set(2,5,'#c9c96a');g.set(2,8,'#c9c96a');g.rect(9,6,2,2,'#c9c96a');g.set(11,5,'#c9c96a');g.set(11,8,'#c9c96a')}), // caramelo
+  icon(g=>{g.disc(7,7,3.6,'#c8b35a');g.rect(7,5,1,5,'#8a7a32')}) // moneda
+];
+const slots=$('slots');
+for(let i=0;i<12;i++){const s=document.createElement('div');s.className='slot'+(i===6?' sel':'');
+  if(ICONS[i]){const c=mk(14,14,1);c.style.width='';ICONS[i].draw(c.getContext('2d'),0,0);s.appendChild(c)}
+  slots.appendChild(s)}
+
+/* ======================== CARAS (SVG) ======================== */
+function headSVG(cx,cy,kind,label){
+  let s='<g transform="translate('+cx+' '+cy+')"><g filter="url(#pencil)">';
+  s+='<ellipse class="f ln" cx="-39" cy="8" rx="7" ry="11"/><ellipse class="f ln" cx="39" cy="8" rx="7" ry="11"/>';
+  s+='<ellipse class="f ln" cx="0" cy="0" rx="39" ry="46"/>';
+  s+='<path class="hair" d="M-39 -4 Q-41 -52 0 -50 Q41 -52 39 -4 L33 -22 L25 -8 L16 -30 L8 -10 L0 -32 L-8 -10 L-18 -28 L-25 -8 L-33 -24 Z"/>';
+  s+='<path class="ln" d="M2 10 q5 9 -3 10"/>';
+  if(kind==='timido'){
+    s+='<path class="ln" d="M-21 10 q6 5 12 0 M9 10 q6 5 12 0"/><path class="ln" d="M-23 -6 L-8 -11 M8 -11 L23 -6"/><path class="ln" d="M-6 30 L6 30"/>';
+    s+='<path class="pr" d="M-28 20 l7 -3 M-24 23 l7 -3 M18 20 l7 -3 M22 23 l7 -3"/>';
+  } else if(kind==='cantando'){
+    s+='<path class="ln" d="M-21 8 q6 -7 12 0 M9 8 q6 -7 12 0"/><path class="ln" d="M-24 -12 q8 -7 15 0 M9 -12 q8 -7 15 0"/>';
+    s+='<ellipse class="dk" cx="0" cy="28" rx="9" ry="12"/>';
+  } else {
+    s+='<circle class="f ln" cx="-14" cy="6" r="8"/><circle class="dk" cx="-14" cy="6" r="2.2"/><circle class="f ln" cx="14" cy="6" r="8"/><circle class="dk" cx="14" cy="6" r="2.2"/>';
+    s+='<path class="ln" d="M-25 -18 L-6 -13 M6 -13 L25 -18"/><path class="ln" d="M-11 30 q3 -5 6 0 q3 5 6 0 q3 -5 6 0"/>';
+    s+='<path class="pb" d="M46 -16 q7 11 0 15 q-7 -4 0 -15"/>';
+  }
+  s+='</g>';
+  if(kind==='cantando')s+='<text class="note b" x="50" y="-30" style="font-size:34px">♪</text><text class="note b" x="66" y="-4" style="font-size:26px">♫</text>';
+  s+='<text class="note" x="0" y="82" text-anchor="middle">'+label[0]+'</text><text class="note g" x="0" y="104" text-anchor="middle">'+label[1]+'</text></g>';
+  return s;
+}
+$('faces').innerHTML=headSVG(120,80,'timido',['tímido','con los pasajeros'])+headSVG(360,80,'cantando',['se transforma','cuando canta'])+headSVG(600,80,'asustado',['pánico...','pero sigue tocando']);
+
+/* ======================== STORYBOARD ======================== */
+function combi(){let s='<g filter="url(#pencil)"><path class="ln" d="M6 26 L314 26 M6 178 L314 178"/><path class="lt" d="M20 34 L300 34"/>';
+  for(let i=0;i<4;i++)s+='<rect class="lt" x="'+(26+i*72)+'" y="42" width="58" height="34" rx="3"/>';
+  for(let i=0;i<5;i++)s+='<path class="lt" d="M'+(40+i*60)+' 34 l0 10"/>';
+  return s+'</g>'}
+function seat(x){return '<rect class="f ln" x="'+x+'" y="118" width="42" height="44" rx="5"/>'}
+function pax(x,kind){let s='<g filter="url(#pencil)">'+seat(x)+'<circle class="f ln" cx="'+(x+21)+'" cy="104" r="11"/><path class="ln" d="M'+(x+21)+' 115 L'+(x+21)+' 142 M'+(x+21)+' 142 L'+(x+40)+' 146 L'+(x+40)+' 172"/>';
+  if(kind==='phone')s+='<rect class="dk" x="'+(x+26)+'" y="120" width="8" height="12"/><path class="ln" d="M'+(x+21)+' 124 L'+(x+28)+' 128"/>';
+  if(kind==='sleep')s+='</g><text class="cap" x="'+(x+28)+'" y="88">z z z</text><g>';
+  if(kind==='music')s+='<path class="ln" d="M'+(x+9)+' 102 q12 -18 24 0"/><circle class="dk" cx="'+(x+9)+'" cy="104" r="3"/><circle class="dk" cx="'+(x+33)+'" cy="104" r="3"/>';
+  if(kind==='sick')s+='<path class="lt" d="M'+(x+8)+' 92 q-6 -8 0 -14 M'+(x+36)+' 92 q6 -8 0 -14 M'+(x+21)+' 88 q-4 -8 2 -12"/>';
+  return s+'</g>'}
+function alexFig(x,y,o){o=o||{};let s='<g filter="url(#pencil)">';
+  s+='<circle class="f ln" cx="'+x+'" cy="'+y+'" r="12"/><path class="hair" d="M'+(x-12)+' '+(y-2)+' q0 -14 12 -13 q12 -1 12 13 l-4 -6 l-4 4 l-4 -7 l-4 6 l-4 -6 Z"/>';
+  s+='<path class="ln" d="M'+x+' '+(y+12)+' L'+x+' '+(y+58)+' M'+x+' '+(y+58)+' L'+(x-10)+' '+(y+100)+' M'+x+' '+(y+58)+' L'+(x+10)+' '+(y+100)+'"/>';
+  if(!o.noGuitar)s+='<ellipse class="f ln" cx="'+(x+14)+'" cy="'+(y+48)+'" rx="13" ry="16"/><path class="ln" d="M'+(x+18)+' '+(y+34)+' L'+(x+44)+' '+(y+12)+'"/><path class="ln" d="M'+x+' '+(y+26)+' L'+(x+12)+' '+(y+44)+' M'+x+' '+(y+26)+' L'+(x+36)+' '+(y+20)+'"/>';
+  s+='<ellipse class="f ln" cx="'+(x-15)+'" cy="'+(y+16)+'" rx="8" ry="5"/><circle class="f ln" cx="'+(x-22)+'" cy="'+(y+10)+'" r="4"/>';
+  return s+'</g>'}
+const PANELS=[
+  {svg:combi()+alexFig(60,62)+pax(150,'')+pax(205,'phone')+pax(260,'')+'<path class="f ln" d="M14 8 L306 8 L306 36 L74 36 L60 50 L58 36 L14 36 Z" filter="url(#pencil)"/><text class="cap" x="24" y="29" style="font-size:19px">«¡Con su permiso, señor conductor!»</text>',
+   cap:'<b>1.</b> Alexander sube a la combi en la Av. Gambetta. Titina en el hombro. Respira hondo.'},
+  {svg:combi()+alexFig(60,62)+pax(150,'phone')+pax(205,'sleep')+pax(260,'music')+'<text class="note b" x="100" y="70" style="font-size:30px">♪</text><text class="note b" x="118" y="56" style="font-size:24px">♫</text><text class="note b" x="132" y="80" style="font-size:26px">♪</text>',
+   cap:'<b>2.</b> Canta con todo el corazón. Celular, sueño, audífonos. Nadie levanta la mirada.'},
+  {svg:'<g filter="url(#pencil)"><path class="f ln" d="M90 200 L110 130 L150 120 L200 128 L215 200"/><rect class="f ln" x="118" y="70" width="80" height="70" rx="6"/><path class="lt" d="M118 84 L198 84 M118 126 L198 126"/><circle class="ln" cx="142" cy="100" r="7"/><path class="ln" d="M160 104 l14 -6 l2 8 Z"/><path class="ln" d="M180 112 q4 -4 8 0 q-4 4 -8 0"/><ellipse class="f ln" cx="262" cy="96" rx="36" ry="24"/><circle class="f ln" cx="228" cy="74" r="16"/><path class="ln" d="M212 74 L198 80 L212 84"/><circle class="dk" cx="224" cy="70" r="3"/></g><text class="cap" x="20" y="34">S/ 0.00</text><text class="cap" x="16" y="58" style="font-size:16px">un botón · un caramelo · una pelusa</text>',
+   cap:'<b>3.</b> Pasa la lata. Le cae un botón, un caramelo de limón y una pelusa. Titina se come la pelusa.'},
+  {svg:combi()+pax(30,'phone')+pax(90,'')+pax(150,'sleep')+pax(250,'sick')+'<text class="cap" x="236" y="80">cof... cof...</text>',
+   cap:'<b>4.</b> Al fondo, un señor tose... y tose... y deja de toser.'},
+  {svg:combi()+alexFig(70,62,{})+'<g filter="url(#pencil)"><circle class="f ln" cx="196" cy="86" r="14"/><path class="ln" d="M186 92 l6 -4 l4 4 l4 -4 l6 4"/><circle class="dk" cx="190" cy="82" r="2"/><circle class="dk" cx="202" cy="82" r="2"/><path class="ln" d="M196 100 L210 150 M210 150 L196 176 M210 150 L226 176 M198 112 L150 100 M200 116 L148 116"/><path class="ln" d="M282 40 L282 176"/><circle class="f ln" cx="294" cy="70" r="11"/><path class="ln" d="M294 81 L298 130 M294 96 L282 90"/></g><path class="f ln" d="M150 12 L314 12 L314 40 L300 40 L296 54 L288 40 L150 40 Z" filter="url(#pencil)"/><text class="cap" x="156" y="31" style="font-size:16px">¡AL FONDO HAY SITIO!</text><text class="note" x="54" y="44" style="font-size:34px">!</text>',
+   cap:'<b>5.</b> El señor se levanta. Ya no es señor. El cobrador sigue gritando la ruta como si nada.'},
+  {svg:combi()+'<g filter="url(#pencil)"><circle class="f ln" cx="80" cy="74" r="12"/><path class="ln" d="M80 86 L84 132 M84 132 L70 176 M84 132 L98 176 M82 100 L120 74"/><ellipse class="f ln" cx="150" cy="58" rx="18" ry="22" transform="rotate(40 150 58)"/><path class="ln" d="M118 76 L136 64"/><circle class="f ln" cx="214" cy="96" r="14" transform="rotate(20 214 96)"/><path class="ln" d="M214 110 L236 158 M236 158 L228 176 M236 158 L254 176"/><path class="pr" d="M170 50 l14 -8 M174 66 l18 0 M170 80 l14 8 M160 36 l6 -14"/></g><text class="label" x="168" y="40" style="font-size:16px;fill:var(--pen-red)">¡PLAAANG!</text><rect x="70" y="150" width="190" height="30" fill="var(--graphite)"/><text x="165" y="171" text-anchor="middle" style="font-family:var(--pixel);font-size:14px;fill:#f0f1ec">[CLIC] GUITARRAZO</text>',
+   cap:'<b>6.</b> Guitarrazo. Empieza el tutorial. Por primera vez, alguien reacciona a su música.'}
+];
+const board=$('board');
+PANELS.forEach(p=>{const d=document.createElement('div');d.className='panel';d.innerHTML='<svg viewBox="0 0 320 200" role="img" aria-label="Viñeta del storyboard">'+p.svg+'</svg><p class="pcap">'+p.cap+'</p>';board.appendChild(d)});
+
+/* ======================== ESCENA PIXEL ======================== */
+const cv=$('scene'),sx=cv.getContext('2d');const SW=320,SH=160;
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R0=rng(42);
+const hillHouses=[];for(let i=0;i<34;i++){const x=Math.floor(R0()*SW);const top=34+Math.round(10*Math.sin(x/37)+6*Math.sin(x/13+1));hillHouses.push({x,y:top+Math.floor(R0()*14),w:5+Math.floor(R0()*6),h:4+Math.floor(R0()*3),c:['#a39a8a','#8f9aa0','#a08f86','#9a9f8c','#b0a79a','#8a8a94'][Math.floor(R0()*6)]})}
+const blocks=[{x:0,w:46,t:'b',top:58},{x:46,w:38,t:'p',c:'#8ea0a6',top:62},{x:84,w:40,t:'b',top:54},{x:131,w:46,t:'p',c:'#a3978a',top:60},{x:177,w:62,t:'b',top:56},{x:239,w:41,t:'p',c:'#909a88',top:63},{x:280,w:40,t:'b',top:57}];
+const noise=[];const R1=rng(7);for(let i=0;i<260;i++)noise.push([Math.floor(R1()*SW),124+Math.floor(R1()*36),R1()<.5?'#535557':'#616365']);
+function drawStatic(night){
+  const sky=['#9ea2a3','#a6aaaa','#adb1b0','#b4b7b6','#babdbb'];
+  for(let i=0;i<5;i++){sx.fillStyle=sky[i];sx.fillRect(0,i*9,SW,9)}
+  sx.fillStyle='#8a8983';for(let x=0;x<SW;x++){const top=34+Math.round(10*Math.sin(x/37)+6*Math.sin(x/13+1));sx.fillRect(x,top,1,64-top)}
+  hillHouses.forEach(h=>{sx.fillStyle=h.c;sx.fillRect(h.x,h.y,h.w,h.h);sx.fillStyle='#4a4c4e';sx.fillRect(h.x+1,h.y+1,1,1);sx.fillStyle='#6b665e';sx.fillRect(h.x,h.y-1,h.w,1)});
+  sx.fillStyle='rgba(205,208,207,.38)';sx.fillRect(0,40,SW,24);
+  blocks.forEach(b=>{
+    if(b.t==='b'){sx.fillStyle='#86574a';sx.fillRect(b.x,b.top,b.w,110-b.top);sx.fillStyle='#6e463b';
+      for(let y=b.top+2;y<110;y+=3){sx.fillRect(b.x,y,b.w,1);const off=((y-b.top)/3)%2?3:0;for(let x=b.x+off;x<b.x+b.w;x+=6)sx.fillRect(x,y-2,1,2)}
+      sx.fillStyle='#3e3833';for(let x=b.x+3;x<b.x+b.w;x+=8)sx.fillRect(x,b.top-6,1,6);
+    } else {sx.fillStyle=b.c;sx.fillRect(b.x,b.top,b.w,110-b.top);sx.fillStyle='rgba(60,60,60,.18)';sx.fillRect(b.x,b.top+10,b.w,2);sx.fillRect(b.x+4,b.top+30,6,14);sx.fillStyle='#6f6a62';sx.fillRect(b.x,b.top-2,b.w,2)}
+    sx.fillStyle='#2c3033';sx.fillRect(b.x+6,b.top+12,10,8);sx.fillStyle='#6d6f70';for(let x=b.x+7;x<b.x+16;x+=3)sx.fillRect(x,b.top+12,1,8);
+    if(b.w>40){sx.fillStyle='#55595d';sx.fillRect(b.x+b.w-16,92,10,18);sx.fillStyle='#45494d';for(let y=94;y<110;y+=3)sx.fillRect(b.x+b.w-16,y,10,1)}
+  });
+  // ropa tendida en un techo
+  sx.fillStyle='#3e3833';sx.fillRect(180,48,40,1);[['#7a4a4a',184],['#4a5a7a',194],['#a39a6a',204],['#5a6a5a',212]].forEach(c=>{sx.fillStyle=c[0];sx.fillRect(c[1],49,5,6)});
+  // poste y cables
+  sx.fillStyle='#6f6f69';sx.fillRect(128,22,3,90);sx.fillRect(121,28,17,2);
+  sx.fillStyle='#262626';
+  [[0,34,128,29,6],[131,29,320,36,8],[0,40,128,31,9],[131,31,320,44,10]].forEach(c=>{for(let i=0;i<=40;i++){const t=i/40;const x=c[0]+(c[2]-c[0])*t;const y=c[1]+(c[3]-c[1])*t+Math.sin(t*Math.PI)*c[4];sx.fillRect(Math.round(x),Math.round(y),2,1)}});
+  sx.fillRect(124,30,10,1);sx.fillRect(126,33,7,2);sx.fillRect(123,35,4,1);
+  // vereda, sardinel, pista
+  sx.fillStyle='#9a9b95';sx.fillRect(0,110,SW,12);sx.fillStyle='#878882';for(let x=8;x<SW;x+=16)sx.fillRect(x,110,1,12);sx.fillStyle='#a9aaa4';sx.fillRect(0,110,SW,1);
+  sx.fillStyle='#73746f';sx.fillRect(0,122,SW,2);
+  sx.fillStyle='#585a5c';sx.fillRect(0,124,SW,36);noise.forEach(n=>{sx.fillStyle=n[2];sx.fillRect(n[0],n[1],1,1)});
+  sx.fillStyle='#9e9a78';for(let x=4;x<SW;x+=20)sx.fillRect(x,142,11,1);
+  sx.fillStyle='#46484a';sx.fillRect(40,150,14,1);sx.fillRect(53,151,6,1);sx.fillRect(150,132,1,6);sx.fillRect(151,137,5,1);
+  sx.fillStyle='#4c5257';sx.fillRect(90,152,18,3);
+  // basura
+  [['#2e2e30',92,104,9,7],['#3c3a36',99,106,8,5],['#2a2b2e',86,107,7,4],['#7a6a4a',97,103,3,2]].forEach(t=>{sx.fillStyle=t[0];sx.fillRect(t[1],t[2],t[3],t[4])});
+  // combi abandonada
+  sx.fillStyle='#141216';sx.fillRect(204,99,72,33);
+  sx.fillStyle='#cfccbf';sx.fillRect(205,100,70,30);sx.fillStyle='#bdbab0';sx.fillRect(205,124,70,6);
+  sx.fillStyle='#3a4246';sx.fillRect(210,104,58,9);sx.fillStyle='#d8d8d0';sx.fillRect(222,105,1,3);sx.fillRect(223,108,2,1);sx.fillRect(250,104,1,2);
+  sx.fillStyle='#9b4a3e';sx.fillRect(205,117,70,3);sx.fillStyle='#2a2e30';sx.fillRect(240,104,8,22);
+  sx.fillStyle='#1f1f1f';[[218,130],[262,130]].forEach(w=>{sx.fillRect(w[0]-4,w[1]-2,9,6)});
+  sx.fillStyle='#6a6a6a';sx.fillRect(217,130,2,2);sx.fillRect(261,130,2,2);
+  sx.fillStyle='#e0d9a0';sx.fillRect(273,120,2,3);
+}
+const zDefs=[{f:frames4(f=>zFront({},f)),x:300,y:107,v:.22,night:false},{f:frames4(f=>zFront({small:true,shirt:'#dcdcd4',pants:'#7a7c80',hair:'#151515',fringe:true,straps:'#3b4f8a',collar:'#9a9a94'},f)),x:180,y:116,v:.3,night:false},
+  {f:[0,1].map(crawler),x:260,y:142,v:.1,night:false},{f:frames4(f=>zFront({blind:true,arms:'wide',shirt:'#5d4f6a',bald:true},f)),x:150,y:104,v:.18,night:true},{f:frames4(f=>zFront({shirt:'#4a5a6a',pants:'#2e3238'},f)),x:20,y:118,v:.25,night:true}];
+const AW=alexWalk('right'),TT=titinaTiny();
+let night=false,sT=0,sAcc=0,ax=-10,fi=0;
+function drawHUD(){
+  sx.fillStyle='rgba(20,18,22,.72)';sx.fillRect(4,4,78,26);
+  sx.fillStyle='#b53a34';sx.fillRect(8,8,2,2);sx.fillRect(11,8,2,2);sx.fillRect(8,10,5,1);sx.fillRect(9,11,3,1);sx.fillRect(10,12,1,1);
+  sx.fillStyle='#3a2a2a';sx.fillRect(16,8,44,4);sx.fillStyle='#b53a34';sx.fillRect(16,8,33,4);
+  sx.fillStyle='#4a7bb5';sx.fillRect(8,15,5,3);sx.fillStyle='#2a3240';sx.fillRect(16,15,44,3);sx.fillStyle='#4a7bb5';sx.fillRect(16,15,26,3);
+  sx.fillStyle='#d8d4c8';for(let i=0;i<6;i++){const x=17+i*4;if(i===4){sx.fillRect(x,21,1,2);sx.fillRect(x,25,1,2)}else sx.fillRect(x,21,1,6)}
+  sx.fillStyle='#a9adb0';sx.fillRect(66,19,6,8);sx.fillStyle='#7c8084';sx.fillRect(66,19,6,1);
+  sx.fillStyle='#c8b35a';sx.fillRect(74,22,2,2);sx.fillRect(77,24,2,2);sx.fillRect(74,26,2,1);
+  if(night){sx.fillStyle='#d9dcc8';sx.fillRect(304,6,8,8);sx.fillStyle='rgba(8,12,28,1)';sx.fillRect(307,5,7,7)}
+  else{sx.fillStyle='#d8d6c8';sx.fillRect(304,7,9,7);sx.fillRect(305,6,7,9)}
+}
+function renderScene(){
+  drawStatic(night);
+  const fogX=(sT/90)%SW;sx.fillStyle='rgba(215,218,216,.20)';
+  [[fogX,96,90,10],[fogX-SW,96,90,10],[(fogX*1.6)%SW,116,70,8],[((fogX*1.6)%SW)-SW,116,70,8]].forEach(f=>sx.fillRect(Math.round(f[0]),f[1],f[2],f[3]));
+  const list=zDefs.filter(z=>night||!z.night);
+  list.sort((a,b)=>a.y-b.y);
+  const ay=118-27;
+  let drewAlex=false;
+  list.forEach(z=>{if(!drewAlex&&z.y>ay){AW[fi%4].draw(sx,ax,ay);drewAlex=true}z.f[fi%z.f.length].draw(sx,z.x,z.y)});
+  if(!drewAlex)AW[fi%4].draw(sx,ax,ay);
+  const tx=ax+8+Math.cos(sT/700)*16,ty=ay-14+Math.sin(sT/350)*4;
+  TT[fi%2].draw(sx,tx,ty);
+  if(night){
+    sx.fillStyle='rgba(8,12,28,.62)';sx.fillRect(0,0,SW,SH);
+    sx.fillStyle='rgba(255,214,140,.10)';for(let r=24;r>4;r-=5){sx.beginPath();sx.ellipse(130,118,r*1.6,r*.6,0,0,Math.PI*2);sx.fill()}
+    sx.fillStyle='#ffd88a';sx.fillRect(130,30,3,2);
+    sx.fillStyle=P.zeyeN;list.forEach(z=>{const g=z.f[fi%z.f.length];g.eyes.forEach(e=>sx.fillRect(Math.round(z.x)+e[0],Math.round(z.y)+e[1],1,1))});
+  }
+  drawHUD();
+}
+var sceneTick=function(dt){
+  if(reduce)return;
+  sT+=dt;sAcc+=dt;
+  if(sAcc>=110){sAcc=0;fi++;ax+=1.2;if(ax>SW+10)ax=-24;
+    zDefs.forEach(z=>{z.x-=z.v*(night?2.2:1);if(z.x<-30)z.x=SW+10});
+    renderScene();}
+};
+renderScene();
+$('nightBtn').addEventListener('click',e=>{night=!night;e.currentTarget.textContent=night?'Ver de día':'Ver de noche';e.currentTarget.setAttribute('aria-pressed',String(night));renderScene()});
+
+if(!reduce)requestAnimationFrame(tick);
+})();
+</script>

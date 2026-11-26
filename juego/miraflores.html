@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#131015">
+<title>ACHORADO · Miraflores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Patrick+Hand&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="css/cima.css">
+<link rel="stylesheet" href="css/tienda.css">
+<link rel="stylesheet" href="css/pausa.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/habilidades.css">
+<link rel="stylesheet" href="css/pulido-v014.css">
+<style>
+/* Miraflores (M1a): panel de la tienda de inflables, estilo chicha de game.css */
+.mshop { position: absolute; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center; background: rgba(19, 16, 21, .62); }
+.mshop.on { display: flex; }
+.mshop-poster { position: relative; background: var(--ink); color: var(--yellow); width: calc(var(--u) * 300); max-width: 94%; transform: rotate(-.6deg);
+  border: calc(var(--u) * 2) solid var(--pink); box-shadow: calc(var(--u) * 4) calc(var(--u) * 4) 0 var(--yellow); padding: calc(var(--u) * 8) calc(var(--u) * 10) calc(var(--u) * 6); }
+.mshop-k { margin: 0; font-family: var(--pixel); font-size: calc(var(--u) * 6); color: var(--green); letter-spacing: .08em; }
+.mshop-t { margin: calc(var(--u) * 1) 0 calc(var(--u) * 2); font-family: var(--display); font-size: calc(var(--u) * 15); color: var(--pink); text-shadow: var(--u) var(--u) 0 var(--yellow); line-height: 1; }
+.mshop-pregon { margin: 0 0 calc(var(--u) * 5); font-family: var(--hand); font-size: calc(var(--u) * 8); color: #f2f2f2; }
+.mshop-items { display: flex; flex-direction: column; gap: calc(var(--u) * 3); }
+.mshop-it { display: grid; grid-template-columns: calc(var(--u) * 10) calc(var(--u) * 24) 1fr auto; grid-template-rows: auto auto; column-gap: calc(var(--u) * 4); align-items: center; text-align: left;
+  background: #221d28; color: #f2f2f2; border: var(--u) solid var(--yellow); padding: calc(var(--u) * 3) calc(var(--u) * 4); cursor: pointer; font-family: var(--hand); outline: none; }
+.mshop-it:hover, .mshop-it:active { background: #2f2738; border-color: var(--pink); }
+.mshop-it .k { grid-row: 1 / 3; font-family: var(--pixel); font-size: calc(var(--u) * 9); color: var(--green); }
+.mshop-it canvas { grid-row: 1 / 3; width: calc(var(--u) * 24); height: calc(var(--u) * 24); image-rendering: pixelated; }
+.mshop-it .n { font-family: var(--display); font-size: calc(var(--u) * 8); color: var(--yellow); }
+.mshop-it .p { font-family: var(--pixel); font-size: calc(var(--u) * 6); color: var(--pink); white-space: nowrap; }
+.mshop-it .d { grid-column: 3 / 5; font-size: calc(var(--u) * 6.5); color: #c9c5cf; line-height: 1.1; }
+.mshop-it.poor { opacity: .55; }
+.mshop-msg { min-height: calc(var(--u) * 9); margin: calc(var(--u) * 4) 0 calc(var(--u) * 2); font-family: var(--hand); font-size: calc(var(--u) * 8); color: var(--green); }
+.mshop-msg.flash { animation: mshopFlash .35s steps(2) 1; }
+@keyframes mshopFlash { 0% { color: var(--yellow); } 100% { color: var(--green); } }
+.mshop-foot { display: flex; gap: calc(var(--u) * 6); align-items: center; justify-content: space-between; font-family: var(--pixel); font-size: calc(var(--u) * 5); color: #c9c5cf; }
+.mshop-foot b { color: var(--yellow); font-weight: 400; }
+.mshop-coins { color: var(--yellow); }
+.mshop-close { font-family: var(--pixel); font-size: calc(var(--u) * 6); background: var(--pink); color: var(--ink); border: none; padding: calc(var(--u) * 2) calc(var(--u) * 5); cursor: pointer; outline: none; }
+.lvl { margin: calc(var(--u) * 2) 0 0; font-family: var(--hand); font-size: calc(var(--u) * 9); color: var(--green); }
+</style>
+</head>
+<body data-state="title">
+<div id="stage">
+  <canvas id="world" width="480" height="270"></canvas>
+  <div id="hurt"></div>
+
+  <!-- HUD -->
+  <div id="hud" class="hudbox">
+    <div class="barrow"><canvas id="hpIcon" width="7" height="7"></canvas><div class="bar hp"><i id="hp"></i></div></div>
+    <div class="barrow"><canvas id="stIcon" width="7" height="7"></canvas><div class="bar st"><i id="st"></i><u class="tick"></u></div></div>
+    <div class="hudrow">
+      <div id="titinaBox" class="titina" data-t="lista"><canvas id="titinaCv" width="9" height="7"></canvas><b id="titinaLbl">Q</b></div>
+      <div class="fans">FANS: <b id="fans">0</b></div>
+    </div>
+    <div id="qbar" class="qrow"></div>
+    <div class="invrow"><div class="coinbox"><canvas id="coinIcon" width="7" height="7"></canvas><b id="coinN">0</b></div><span class="bagkey"><b>I</b> mochila</span></div>
+  </div>
+  <div id="hint">WASD moverse · SHIFT correr · ESPACIO guitarrazo · C saltar · Q Titina · I mochila · 1-4 objetos · K árbol · Z X V B G T melodías</div>
+  <div id="toasts"></div>
+  <div id="ftx"></div>
+
+  <!-- Título -->
+  <div id="title" class="screen">
+    <div class="poster">
+      <p class="kicker">PARQUE KENNEDY · MIRAFLORES</p>
+      <h1>ACHORADO</h1>
+      <p class="sub">Canciones para el fin del mundo</p>
+      <div class="row"><span>WASD moverse</span><span>SHIFT correr</span><span>ESPACIO guitarrazo</span><span>C saltar</span><span>Q Titina</span><span>I mochila</span><span>L recetario</span><span>H mi cuarto</span><span>1-4 objetos</span><span>K árbol</span><span>Z X V B G T melodías</span><span>E comprar/agarrar</span><span>ESC pausa</span></div>
+      <p class="lvl">Nivel: Miraflores, el distrito pituco</p>
+      <p class="go blink">ENTER para empezar</p>
+    </div>
+  </div>
+
+  <!-- Intro -->
+  <div id="intro" class="screen dialogwrap">
+    <div class="chicha dlg">
+      <div class="tag">Alexander</div>
+      <p id="introText"></p>
+      <div class="tip">ENTER</div>
+    </div>
+  </div>
+
+  <!-- Mochila -->
+  <div id="inv" class="screen dim">
+    <div id="invPanel" class="invposter">
+      <div class="invhead">
+        <h2>MOCHILA</h2>
+        <p class="invtag">¡se viene la mancha, causa!</p>
+        <div class="invcoins"><canvas id="invCoin" width="12" height="12"></canvas><b id="invCoinN">0</b></div>
+      </div>
+      <div class="invbody">
+        <div class="invleft">
+          <div id="invGrid" class="invgrid"></div>
+          <div class="invqrow"><span class="invlbl">BARRA RÁPIDA</span><div id="invQuick" class="invquick qrow"></div></div>
+        </div>
+        <div class="invdetail">
+          <div class="invtop"><canvas id="invBig" width="24" height="24"></canvas><div><h3 id="invName"></h3><span id="invStack" class="invstack"></span></div></div>
+          <p id="invDesc" class="invdesc"></p>
+          <p id="invFx" class="invfx"></p>
+          <div class="invbtns"><button id="invUse" type="button" tabindex="-1">USAR</button><button id="invClose" type="button" tabindex="-1" class="alt">CERRAR</button></div>
+          <p id="invMsg" class="invmsg"></p>
+        </div>
+      </div>
+      <div class="invfoot"><span><b>WASD</b> / <b>FLECHAS</b> mover</span><span><b>ENTER</b> usar</span><span><b>1-4</b> asignar rápida</span><span><b>I</b> · <b>TAB</b> · <b>ESC</b> cerrar</span></div>
+      <div class="hazard"></div>
+      <div class="mancha"><span>¡SE VIENE LA MANCHA! · ¡SE VIENE LA MANCHA! · ¡SE VIENE LA MANCHA! · ¡SE VIENE LA MANCHA! · ¡SE VIENE LA MANCHA! · ¡SE VIENE LA MANCHA! · ¡SE VIENE LA MANCHA! · ¡SE VIENE LA MANCHA! · </span></div>
+    </div>
+  </div>
+
+  <!-- Pausa -->
+  <div id="pause" class="screen dim">
+    <div class="poster small"><h2>PAUSA</h2>
+      <div class="vols">
+        <label class="vol"><span>Música</span><input type="range" min="0" max="100" step="1" data-vol="music"><output>50</output></label>
+        <label class="vol"><span>Efectos</span><input type="range" min="0" max="100" step="1" data-vol="sfx"><output>90</output></label>
+        <label class="vol"><span>Ambiente</span><input type="range" min="0" max="100" step="1" data-vol="amb"><output>85</output></label>
+        <label class="vol"><span>Voces</span><input type="range" min="0" max="100" step="1" data-vol="voces" value="80"><output>80</output></label>
+      </div>
+      <p class="mhint"><b>M</b> silencio · <span id="muteState">CON SONIDO</span></p>
+      <p class="go">ESC para seguir</p></div>
+  </div>
+
+  <!-- Muerte -->
+  <div id="death" class="screen dim red">
+    <h2 class="big">¡TE COMIERON, CAUSA!</h2>
+  </div>
+
+  <!-- Victoria -->
+  <div id="win" class="screen">
+    <div class="poster">
+      <h1 class="mid" id="winTitle">¡LLEGASTE A LA CALLE DE LAS PIZZAS!</h1>
+      <div class="stats">
+        <div><span>Tiempo</span><b id="winTime">0:00</b></div>
+        <div><span>Fans tumbados</span><b id="winFans">0</b></div>
+        <div><span>Muertes</span><b id="winDeaths">0</b></div>
+        <div id="winGallRow" class="hide"><span>Gallinazos espantados</span><b id="winGall">0</b></div>
+        <div id="winCartRow" class="hide"><span>Carretillas esquivadas</span><b id="winCart">0</b></div>
+      </div>
+      <button type="button" tabindex="-1" class="go blink" id="winGo" data-ui>ENTER para jugar de nuevo</button>
+    </div>
+  </div>
+
+  <button type="button" tabindex="-1" id="fsBtn" class="fsbtn" data-ui aria-label="Pantalla completa" title="Pantalla completa">⛶</button>
+  <div id="dbg"></div>
+</div>
+
+<script src="js/engine/lienzo.js"></script>
+<script src="js/miraflores/nivel.js"></script>
+<script src="js/sprites/base.js"></script>
+<script src="js/sprites/marcas.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/sprites/calle.js"></script>
+<script src="js/sprites/edificios-casas.js"></script>
+<script src="js/sprites/edificios-industria.js"></script>
+<script src="js/sprites/vehiculos.js"></script>
+<script src="js/sprites/mobiliario.js"></script>
+<script src="js/sprites/luz.js"></script>
+<script src="js/sprites/letreros.js"></script>
+<script src="js/sprites/objetos.js"></script>
+<script src="js/sprites/cerro-suelo.js"></script>
+<script src="js/sprites/cerro-casas.js"></script>
+<script src="js/sprites/cerro-props.js"></script>
+<script src="js/sprites/aves.js"></script>
+<script src="js/sprites/zombies.js"></script>
+<script src="js/sprites/retratos.js"></script>
+<script src="js/sprites/retratos-v013.js"></script>
+<script src="js/sprites/cine.js"></script>
+<script src="js/sprites/items-v011.js"></script>
+<script src="js/base/catalogo.js"></script>
+<script src="js/base/arte-base.js"></script>
+<script src="js/miraflores/arte-parque.js"></script>
+<script src="js/miraflores/arte-negocios.js"></script>
+<script src="js/miraflores/arte-personajes.js"></script>
+<script src="js/sprites/zombis-v013.js"></script>
+<script src="js/sprites/hd.js"></script>
+<script src="js/sprites/hd-callao.js"></script>
+<script src="js/sprites/hd-mira-cv.js"></script>
+<script src="js/audio/sfx.js"></script>
+<script src="js/miraflores/rock.js"></script>
+<script src="js/audio/voces.js"></script>
+<script src="js/audio/motor.js"></script>
+<script src="js/miraflores/sfx-mira.js"></script>
+<script src="js/miraflores/voces-mira.js"></script>
+<script src="js/engine/viaje.js"></script>
+<script src="js/engine/saltos.js"></script>
+<script src="js/engine/partida.js"></script>
+<script src="js/engine/dificultad.js"></script>
+<script src="js/engine/objetivo.js"></script>
+<script src="js/engine/concierto.js"></script>
+<script src="js/engine/tutorial.js"></script>
+<script src="js/engine/dialogo.js"></script>
+<script src="js/engine/input.js"></script>
+<script src="js/engine/tactil.js"></script>
+<script src="js/miraflores/mundo.js"></script>
+<script src="js/engine/entities.js"></script>
+<script src="js/engine/zombies.js"></script>
+<script src="js/engine/interaccion.js"></script>
+<script src="js/engine/armas.js"></script>
+<script src="js/engine/cerro.js"></script>
+<script src="js/engine/senoras.js"></script>
+<script src="js/engine/aves.js"></script>
+<script src="js/engine/fuego.js"></script>
+<script src="js/engine/inventario.js"></script>
+<script src="js/engine/tienda.js"></script>
+<script src="js/engine/vendedores.js"></script>
+<script src="js/engine/social.js"></script>
+<script src="js/engine/noche.js"></script>
+<script src="js/engine/fx.js"></script>
+<script src="js/engine/render.js"></script>
+<script src="js/engine/volumen.js"></script>
+<script src="js/engine/postfx.js"></script>
+<script src="js/engine/hud.js"></script>
+<script src="js/miraflores/trabajadores.js"></script>
+<script src="js/miraflores/inflables.js"></script>
+<script src="js/miraflores/jefa.js"></script>
+<script src="js/miraflores/cargables.js"></script>
+<script src="js/miraflores/emboscadas.js"></script>
+<script src="js/miraflores/extras.js"></script>
+<script src="js/miraflores/gatos.js"></script>
+<script src="js/cine/cima.js"></script>
+<script src="js/base/base.js"></script>
+<script src="js/engine/pausa.js"></script>
+<script src="js/audio/melodias.js"></script>
+<script src="js/engine/habilidades.js"></script>
+<script src="js/engine/pulido-v013.js"></script>
+<script src="js/engine/ui-v014.js"></script>
+<script src="js/engine/game.js"></script>
+</body>
+</html>
