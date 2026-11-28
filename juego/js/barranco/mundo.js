@@ -38,7 +38,10 @@
   var ERMITA = { c0: 37, c1: 62, r0: 30, r1: 50 };                        // meseta de la Ermita (solo se llega por el puente)
   var MIRADOR = { c0: 37, c1: 41, r0: 30, r1: 50 };                       // Calle Ermita: el borde del acantilado
   var DECK = { c0: 63, c1: 85, r0: 47, r1: 49 };                          // Puente de los Suspiros (E–O), capa alta
-  var OZ = { c0: 63, c1: 85, r0: 45, r1: 51 };                            // zona donde la capa importa
+  var OZ = { c0: 63, c1: 81, r0: 45, r1: 51 };                            // zona donde la capa importa (v0.16: hasta la columna 81; la punta este
+                                                                          //   del puente, 82–85, es piso alto normal: el descanso de la escalera)
+  var LANDING = { c0: 82, c1: 85, r0: 45, r1: 49 };                       // v0.16: descanso al este del puente (piso alto)
+  var SIDESTAIR = { c0: 81, c1: 85, r0: 41, r1: 44 };                     // v0.16: escalera lateral de la Bajada al puente
   var GARDEL = { c0: 86, c1: 99, r0: 24, r1: 35 };                        // Plazuela Gardel: arriba de la Bajada
   var SANMARTIN = { c0: 100, c1: 105, r0: 24, r1: 30 };                   // tramo de la Av. San Martín al parque
   var AYACUCHO = { c0: 94, c1: 99, r0: 36, r1: 51 };
@@ -160,6 +163,9 @@
     if (bd.d < BAJ.half) { grid[r][c] = (r >= 54 && r <= 76) ? 'e' : 'b'; lotAt[r][c] = -1; BAJS[r * COLS + c] = bd.s; }
     else if (bd.d < BAJ.wall && SOLID[ch0]) grid[r][c] = 'M';
   }
+  // v0.16: la escalera lateral (abre el muro este de la Bajada justo arriba del puente) y el descanso que la une al puente
+  for (r = SIDESTAIR.r0; r <= SIDESTAIR.r1; r++) for (c = SIDESTAIR.c0; c <= SIDESTAIR.c1; c++) if (grid[r][c] === 'M' || grid[r][c] === 'A') grid[r][c] = 'e';
+  for (r = LANDING.r0; r <= LANDING.r1; r++) for (c = LANDING.c0; c <= LANDING.c1; c++) grid[r][c] = 'v';
   var MAP = grid.map(function (rw) { return rw.join(''); });
 
   /* ---------------- Lugares, inicio, puntos de control ---------------- */
@@ -328,7 +334,7 @@
     { k: 'cajaCervezas', c: 22.5, r: 70.6 }, { k: 'cajaCervezas', c: 22.6, r: 91 }, { k: 'basureroBR', c: 26.4, r: 75.2 }, { k: 'basureroBR', c: 26.4, r: 82.2 },
     // ---- Circuito de Playas: autos abandonados y el puente peatonal (decoración sobre la pista, no se camina) ----
     { k: 'autoAbandonado', v: 0, c: 32, r: 62 }, { k: 'autoAbandonado', v: 1, c: 32.4, r: 92 }, { k: 'autoAbandonado', v: 0, c: 31.6, r: 40 }, { k: 'autoAbandonado', v: 1, c: 32.2, r: 14 },
-    { k: 'puentePeatonal', c: 32.5, r: 80.2 },
+    // v0.16: el puente peatonal ya no es un prop (su tablero quedaba 3 filas al norte de por donde se camina): ver drawFoot()
     // ---- Terraza del Restaurante Javier ----
     { k: 'bancaBR', c: 47, r: 67.6 }, { k: 'cajaCervezas', c: 47.5, r: 69.6 },
     // ---- La Ermita, la plazuela y el mirador (Calle Ermita) ----
@@ -364,6 +370,8 @@
         n++;
       }
     }
+    // v0.16: la escalera lateral y el descanso del puente quedan despejados (nada de árboles ni casitas encima)
+    for (var q = PROPS.length - 1; q >= 0; q--) { var pq = PROPS[q]; if (pq.c > SIDESTAIR.c0 - 2.5 && pq.c < LANDING.c1 + 2 && pq.r > SIDESTAIR.r0 - 2 && pq.r < LANDING.r0 + 1.5 && pq.k !== 'farolBR') PROPS.splice(q, 1); }
     // el mirador: baranda al borde del acantilado (columna 36)
     for (var rr = 31; rr <= 50; rr += 2) PROPS.push({ k: 'barandaMirador', c: 36.6, r: rr + 0.9 });
     // faroles de fierro: Grau y las dos calles bohemias (en la vereda norte y sur)
@@ -608,13 +616,6 @@
     var sh = spriteOf('puente', 'sombra');
     if (sh) { for (var x = DECKPX.x0; x < DECKPX.x1; x += sh.width) g.drawImage(sh, x, DECKPX.y0 + 6); }
     else { g.fillStyle = 'rgba(28,22,40,.38)'; g.fillRect(DECKPX.x0 + 10, DECKPX.y0 + 8, DECKPX.x1 - DECKPX.x0 - 6, DECKPX.y1 - DECKPX.y0); }
-    // pilares del puente en los muros de la quebrada
-    var pil = spriteOf('puente', 'pilar');
-    [OZ.c0 + 5, OZ.c1 - 4].forEach(function (pc) {
-      var xx = pc * T, yy = (DECK.r1 + 1) * T + 8;
-      if (pil) g.drawImage(pil, Math.round(xx - (pil.ax !== undefined ? pil.ax : pil.width / 2)), Math.round(yy - (pil.ay !== undefined ? pil.ay : pil.height)));
-      else { g.fillStyle = '#1c1a22'; g.fillRect(xx - 4, yy - 22, 8, 22); g.fillStyle = '#5b3a29'; g.fillRect(xx - 3, yy - 21, 6, 20); }
-    });
     // nombres de calle pintados en la vereda (rótulos chicos)
     if (BR.label) {
       [[CALLE_A, 150], [CALLE_B, 150], [UNION, 0]].forEach(function (q) {
@@ -626,35 +627,204 @@
   }
   function spriteOf(k, sub) { var o = brProp(k); if (o && sub) o = o[sub]; if (Array.isArray(o)) o = o[0]; return isCv(o) ? o : null; }
 
-  /* ---------------- El Puente de los Suspiros (por cuadro) y el techo de la peña ---------------- */
-  var deckCv = null, roofCv = null;
-  function bakeDeck() {
-    var w = DECKPX.x1 - DECKPX.x0, h = DECKPX.y1 - DECKPX.y0, top = 12, c2 = mkc(w, h + top + 4), g = c2.getContext('2d');
-    g.imageSmoothingEnabled = false;
-    var piso = spriteOf('puente', 'piso'), bar = spriteOf('puente', 'baranda'), tb = brTile('tablasPuente');
-    var x, y;
-    // vigas por debajo (se ven en el borde sur)
-    g.fillStyle = '#1c1a22'; g.fillRect(0, top + h - 1, w, 4); g.fillStyle = '#4f2a1e'; g.fillRect(0, top + h, w, 2);
-    if (piso && piso.width >= 16) {
-      for (y = 0; y < h; y += piso.height) for (x = 0; x < w; x += piso.width) g.drawImage(piso, x, top + y);
-    } else if (tb) {
-      for (y = 0; y < h; y += 16) for (x = 0; x < w; x += 16) g.drawImage(Array.isArray(tb) ? tb[(x / 16 + y) % tb.length] : tb, x, top + y);
-    } else {
-      for (x = 0; x < w; x += 4) { g.fillStyle = (hashT(x, 3) % 3) ? '#8a4b32' : '#9a5a3a'; g.fillRect(x, top, 4, h); g.fillStyle = '#4f2a1e'; g.fillRect(x + 3, top, 1, h); }
-      g.fillStyle = '#b9714a'; g.fillRect(0, top, w, 1);
+  /* ---------------- El Puente de los Suspiros (por cuadro) y el techo de la peña ----------------
+     v0.16: el puente es un objeto con profundidad (drawHooks.ysort), no una capa entera de suelo o de aire:
+       · cuerpo (orden y = borde sur + 2): estribos de piedra, tornapuntas, fascia, tablas, baranda norte y faroles del norte.
+         Lo que está DEBAJO (capa baja, y menor) queda tapado del todo, también en las capas de tinte/rim (el motor borra con su forma).
+       · baranda sur (orden y = borde sur + 5): va DELANTE de quien camina arriba.
+       · quien está arriba sobre el tablero se ordena entre las dos (ver bumpUp); quien está en la Bajada al sur queda delante. */
+  var brg = null;
+  function kitPuente() { var l = SBR().lugar || {}, k = l.puente; return k && typeof k === 'object' && isCv(k.baranda) ? k : null; }
+  function bakeBridge() {
+    var K = kitPuente(), W = DECKPX.x1 - DECKPX.x0, DH = DECKPX.y1 - DECKPX.y0, TOP = 60, FAS = 12, LOW = 46;
+    var Y0 = TOP, Y1 = TOP + DH, H = Y1 + FAS + LOW;
+    var body = mkc(W, H), g = body.getContext('2d'), rail = mkc(W, H), rg = rail.getContext('2d');
+    g.imageSmoothingEnabled = false; rg.imageSmoothingEnabled = false;
+    var gapX = (LANDING.c0 - DECK.c0) * T;                    // sin baranda norte frente al descanso (por ahí se sube)
+    var x, y, i;
+    function px1(gg, xx, yy, ww, hh, c) { gg.fillStyle = c; gg.fillRect(xx, yy, ww, hh); }
+    // --- estribos de piedra: sobre los muros de la Bajada, enmarcando el paso de abajo (columnas 65 y 75, donde están los muros al sur)
+    function pier(cxp, hgt) {
+      var pw = 22, x0 = Math.round(cxp - pw / 2), y0 = Y1 + 6;
+      px1(g, x0 - 2, y0 + hgt - 4, pw + 4, 4, '#3a3440');                                    // zapata
+      for (var yy = 0; yy < hgt - 4; yy += 6) for (var xx = ((yy / 6) % 2) * 5 - 5; xx < pw; xx += 10) {
+        var bx = Math.max(0, xx), bw = Math.min(pw, xx + 9) - bx; if (bw <= 0) continue;
+        var tone = hashT(cxp + xx, yy) % 3, base = ['#8d8276', '#7d7368', '#968a7c'][tone];
+        px1(g, x0 + bx, y0 + yy, bw, 5, base); px1(g, x0 + bx, y0 + yy, bw, 1, '#b3a796'); px1(g, x0 + bx, y0 + yy + 5, bw, 1, '#4c4450');
+      }
+      px1(g, x0, y0, 2, hgt - 4, 'rgba(255,240,215,.18)');                                     // luz del oeste (el mar)
+      px1(g, x0 + pw - 4, y0, 4, hgt - 4, 'rgba(20,16,30,.35)');                              // sombra del este
+      px1(g, x0 - 1, y0, 1, hgt, '#1c1a22'); px1(g, x0 + pw, y0, 1, hgt, '#1c1a22');
+      px1(g, x0 - 3, y0 - 2, pw + 6, 3, '#a39886'); px1(g, x0 - 3, y0 - 2, pw + 6, 1, '#cfc4b0');   // cornisa bajo la viga
+      return { x0: x0, x1: x0 + pw, top: y0 };
     }
-    // barandas (norte arriba, sur abajo) y faroles en las puntas
-    if (bar) { for (x = 0; x < w; x += bar.width) { g.drawImage(bar, x, top - bar.height + 4); g.drawImage(bar, x, top + h - bar.height + 2); } }
-    else {
-      [top - 8, top + h - 8].forEach(function (yy) {
-        g.fillStyle = '#1c1a22'; g.fillRect(0, yy, w, 3); g.fillStyle = '#b9714a'; g.fillRect(0, yy + 1, w, 1);
-        for (var bx = 2; bx < w; bx += 6) { g.fillStyle = '#1c1a22'; g.fillRect(bx, yy + 2, 2, 7); g.fillStyle = '#8a4b32'; g.fillRect(bx, yy + 2, 1, 6); }
-      });
+    var pW = pier((65.5 - DECK.c0) * T, LOW - 4), pE = pier((75 - DECK.c0) * T, LOW - 4);
+    // --- tornapuntas de madera bajo el tramo (de cada estribo hacia el centro) y vigas bajo la fascia
+    function beam(x1, y1, x2, y2, w) {
+      for (var t = 0; t <= 1; t += 1 / Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1))) {
+        var xx = Math.round(x1 + (x2 - x1) * t), yy = Math.round(y1 + (y2 - y1) * t);
+        px1(g, xx, yy, w, 1, '#1c1a22'); px1(g, xx, yy + 1, w, 2, '#6e3a28'); px1(g, xx, yy + 1, 1, 2, '#8a4b32'); px1(g, xx, yy + 3, w, 1, '#1c1a22');
+      }
     }
-    [3, w - 6].forEach(function (fx) { g.fillStyle = '#1c1a22'; g.fillRect(fx, 0, 3, top + 2); g.fillStyle = '#ffc766'; g.fillRect(fx - 1, 0, 5, 4); });
-    c2.top = top;
-    deckCv = c2;
+    var mid = (pW.x1 + pE.x0) / 2, span = pE.x0 - pW.x1;
+    beam(pW.x1, pW.top + 16, pW.x1 + span * 0.32, Y1 + FAS, 3); beam(pE.x0 - 3, pE.top + 16, pE.x0 - span * 0.32, Y1 + FAS, 3);
+    beam(mid - span * 0.18, Y1 + FAS, mid - 2, Y1 + FAS + 8, 2); beam(mid + span * 0.18, Y1 + FAS, mid + 2, Y1 + FAS + 8, 2);
+    // postes de madera sobre la quebrada, fuera de los estribos
+    for (x = 18; x < W - 6; x += 48) {
+      if (x > pW.x0 - 14 && x < pE.x1 + 6) continue;
+      if (x >= gapX - 8) continue;                                                             // el descanso ya es piso firme
+      px1(g, x - 1, Y1 + FAS - 2, 6, 26, '#1c1a22'); px1(g, x, Y1 + FAS - 2, 4, 25, '#6e3a28'); px1(g, x, Y1 + FAS - 2, 1, 25, '#a05e3e');
+      px1(g, x - 3, Y1 + FAS + 22, 10, 3, '#4c4450');
+    }
+    // sombra bajo el tablero (sobre lo que cuelga)
+    var sg = g.createLinearGradient(0, Y1 + FAS, 0, Y1 + FAS + 10); sg.addColorStop(0, 'rgba(14,10,22,.55)'); sg.addColorStop(1, 'rgba(14,10,22,0)');
+    g.fillStyle = sg; g.fillRect(0, Y1 + FAS, gapX, 10);
+    // --- fascia (cara sur de la viga): la del kit (filas 40–52 de pisoAlto) o una viga dibujada
+    var pa = K && K.pisosAlto;
+    for (x = 0; x < W; x += 16) {
+      if (pa && isCv(pa[0]) && pa[0].height >= 52) g.drawImage(pa[(x / 16 * 7) % pa.length], 0, 40, 16, 12, x, Y1, 16, FAS);
+      else { px1(g, x, Y1, 16, FAS, '#6e3a28'); px1(g, x, Y1, 16, 2, '#b9714a'); px1(g, x, Y1 + FAS - 1, 16, 1, '#2a1a16'); px1(g, x + 15, Y1 + 2, 1, FAS - 3, '#4f2a1e'); }
+    }
+    px1(g, 0, Y1 + FAS, W, 1, '#1c1a22');
+    // --- tablero: tablas cruzadas (N–S, se camina de través), 4 px, con juntas de tope, clavos sobre las dos vigas y desgaste al centro
+    var TB = ['#8a4b32', '#94523a', '#a05e3e', '#86482f', '#9a5a3a'];
+    for (x = 0; x < W; x += 4) {
+      var hp = hashT(x, 77), base0 = TB[hp % TB.length], jy = Y0 + 8 + (hp >>> 5) % (DH - 16);
+      px1(g, x, Y0, 4, DH, base0);
+      px1(g, x, Y0, 1, DH, 'rgba(255,214,160,.16)');                                          // canto con luz (oeste)
+      px1(g, x + 3, Y0, 1, DH, '#4f2a1e');                                                    // rendija
+      if ((hp >>> 3) % 3 === 0) px1(g, x, jy, 3, 1, '#5a3022');                              // junta de tope
+      px1(g, x + 1, Y0 + 7, 1, 1, '#2a2228'); px1(g, x + 1, Y1 - 8, 1, 1, '#2a2228');           // clavos sobre las vigas
+      if ((hp >>> 9) % 7 === 0) px1(g, x + 1, Y0 + 12 + (hp >>> 12) % (DH - 24), 2, 2, '#6e3a28');   // nudo
+    }
+    var wg = g.createLinearGradient(0, Y0, 0, Y1);                                             // desgaste: el centro, más claro
+    wg.addColorStop(0, 'rgba(255,220,170,0)'); wg.addColorStop(0.5, 'rgba(255,220,170,.10)'); wg.addColorStop(1, 'rgba(255,220,170,0)');
+    g.fillStyle = wg; g.fillRect(0, Y0, W, DH);
+    px1(g, 0, Y0, gapX, 3, 'rgba(28,20,30,.45)');                                              // sombra de la baranda norte
+    px1(g, 0, Y1 - 1, W, 1, 'rgba(255,220,170,.35)');                                           // canto sur con luz
+    px1(g, 0, Y0, 2, DH, '#1c1a22'); px1(g, W - 2, Y0, 2, DH, 'rgba(28,26,34,.5)');
+    // --- baranda norte (vista por dentro) y la del sur (delante), del kit o dibujadas
+    var bn = K && K.barandaN, bs = K && K.baranda;
+    function railRow(gg, spr, yb, x0, x1, north) {
+      if (spr && isCv(spr)) { for (var xx = x0; xx < x1; xx += spr.width) gg.drawImage(spr, 0, 0, Math.min(spr.width, x1 - xx), spr.height, xx, yb - spr.height, Math.min(spr.width, x1 - xx), spr.height); return; }
+      var hh = north ? 14 : 20, yy = yb - hh;
+      px1(gg, x0, yy, x1 - x0, 3, '#1c1a22'); px1(gg, x0, yy + 1, x1 - x0, 1, '#b9714a');
+      for (var bx = x0 + 2; bx < x1; bx += 4) { px1(gg, bx, yy + 3, 2, hh - 5, '#1c1a22'); px1(gg, bx, yy + 3, 1, hh - 6, '#8a4b32'); }
+      px1(gg, x0, yb - 3, x1 - x0, 3, '#4f2a1e');
+    }
+    railRow(g, bn, Y0 + 4, 0, gapX, true);
+    px1(g, gapX - 3, Y0 - 14, 4, 18, '#1c1a22'); px1(g, gapX - 2, Y0 - 13, 2, 16, '#a05e3e');   // poste de remate junto al descanso
+    railRow(rg, bs, Y1 + 3, 0, W, false);
+    // --- faroles en las cabeceras (norte en el cuerpo, sur delante)
+    var fs = K && K.farol;
+    function lamp(gg, lx, ly) {
+      if (fs && isCv(fs)) { gg.drawImage(fs, Math.round(lx - (fs.ax !== undefined ? fs.ax : fs.width / 2)), Math.round(ly - (fs.ay !== undefined ? fs.ay : fs.height))); return; }
+      px1(gg, lx - 1, ly - 40, 3, 40, '#1c1a22'); px1(gg, lx - 3, ly - 46, 7, 7, '#1c1a22'); px1(gg, lx - 2, ly - 45, 5, 5, '#ffc766');
+    }
+    lamp(g, 6, Y0 + 2); lamp(g, gapX - 10, Y0 + 2);
+    lamp(rg, 6, Y1 + 4); lamp(rg, W - 8, Y1 + 4);
+    brg = { body: body, rail: rail, top: TOP, w: W, h: H };
   }
+  // quien camina ARRIBA del tablero se dibuja después del cuerpo del puente y antes de la baranda sur
+  function onDeckRect(e) { return e && e.brUp && e.x >= DECKPX.x0 - 4 && e.x <= DECKPX.x1 + 4 && e.y >= DECKPX.y0 - 8 && e.y <= DECKPX.y1 + 4; }
+  function bumpUp(list) {
+    for (var i = 0; i < list.length; i++) {
+      var e = list[i], ent = e.player || e.z || e.dog || e.cat;
+      if (ent && onDeckRect(ent)) e.y = DECKPX.y1 + 3 + (ent.y - DECKPX.y0) * 0.02;
+    }
+  }
+  function blitBridge(g, cx, cy, which, G) {
+    if (!brg) bakeBridge();
+    var cv = which === 'rail' ? brg.rail : brg.body, x = DECKPX.x0 - cx, y = DECKPX.y0 - brg.top - cy;
+    g.drawImage(cv, Math.round(x), Math.round(y));
+    if (which === 'body' && G) {   // sombras de contacto de quien está arriba (las del suelo quedan debajo del tablero)
+      var ents = [G.player].concat(G.zombies || []);
+      g.fillStyle = 'rgba(20,12,24,.32)';
+      for (var i = 0; i < ents.length; i++) {
+        var e = ents[i]; if (!e || !onDeckRect(e) || (e.state === 'muerto') || (e === G.player && e.hp <= 0)) continue;
+        g.beginPath(); g.ellipse(Math.round(e.x) - cx, Math.round(e.y) - cy + 1, 7, 2.5, 0, 0, Math.PI * 2); g.fill();
+      }
+    }
+  }
+  /* v0.16: el puente peatonal sobre el Circuito de Playas, dibujado justo sobre lo que se camina (FOOTB, filas 77–79):
+     tablero de concreto sobre la pista, escaleras en las dos puntas (bajan hacia la playa y hacia la Bajada: la cara sur es un
+     triángulo que se achica), columnas, baranda norte (en el suelo, detrás) y baranda sur (delante de quien cruza). */
+  var foot = null, FPX = { x0: 26 * T, x1: 39 * T, y0: FOOTB.r0 * T, y1: (FOOTB.r1 + 1) * T };
+  function bakeFoot() {
+    var W = FPX.x1 - FPX.x0, DH = FPX.y1 - FPX.y0, TOP = 26, EL = 30, Y0 = TOP, Y1 = TOP + DH, H = Y1 + EL + 6;
+    var body = mkc(W, H), g = body.getContext('2d'), rail = mkc(W, H), rg = rail.getContext('2d');
+    g.imageSmoothingEnabled = false; rg.imageSmoothingEnabled = false;
+    function f(gg, x, y, w, h, c) { gg.fillStyle = c; gg.fillRect(x, y, w, h); }
+    var dx0 = (ROAD.c0 - 26) * T, dx1 = (ROAD.c1 + 1 - 26) * T;                // tablero sobre la pista
+    var sw0 = dx0 - 2 * T, sx1 = dx1 + 2 * T;                                  // escaleras: 2 tiles a cada lado
+    var CON = ['#5f5a56', '#77716a', '#8e877d', '#a39b8f', '#bdb5a6'], RA = ['#203a30', '#2f5242', '#3f6a56', '#56856e', '#79a690'];
+    var x, y, k;
+    // columnas bajo el tablero (sobre la pista)
+    [dx0 + 22, dx1 - 30].forEach(function (cxp) {
+      f(g, cxp - 1, Y1 + 6, 12, EL - 4, '#1c1a22'); f(g, cxp, Y1 + 6, 10, EL - 5, CON[2]); f(g, cxp, Y1 + 6, 2, EL - 5, CON[4]); f(g, cxp + 7, Y1 + 6, 3, EL - 5, CON[1]);
+      f(g, cxp - 3, Y1 + EL, 16, 3, CON[1]); f(g, cxp - 3, Y1 + EL, 16, 1, CON[3]);
+    });
+    // cara sur del tablero (viga) y sombra debajo
+    f(g, dx0, Y1, dx1 - dx0, 8, CON[1]); f(g, dx0, Y1, dx1 - dx0, 2, CON[3]); f(g, dx0, Y1 + 7, dx1 - dx0, 1, '#2a2630');
+    var sg = g.createLinearGradient(0, Y1 + 8, 0, Y1 + 18); sg.addColorStop(0, 'rgba(14,10,22,.5)'); sg.addColorStop(1, 'rgba(14,10,22,0)');
+    g.fillStyle = sg; g.fillRect(dx0, Y1 + 8, dx1 - dx0, 10);
+    // caras sur de las escaleras: triángulos que bajan hacia afuera (de la altura de la viga a cero)
+    function stairFace(xa, xb) {                                               // xa = punta alta (junto al tablero), xb = pie
+      var n = Math.abs(xb - xa), dir = xb > xa ? 1 : -1;
+      for (k = 0; k <= n; k++) {
+        var hh = Math.round(8 * (1 - k / n)); if (hh <= 0) continue;
+        var xx = xa + k * dir;
+        f(g, xx, Y1, 1, hh, (k % 6 < 1) ? CON[0] : CON[1]); f(g, xx, Y1, 1, 1, CON[3]); f(g, xx, Y1 + hh, 1, 1, '#2a2630');
+      }
+    }
+    stairFace(dx0 - 1, sw0); stairFace(dx1, sx1);
+    // tablero: losas de concreto con juntas y desgaste
+    for (x = dx0; x < dx1; x++) for (y = Y0; y < Y1; y++) {
+      var h0 = hashT(x, y), c = ((x - dx0) % 24 === 0 || (y - Y0) % 16 === 15) ? CON[1] : (h0 % 23 === 0 ? CON[1] : (h0 % 7 === 0 ? CON[4] : CON[3]));
+      f(g, x, y, 1, 1, c);
+    }
+    // escaleras: peldaños con contrahuella vertical (bajan hacia afuera), luz en la huella
+    function steps(xa, xb) {
+      var dir = xb > xa ? 1 : -1, n = 6, len = Math.abs(xb - xa), sw = len / n;
+      for (k = 0; k < n; k++) {
+        var s0 = Math.round(xa + dir * k * sw), s1 = Math.round(xa + dir * (k + 1) * sw), lo = Math.min(s0, s1), hi = Math.max(s0, s1);
+        var tone = 1 - k / n * 0.18;
+        f(g, lo, Y0, hi - lo, DH, shadeHex(CON[3], tone));
+        f(g, dir > 0 ? hi - 1 : lo, Y0, 1, DH, '#3a3640');                    // contrahuella (borde que baja)
+        f(g, dir > 0 ? lo : hi - 1, Y0, 1, DH, CON[4]);                       // nariz del peldaño con luz
+      }
+    }
+    steps(dx0, sw0); steps(dx1, sx1);
+    f(g, sw0, Y0, sx1 - sw0, 2, 'rgba(28,20,30,.35)');                       // sombra de la baranda norte
+    // barandas de tubo verde (malla), norte detrás y sur delante; siguen por las escaleras
+    function railRow(gg, x0, x1, yb, hh, front) {
+      var yt = yb - hh;
+      f(gg, x0, yt, x1 - x0, 2, RA[3]); f(gg, x0, yt, x1 - x0, 1, RA[4]); f(gg, x0, yb - 2, x1 - x0, 2, RA[1]);
+      for (var px_ = x0; px_ < x1; px_ += 3) f(gg, px_, yt + 2, 1, hh - 4, front ? RA[2] : RA[1]);
+      for (px_ = x0; px_ <= x1 - 2; px_ += 16) { f(gg, px_, yt - 1, 2, hh + 1, RA[0]); f(gg, px_, yt - 1, 1, hh, RA[3]); }
+      f(gg, x0, yt - 1, x1 - x0, 1, '#1c1a22');
+    }
+    railRow(g, sw0, sx1, Y0 + 3, 14, false);
+    railRow(rg, sw0, sx1, Y1 + 2, 18, true);
+    foot = { body: body, rail: rail, top: TOP, w: W, h: H };
+  }
+  function shadeHex(h, t) { var r = parseInt(h.substr(1, 2), 16) * t, g2 = parseInt(h.substr(3, 2), 16) * t, b = parseInt(h.substr(5, 2), 16) * t; return 'rgb(' + (r | 0) + ',' + (g2 | 0) + ',' + (b | 0) + ')'; }
+  function footVisible(cx, cy) {
+    var V = (ACH.render && ACH.render.VIEW) || { w: 480, h: 270 };
+    return !(FPX.x0 - cx > V.w || FPX.x1 - cx < 0 || FPX.y0 - 30 - cy > V.h || FPX.y1 + 40 - cy < 0);
+  }
+  function drawFoot(g, cx, cy, which) {
+    if (!foot) bakeFoot();
+    g.drawImage(which === 'rail' ? foot.rail : foot.body, Math.round(FPX.x0 - cx), Math.round(FPX.y0 - foot.top - cy));
+  }
+  var FOOT_RAIL = { x: 0, y: 0, vol: false, draw: function (g, cx, cy) { drawFoot(g, cx, cy, 'rail'); } };
+  var BR_BODY = { x: 0, y: 0, vol: false, draw: function (g, cx, cy, G) { blitBridge(g, cx, cy, 'body', G); } };
+  var BR_RAIL = { x: 0, y: 0, vol: false, draw: function (g, cx, cy) { blitBridge(g, cx, cy, 'rail'); } };
+  function bridgeVisible(cx, cy) {
+    var V = (ACH.render && ACH.render.VIEW) || { w: 480, h: 270 }, h = brg ? brg.h : 180, top = brg ? brg.top : 60;
+    return !(DECKPX.x0 - cx > V.w || DECKPX.x1 - cx < 0 || DECKPX.y0 - top - cy > V.h || DECKPX.y0 - top + h - cy < 0);
+  }
+  var roofCv = null;   // techo de la peña (horneado una vez)
   function bakeRoof() {
     var x0 = PENA.wall.c0 * T, x1 = (PENA.wall.c1 + 1) * T, y0 = PENA.wall.r0 * T - 8, y1 = PENA.front.r0 * T, w = x1 - x0, h = y1 - y0, c2 = mkc(w, h), g = c2.getContext('2d');
     g.imageSmoothingEnabled = false;
@@ -664,22 +834,29 @@
     if (BR.label) { var lc = mkc(160, 9); BR.label(lc.getContext('2d'), 'PEÑA LA ÚLTIMA JARANA', 160, 9, '#ffc766', 1); g.drawImage(lc, Math.round(w / 2 - 80), Math.round(h / 2)); }
     roofCv = { cv: c2, x: x0, y: y0, a: 1 };
   }
-  function drawDeck(ctx, G, cx, cy) {
-    if (!deckCv) bakeDeck();
-    var V = (ACH.render && ACH.render.VIEW) || { w: 480, h: 270 }, x = DECKPX.x0 - cx, y = DECKPX.y0 - deckCv.top - cy;
-    if (x > V.w || x + deckCv.width < 0 || y > V.h || y + deckCv.height < 0) return;
-    ctx.drawImage(deckCv, Math.round(x), Math.round(y));
-  }
   function playerUp(G) { var p = G && G.player; return !!(p && p.brUp); }
   ACH.drawHooks = ACH.drawHooks || { ground: [], ysort: [], air: [], screen: [] };
   ['ground', 'ysort', 'air', 'screen'].forEach(function (kk) { if (!Array.isArray(ACH.drawHooks[kk])) ACH.drawHooks[kk] = []; });
   function isBR() { return ACH.world && ACH.world.id === 'barranco'; }
   ACH.drawHooks.ground.unshift(function (ctx, G, cx, cy) { if (isBR()) drawSea(ctx, G, cx, cy); });
-  // el puente: con Alexander arriba va en el suelo (él camina encima); con él abajo, en el aire (pasa por debajo)
-  ACH.drawHooks.ground.push(function (ctx, G, cx, cy) { if (isBR() && playerUp(G)) drawDeck(ctx, G, cx, cy); });
+  // v0.16: el puente va en el orden por profundidad (ver bakeBridge); el motor le pasa la lista para ordenar a quien está arriba
+  ACH.drawHooks.ground.push(function (ctx, G, cx, cy) { if (isBR() && footVisible(cx, cy)) drawFoot(ctx, cx, cy, 'body'); });
+  ACH.drawHooks.ysort.push(function (G) {
+    if (!isBR() || !G || !G.cam || !footVisible(Math.round(G.cam.x), Math.round(G.cam.y))) return null;
+    FOOT_RAIL.x = (FPX.x0 + FPX.x1) / 2; FOOT_RAIL.y = FPX.y1 + 5;
+    return [FOOT_RAIL];
+  });
+  ACH.drawHooks.ysort.push(function (G, list) {
+    if (!isBR() || !G || !G.cam) return null;
+    var cx = Math.round(G.cam.x), cy = Math.round(G.cam.y);
+    if (!bridgeVisible(cx, cy)) return null;
+    if (list) bumpUp(list);
+    BR_BODY.x = BR_RAIL.x = (DECKPX.x0 + DECKPX.x1) / 2;
+    BR_BODY.y = DECKPX.y1 + 2; BR_RAIL.y = DECKPX.y1 + 5;
+    return [BR_BODY, BR_RAIL];
+  });
   ACH.drawHooks.air.push(function (ctx, G, cx, cy) {
     if (!isBR()) return;
-    if (!playerUp(G)) drawDeck(ctx, G, cx, cy);
     // techo de la peña: se ve desde la calle; adentro se aparta
     if (!roofCv) bakeRoof();
     var p = G.player, jb = BR.jaranon, inside = (p && inPena(p.x, p.y + 6)) || !!(jb && (jb.state === 'entrada' || jb.state === 'pelea' || jb.state === 'muriendo')), want = inside ? 0 : 1;   // QA: la entrada del jefe salta con Alexander en el umbral (y≈636, fuera de inPena): el techo tapaba toda la peña
@@ -689,7 +866,7 @@
     if (rx > V.w || rx + roofCv.cv.width < 0 || ry > V.h || ry + roofCv.cv.height < 0) return;
     ctx.globalAlpha = roofCv.a; ctx.drawImage(roofCv.cv, Math.round(rx), Math.round(ry)); ctx.globalAlpha = 1;
   });
-  if (ACH.lienzo && typeof ACH.lienzo.onRebake === 'function') { try { ACH.lienzo.onRebake(function () { deckCv = null; roofCv = null; }); } catch (e) { /* nada */ } }
+  if (ACH.lienzo && typeof ACH.lienzo.onRebake === 'function') { try { ACH.lienzo.onRebake(function () { brg = null; foot = null; roofCv = null; }); } catch (e) { /* nada */ } }
 
   /* ---------------- El mar al oeste (por cuadro, en drawHooks.ground) ---------------- */
   // B2a: lugar.mar.draw(ctx, camX, camY, t, anchoVista) y lugar.morro.draw(...) en coordenadas de PANTALLA, recortados a la banda del mar

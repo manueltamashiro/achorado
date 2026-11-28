@@ -39,7 +39,7 @@
     castLen: 0.42,        // largo de la sombra del sol (fracción de la altura; props usan 0.45)
     castA: 0.72, blobA: 0.8,   // opacidad dentro de la capa: silueta proyectada y mancha de contacto
     nightLen: 1.25, nightR: 120, nightA: 1.0,    // sombra del farol: largo máximo, radio de alcance, opacidad
-    rim: 0.34, rimNight: 0.16, rimCol: '#eef2f8', rimPx: 2,   // luz de borde (día / noche); rimPx 2 = también el primer píxel adentro del contorno blanco
+    rim: 0, rimNight: 0, rimCol: '#eef2f8', rimPx: 2,   // luz de borde (día / noche). v0.16: apagada (0.34 / 0.16): se veía como un borde blanco alrededor de los personajes
     edge: 0.42, edgeCol: '#1a1626',                 // borde oscuro abajo-derecha
     bodyFeet: 0.40,       // oclusión a los pies (degradé en las 7 filas sobre los pies de cada actor)
     lean: 0.085,          // inclinación al correr (px de corrimiento por px de alto; 24 px → ~2 px arriba)

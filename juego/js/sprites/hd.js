@@ -218,7 +218,7 @@
       if (!skinish(C) && ((we && skinish(we) && x > 0 && !o[i - 1]) )) d[Y2 * W + X2] = shadowOf(d[Y2 * W + X2], 0.82), d[(Y2 + 1) * W + X2] = shadowOf(d[(Y2 + 1) * W + X2], 0.82);
       if (!skinish(C) && ((ea && skinish(ea) && x < w - 1 && !o[i + 1]))) d[Y2 * W + X2 + 1] = shadowOf(d[Y2 * W + X2 + 1], 0.82), d[(Y2 + 1) * W + X2 + 1] = shadowOf(d[(Y2 + 1) * W + X2 + 1], 0.82);
     }
-    // 3) contorno de 1 px HD: tono oscuro del relleno (o la luz de borde fría donde estaba)
+    // 3) contorno de 1 px HD: tono oscuro del relleno (v0.16: sin la luz de borde fría blanca)
     for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
       i = y * w + x; if (!o[i]) continue;
       var ox = 2 * x, oy = 2 * y;
@@ -227,8 +227,7 @@
         var out = !tk.in(XX - 1, YY) || !tk.in(XX + 1, YY) || !tk.in(XX, YY - 1) || !tk.in(XX, YY + 1);
         if (o[i] === 3) { d[YY * W + XX] = s[i]; continue; }
         if (!out) continue;
-        if (o[i] === 2) d[YY * W + XX] = s[i];
-        else d[YY * W + XX] = deep(f[i]);
+        d[YY * W + XX] = deep(f[i]);   // v0.16: también donde estaba la luz de borde fría (se veía como un borde blanco)
       }
     }
   }
@@ -324,6 +323,25 @@
   function clearAtlas() { pages = []; cur = null; GEN++; }
   if (ACH.lienzo && ACH.lienzo.onRebake) ACH.lienzo.onRebake(clearAtlas);
 
+  /* v0.16 «retro»: contorno oscuro grueso (el bloque 2×2 del contorno 1×, como el pixel art clásico) y paleta reducida
+     (cada canal a pasos de RETRO.step), para que los personajes HD se lean como píxeles sin perder el detalle de adentro.
+     ?retro=0 lo apaga (para comparar); ACH.hd.RETRO.{outline, step} en vivo + ACH.hd.clear(). */
+  var RETRO = { outline: 2, step: 16 };
+  try { var rq = /[?&]retro=([0-9a-z]+)/.exec(location.search || ''); if (rq) { if (rq[1] === '0') RETRO.outline = RETRO.step = 0; else { var rs = rq[1].split('x'); RETRO.outline = +rs[0] || 0; RETRO.step = +rs[1] || 0; } } } catch (e) { /* nada */ }
+  function retro(tk) {
+    var w = tk.w, h = tk.h, W = tk.W, d = tk.d, o = tk.o, f = tk.f, m = tk.m, x, y, i;
+    if (RETRO.step > 1) {
+      var st = RETRO.step, hs = st >> 1;
+      for (i = 0; i < d.length; i++) { var c = d[i]; if (A(c) < 128) continue; d[i] = pack(Math.round((R(c) - hs) / st) * st + hs, Math.round((Gc(c) - hs) / st) * st + hs, Math.round((B(c) - hs) / st) * st + hs, A(c)); }
+    }
+    if (RETRO.outline >= 2) {
+      for (y = 0; y < h; y++) for (x = 0; x < w; x++) {
+        i = y * w + x; if (!m[i] || !(o[i] === 1 || o[i] === 2)) continue;
+        var dc = mixc(deep(f[i]), INK, 0.35);
+        for (var q = 0; q < 4; q++) { var j = (2 * y + (q >> 1)) * W + 2 * x + (q & 1); if (A(d[j]) >= 128) d[j] = dc; }
+      }
+    }
+  }
   function render(c, t, v) {
     var w = c.width, h = c.height;
     if (!w || !h) return null;
@@ -355,6 +373,7 @@
       var qx = 2 * (q % w), qy = 2 * ((q / w) | 0);
       d1[qy * W1 + qx] = d1[qy * W1 + qx + 1] = d1[(qy + 1) * W1 + qx] = d1[(qy + 1) * W1 + qx + 1] = s1[q];
     }
+    if (nc >= 3) retro(tk);
     return tk;
   }
   /* pintores de variante (F3): {match(key, tk), paint(tk, v, kind)}; la última registrada que haga match gana */
@@ -505,6 +524,6 @@
     setOn: function (b, opt) { ON = !!b; if (opt && opt.save) { try { localStorage.setItem('ach.hd', ON ? '1' : '0'); } catch (e) { /* nada */ } } return ON; },
     src: src, has: has, tag: tag, tagTree: tagTree, family: family, variantPainter: variantPainter, upscale: upscale, stats: stats,
     wrapFn: wrapFn, canvasOf: canvasOf, warm: warm, clear: clearAtlas, famFor: famFor, seedKey: seedKey,
-    toolkit: TK
+    toolkit: TK, RETRO: RETRO
   };
 })();
