@@ -1025,11 +1025,12 @@
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     }
   }
+  // v0.16: cada gancho recibe (G, list): además de devolver sus objetos puede ajustar el orden (y) de lo que ya está en la lista
   function ysortHooks(G, list) {
     var L = DH.ysort;
     for (var i = 0; i < L.length; i++) {
       var out = null;
-      try { out = L[i](G); } catch (e) { if (!dhErr['y' + i]) { dhErr['y' + i] = 1; console.warn('[ACHORADO] drawHooks.ysort', e); } }
+      try { out = L[i](G, list); } catch (e) { if (!dhErr['y' + i]) { dhErr['y' + i] = 1; console.warn('[ACHORADO] drawHooks.ysort', e); } }
       if (out && out.length) for (var j = 0; j < out.length; j++) if (out[j] && typeof out[j].y === 'number' && typeof out[j].draw === 'function') list.push({ y: out[j].y, loose: out[j] });
     }
   }
