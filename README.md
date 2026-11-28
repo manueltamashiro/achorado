@@ -6,6 +6,10 @@ Browser game (HTML + CSS + JS, no dependencies).
 - `juego/` — the game: `index.html`, `miraflores.html`, `costaverde.html`, `barranco.html`, `cima.html`, `css/`, `js/`, design contracts (`*.md`)
 - `diseno/` — design art and references
 
+## Play online
+https://manueltamashiro.github.io/achorado/ — rebuilt and redeployed automatically on every push to `main`
+(see `.github/workflows/pages.yml`).
+
 ## Play locally
 Open `juego/index.html` in a browser, or serve the folder:
 
