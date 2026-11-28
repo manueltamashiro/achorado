@@ -7,7 +7,8 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const root = path.join(__dirname, '..', 'dist');
-const pages = ['index.html', 'miraflores.html', 'costaverde.html', 'barranco.html', 'cima.html'];
+const pages = ['index.html', 'miraflores.html', 'costaverde.html', 'barranco.html', 'cima.html',
+  'index.html?lang=en', 'index.html?lang=ja'];   // v0.16: idioma.js (IDIOMAS.md)
 
 const server = http.createServer((req, res) => {
   const f = path.join(root, decodeURIComponent(req.url.split('?')[0].split('#')[0]));

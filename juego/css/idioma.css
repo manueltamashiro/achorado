@@ -1,0 +1,12 @@
+/* ACHORADO v0.16 — css/idioma.css: ajustes por idioma (js/engine/idioma.js pone <html lang="es|en|ja">). Se carga después de pulido-v014.css.
+   Japonés: Bungee, Patrick Hand y Rubik no tienen kana ni kanji. Se agregan fuentes japonesas DETRÁS en cada pila, así las letras latinas
+   (WASD, ENTER, ACHORADO) siguen en la fuente chicha y solo los caracteres japoneses caen a la siguiente.
+   Dela Gothic One y M PLUS Rounded 1c las pide idioma.js a Google Fonts solo al escoger 日本語; sin red quedan las del sistema. */
+html[lang="ja"] {
+  --display: "Bungee", "Dela Gothic One", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", "Arial Black", sans-serif;
+  --hand: "Patrick Hand", "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
+  --ui-sans: "Rubik", "M PLUS Rounded 1c", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+}
+/* el japonés no lleva espacios entre palabras: que pueda partir línea donde haga falta, sin el tracking ancho de los títulos latinos */
+html[lang="ja"] #stage { line-break: strict; word-break: normal; overflow-wrap: anywhere; }
+html[lang="ja"] .poster .kicker, html[lang="ja"] .poster .row, html[lang="ja"] .vol span, html[lang="ja"] .stats span { letter-spacing: .04em; }

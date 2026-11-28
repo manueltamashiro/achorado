@@ -139,7 +139,7 @@
     diarioBox = el('div', 'pz-diario', box); diarioBox.setAttribute('data-ui', ''); diarioBox.tabIndex = -1;
     if (C && C.todas) {
       var tt = C.todas(), n = tt.filter(function (p) { return p.tiene; }).length;
-      el('p', 'pz-dsec', diarioBox, 'EL GRAN CONCIERTO · ' + n + ' de 4 piezas');
+      el('p', 'pz-dsec', diarioBox, 'EL GRAN CONCIERTO · ' + (ACH.t ? ACH.t('{n} de 4 piezas', { n: n }) : n + ' de 4 piezas'));
       var pr = el('div', 'pz-piezas', diarioBox);
       tt.forEach(function (p) {
         var c = el('div', 'pz-pieza' + (p.tiene ? ' on' : ''), pr);
@@ -194,11 +194,15 @@
     var RH = ACH.render && ACH.render.hd, hdOk = !!(RH && RH.available());
     optRow('PERSONAJES', !hdOk ? 'CLÁSICO' : RH.on() ? 'HD' : 'CLÁSICO', function () { if (hdOk) { RH.set(!RH.on()); render(); } },
       function () { if (hdOk) { RH.set(!RH.on()); render(); } });
+    // v0.16: idioma (idioma.js). Va después de PERSONAJES (índice 8). La etiqueta y el valor los traduce ACH.i18n en el DOM.
+    var I18 = ACH.i18n;
+    if (I18) optRow('IDIOMA', I18.nombre(), function () { I18.cycle(1); render(); }, function (d) { I18.cycle(d); render(); });
     btn('◀ VOLVER', function () { go('menu', backSel()); }, true, 'alt');
     var f = rows[sel] && rows[sel].b; el('p', 'pz-note pz-msg', box, '');
     if (sel === 4) msgSoft(difDesc(difCur()));
     if (sel === 6 && PF) msgSoft({ alto: 'Suave, con profundidad y brillos.', medio: 'Suave y más liviano.', clasico: 'El píxel de siempre.' }[PF.level()] || '');
     if (sel === 7) msgSoft(!hdOk ? 'Sin el arte HD: el píxel de siempre.' : RH.on() ? 'Caras y ropa con el doble de detalle.' : 'El píxel de siempre (más liviano).');
+    if (sel === 8 && I18) msgSoft('Idioma · Language · 言語');
     void f;
   }
   function msgSoft(t) { var m = box && box.querySelector('.pz-msg'); if (m) m.textContent = t || ''; }

@@ -125,12 +125,13 @@
   }
   function ago(ts) {
     var m = Math.max(0, Math.round((Date.now() - ts) / 60000));
-    if (m < 1) return 'recién';
-    if (m < 60) return 'hace ' + m + ' min';
-    var h = Math.round(m / 60); if (h < 24) return 'hace ' + h + ' h';
-    var d = Math.round(h / 24); return 'hace ' + d + (d === 1 ? ' día' : ' días');
+    if (m < 1) return T('recién');
+    if (m < 60) return T('hace {n} min', { n: m });
+    var h = Math.round(m / 60); if (h < 24) return T('hace {n} h', { n: h });
+    var d = Math.round(h / 24); return T(d === 1 ? 'hace {n} día' : 'hace {n} días', { n: d });
   }
-  function info() { var r = load(); if (!r) return null; var n = NAMES[r.level] || r.level, a = ago(r.ts); return { name: n, ago: a, label: n + ' · ' + a, level: r.level, page: r.page }; }
+  function T(s, v) { return ACH.t ? ACH.t(s, v) : String(s).replace(/\{(\w+)\}/g, function (x, k) { return v && v[k] != null ? v[k] : x; }); }   // v0.16: idioma.js
+  function info() { var r = load(); if (!r) return null; var n = T(NAMES[r.level] || r.level), a = ago(r.ts); return { name: n, ago: a, label: n + ' · ' + a, level: r.level, page: r.page }; }
 
   // Autoguardado cada 30 s de juego (game.js lo llama en 'playing')
   function tick(G, dt) { autoT += dt || 0; if (autoT >= AUTO_EVERY) { autoT = 0; save(G); } }
@@ -208,9 +209,24 @@
       if (call(GM, 'mapReady')) keyHint(tBtn('MAPA DE LIMA', 'tecla 3', function () { call(GM, 'titleMap'); }, '', host, 'ttlMap'));
       if (ACH.saltos && fnOk(ACH.saltos, 'on') && ACH.saltos.on()) tBtn('PROBAR NIVEL', 'prueba', function () { call(ACH.saltos, 'open', 'titulo'); }, 'alt', host, 'ttlSaltos');   // TEMPORAL: saltos.js (ACH.cfg.saltos)
       if (debugOn() && ACH.levels && ACH.levels.cerro) keyHint(tBtn('NIVEL 2: EL CERRO', 'tecla 2 · prueba', function () { call(GM, 'titleLevel', 'cerro'); }, 'alt', host, 'ttlLvl2'));
+      langBtn(host);
       T.sel = 0;
     }
     tFocus(T.sel);
+  }
+  /* v0.16: IDIOMA en el título (ENTER o ←/→ lo cambian). El subtítulo nombra «idioma» en los otros dos idiomas, para que se encuentre sin leer español. */
+  var LANG_WORD = { es: 'IDIOMA', en: 'LANGUAGE', ja: '言語' };
+  function langBtn(host) {
+    var I = ACH.i18n; if (!I) return;
+    var cur = I.get(), sub = I.LANGS.filter(function (L) { return L.id !== cur; }).map(function (L) { return LANG_WORD[L.id]; }).join(' · ');
+    var b = tBtn(LANG_WORD[cur] + ': ' + I.nombre(), sub, function () { langStep(1); }, 'alt ttl-lang', host, 'ttlLang');
+    b.setAttribute('translate', 'no');
+    T.rows[T.rows.length - 1].lang = true;
+  }
+  function langStep(d) {
+    if (!ACH.i18n) return;
+    ACH.i18n.cycle(d); renderTitle();
+    for (var i = 0; i < T.rows.length; i++) if (T.rows[i].lang) { tFocus(i); break; }
   }
   function newGame(m) { difSet(m); clear(); T.view = 'menu'; call(ACH.game, 'newGame', m); }
   function onTitleKey(e) {
@@ -219,6 +235,10 @@
     if (ACH.cima && fnOk(ACH.cima, 'active') && ACH.cima.active()) return;
     if (!T.rows.length) renderTitle();
     var c = e.code || e.key, used = true, horiz = T.view !== 'menu';
+    if (!horiz && T.rows[T.sel] && T.rows[T.sel].lang && (c === 'ArrowLeft' || c === 'ArrowRight' || c === 'KeyA' || c === 'KeyD')) {   // v0.16: ←/→ en IDIOMA
+      if (!e.repeat) { sfx('ui.ok'); langStep(c === 'ArrowLeft' || c === 'KeyA' ? -1 : 1); }
+      e.preventDefault(); e.stopImmediatePropagation(); return;
+    }
     if (c === 'ArrowUp' || c === 'KeyW' || (horiz && (c === 'ArrowLeft' || c === 'KeyA'))) tFocus(T.sel - 1);
     else if (c === 'ArrowDown' || c === 'KeyS' || c === 'Tab' || (horiz && (c === 'ArrowRight' || c === 'KeyD'))) tFocus(T.sel + 1);
     else if (c === 'Enter' || c === 'NumpadEnter' || c === 'Space') { if (!e.repeat) { try { if (ACH.audio && ACH.audio.unlock) ACH.audio.unlock(); } catch (x) { /* nada */ } tAct(T.sel); } }
